@@ -1,0 +1,36 @@
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+
+cc_import(
+    name = "mujoco",
+    hdrs = glob(["mujoco/include/*.h"]),
+    shared_library = "mujoco/lib/libmujoco.so.2.1.3",
+    tags = ["swift_module=C_mujoco"],
+    deps = [
+    ]
+)
+
+swift_library(
+    name = "swift-mujoco",
+    module_name = "Mujoco",
+    srcs = glob(["Sources/**/*.swift"]),
+    deps = [":mujoco"],
+    linkopts = ["-lGL", "-lGLEW"],
+    visibility = ["//visibility:public"],
+)
+
+cc_import(
+    name = "mujoco-nogl",
+    hdrs = glob(["mujoco/include/*.h"]),
+    shared_library = "mujoco/lib/libmujoco_nogl.so.2.1.3",
+    tags = ["swift_module=C_mujoco"],
+    deps = [
+    ]
+)
+
+swift_library(
+    name = "swift-mujoco-nogl",
+    module_name = "Mujoco",
+    srcs = glob(["Sources/**/*.swift"]),
+    deps = [":mujoco-nogl"],
+    visibility = ["//visibility:public"],
+)
