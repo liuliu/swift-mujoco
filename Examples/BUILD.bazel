@@ -1,0 +1,10 @@
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_binary")
+
+swift_binary(
+    name = "ant",
+    srcs = ["ant/main.swift"],
+    data = ["assets/ant.xml"],
+    deps = [
+        "//:swift-mujoco",
+    ],
+)

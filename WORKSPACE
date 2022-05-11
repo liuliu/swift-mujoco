@@ -1,13 +1,13 @@
-workspace(name = "s4nnc")
+workspace(name = "swift-mujoco")
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 git_repository(
     name = "build_bazel_rules_swift",
-    commit = "b0ea825d68534de46c328342cd5a737095089ce7",
+    commit = "36b915411f53a42f4f6b3ac7b15f4a40ffec619c",
     remote = "https://github.com/bazelbuild/rules_swift.git",
-    shallow_since = "1628193430 -0500",
+    shallow_since = "1651689310 -0700",
 )
 
 load("@build_bazel_rules_swift//swift:repositories.bzl", "swift_rules_dependencies")
