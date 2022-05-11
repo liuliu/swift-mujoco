@@ -2,15 +2,16 @@ load("@build_bazel_rules_swift//swift:swift.bzl", "swift_c_module", "swift_libra
 
 cc_import(
     name = "mujoco",
-    shared_library = "mujoco-2.1.3/lib/libmujoco.so.2.1.3",
+    shared_library = "mujoco-2.1.5/lib/libmujoco.so.2.1.5",
     deps = [
     ]
 )
 
 cc_library(
     name = "C_mujoco",
-    hdrs = glob(["mujoco-2.1.3/include/*.h"]),
-    includes = ["mujoco-2.1.3/include"],
+    hdrs = glob(["mujoco-2.1.5/include/*.h"]),
+    includes = ["mujoco-2.1.5/include"],
+    linkopts = ["-lGL", "-lGLEW"],
     tags = ["swift_module=C_mujoco"],
     deps = [":mujoco"]
 )
@@ -20,21 +21,20 @@ swift_library(
     module_name = "Mujoco",
     srcs = glob(["Sources/**/*.swift"]),
     deps = [":C_mujoco"],
-    linkopts = ["-lGL", "-lGLEW"],
     visibility = ["//visibility:public"],
 )
 
 cc_import(
     name = "mujoco-nogl",
-    shared_library = "mujoco-2.1.3/lib/libmujoco_nogl.so.2.1.3",
+    shared_library = "mujoco-2.1.5/lib/libmujoco_nogl.so.2.1.5",
     deps = [
     ]
 )
 
 cc_library(
     name = "C_mujoco-nogl",
-    hdrs = glob(["mujoco-2.1.3/include/*.h"]),
-    includes = ["mujoco-2.1.3/include"],
+    hdrs = glob(["mujoco-2.1.5/include/*.h"]),
+    includes = ["mujoco-2.1.5/include"],
     tags = ["swift_module=C_mujoco"],
     deps = [":mujoco-nogl"]
 )
