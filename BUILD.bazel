@@ -19,7 +19,7 @@ cc_library(
 cc_library(
     name = "C_glfw",
     hdrs = ["Sources/glfw/glfw.h"],
-    linkopts = ["-lGL", "-lGLEW", "-lglfw"],
+    linkopts = ["-lglfw"],
     tags = ["swift_module=C_glfw"],
     deps = []
 )

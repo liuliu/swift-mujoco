@@ -1,21 +1,16 @@
 import Mujoco
 
+let glContext = GLContext(width: 1280, height: 720, title: "demo")
 let model = MjModel(fromXMLPath: "Examples/assets/ant.xml")!
 let data = model.makeData()
-print("ok")
-let glContext = GLContext(width: 1280, height: 720, title: "demo")
-print("try to make glcontext")
-let context = MjrContext(model: model, fontScale: ._100)
-print("can we make the context?")
-var camera = MjvCamera()
-let option = MjvOption()
-let scene = MjvScene(model: model, maxgeom: 1000)
-print("start")
 
 glContext.makeCurrent {
-  print("made current")
+  var camera = MjvCamera()
+  let option = MjvOption()
+  let scene = MjvScene(model: model, maxgeom: 1000)
+  // The context need to be initialized after having a GL context.
+  let context = MjrContext(model: model, fontScale: ._100)
   glContext.runLoop(swapInterval: 1) { width, height in
-  print("inside runloop")
     let simstart = data.time
     while data.time - simstart < 1.0 / 60.0 {
       model.step(data: data)
