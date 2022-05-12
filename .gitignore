@@ -108,6 +108,4 @@ _env/
 compile_commands.json
 
 # Ignoring mujoco library.
-mujoco
-mujoco/
 mujoco-*/

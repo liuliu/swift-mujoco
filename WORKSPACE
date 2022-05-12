@@ -18,6 +18,17 @@ load("@build_bazel_rules_swift//swift:extras.bzl", "swift_rules_extra_dependenci
 
 swift_rules_extra_dependencies()
 
+# Mojoco dependency.
+
+http_archive(
+    name = "mujoco",
+    build_file = "mujoco.BUILD",
+    sha256 = "3f1804d28833295a310aac23279401936f2558dee63cd3778429577e4ab55dff",
+    urls = ["https://github.com/deepmind/mujoco/releases/download/2.1.5/mujoco-2.1.5-linux-x86_64.tar.gz"],
+)
+
+# Swift formatter.
+
 new_git_repository(
     name = "SwiftArgumentParser",
     build_file = "swift-argument-parser.BUILD",

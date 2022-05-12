@@ -1,33 +1,20 @@
 load("@build_bazel_rules_swift//swift:swift.bzl", "swift_c_module", "swift_library")
 
-cc_import(
-    name = "mujoco",
-    shared_library = "mujoco-2.1.5/lib/libmujoco.so.2.1.5",
-    deps = [
-    ]
-)
-
-cc_library(
-    name = "C_mujoco",
-    hdrs = glob(["mujoco-2.1.5/include/*.h"]),
-    includes = ["mujoco-2.1.5/include"],
-    linkopts = [],
-    tags = ["swift_module=C_mujoco"],
-    deps = [":mujoco"]
-)
-
 cc_library(
     name = "C_glfw",
     hdrs = ["Sources/glfw/glfw.h"],
     linkopts = ["-lglfw"],
     tags = ["swift_module=C_glfw"],
-    deps = []
+    deps = [],
 )
 
 swift_library(
     name = "swift-mujoco",
-    module_name = "Mujoco",
     srcs = glob(["Sources/**/*.swift"]),
-	deps = [":C_mujoco", ":C_glfw"],
+    module_name = "Mujoco",
     visibility = ["//visibility:public"],
+    deps = [
+        ":C_glfw",
+        "@mujoco//:C_mujoco",
+    ],
 )
