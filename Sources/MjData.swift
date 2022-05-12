@@ -1,14 +1,23 @@
 import C_mujoco
 
 public final class MjData {
+  @usableFromInline
   let _data: UnsafeMutablePointer<mjData>
+  @usableFromInline
   let nq: Int32
+  @usableFromInline
   let nv: Int32
+  @usableFromInline
   let na: Int32
+  @usableFromInline
   let nu: Int32
+  @usableFromInline
   let nbody: Int32
+  @usableFromInline
   let nmocap: Int32
+  @usableFromInline
   let nuserdata: Int32
+  @usableFromInline
   let nsensordata: Int32
 
   init(data: UnsafeMutablePointer<mjData>, nq: Int32, nv: Int32, na: Int32, nu: Int32, nbody: Int32, nmocap: Int32, nuserdata: Int32, nsensordata: Int32) {
@@ -27,8 +36,19 @@ public final class MjData {
     mj_deleteData(_data)
   }
 
+  @inlinable
+  public var time: Double {
+    get {
+      _data.pointee.time
+    }
+    set {
+      _data.pointee.time = newValue
+    }
+  }
+
   // State.
-  var qpos: MjNumArray {
+  @inlinable
+  public var qpos: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.qpos, object: self, len: nq)
     }
@@ -38,7 +58,8 @@ public final class MjData {
     }
   }
 
-  var qvel: MjNumArray {
+  @inlinable
+  public var qvel: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.qvel, object: self, len: nv)
     }
@@ -48,7 +69,8 @@ public final class MjData {
     }
   }
 
-  var act: MjNumArray {
+  @inlinable
+  public var act: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.act, object: self, len: na)
     }
@@ -58,7 +80,8 @@ public final class MjData {
     }
   }
 
-  var qaccWarmstart: MjNumArray {
+  @inlinable
+  public var qaccWarmstart: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.qacc_warmstart, object: self, len: nv)
     }
@@ -69,7 +92,8 @@ public final class MjData {
   }
 
   // Control.
-  var ctrl: MjNumArray {
+  @inlinable
+  public var ctrl: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.ctrl, object: self, len: nu)
     }
@@ -79,7 +103,8 @@ public final class MjData {
     }
   }
 
-  var qfrcApplied: MjNumArray {
+  @inlinable
+  public var qfrcApplied: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.qfrc_applied, object: self, len: nv)
     }
@@ -89,7 +114,8 @@ public final class MjData {
     }
   }
 
-  var xfrcApplied: MjNumArray {
+  @inlinable
+  public var xfrcApplied: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.xfrc_applied, object: self, len: nbody * 6)
     }
@@ -100,7 +126,8 @@ public final class MjData {
   }
 
   // Mocap data.
-  var mocapPos: MjNumArray {
+  @inlinable
+  public var mocapPos: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.mocap_pos, object: self, len: nmocap * 3)
     }
@@ -110,7 +137,8 @@ public final class MjData {
     }
   }
 
-  var mocapQuat: MjNumArray {
+  @inlinable
+  public var mocapQuat: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.mocap_quat, object: self, len: nmocap * 4)
     }
@@ -121,7 +149,8 @@ public final class MjData {
   }
 
   // Dynamics.
-  var qacc: MjNumArray {
+  @inlinable
+  public var qacc: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.qacc, object: self, len: nv)
     }
@@ -131,7 +160,8 @@ public final class MjData {
     }
   }
 
-  var actDot: MjNumArray {
+  @inlinable
+  public var actDot: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.act_dot, object: self, len: na)
     }
@@ -142,7 +172,8 @@ public final class MjData {
   }
 
   // User data.
-  var userdata: MjNumArray {
+  @inlinable
+  public var userdata: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.userdata, object: self, len: nuserdata)
     }
@@ -153,7 +184,8 @@ public final class MjData {
   }
 
   // Sensors.
-  var sensordata: MjNumArray {
+  @inlinable
+  public var sensordata: MjNumArray {
     get {
       MjNumArray(array: _data.pointee.sensordata, object: self, len: nsensordata)
     }

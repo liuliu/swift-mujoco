@@ -1,6 +1,7 @@
 import C_mujoco
 
 public final class MjModel {
+  @usableFromInline
   let _model: UnsafeMutablePointer<mjModel>
 
   init(model: UnsafeMutablePointer<mjModel>) {
@@ -30,44 +31,54 @@ public final class MjModel {
     return MjData(data: data, nq: _model.pointee.nq, nv: _model.pointee.nv, na: _model.pointee.na, nu: _model.pointee.nu, nbody: _model.pointee.nbody, nmocap: _model.pointee.nmocap, nuserdata: _model.pointee.nuserdata, nsensordata: _model.pointee.nsensordata)
   }
 
+  @inlinable
   public func step(data: MjData) {
     mj_step(_model, data._data)
   }
 
+  @inlinable
   public func step1(data: MjData) {
     mj_step1(_model, data._data)
   }
 
+  @inlinable
   public func step2(data: MjData) {
     mj_step2(_model, data._data)
   }
 
+  @inlinable
   public func forward(data: MjData) {
     mj_forward(_model, data._data)
   }
 
+  @inlinable
   public func inverse(data: MjData) {
     mj_inverse(_model, data._data)
   }
 
+  @inlinable
   public func forwardSkip(data: MjData, skipStage: Int32, skipSensor: Int32) {
     mj_forwardSkip(_model, data._data, skipStage, skipSensor)
   }
 
+  @inlinable
   public func inverseSkip(data: MjData, skipStage: Int32, skipSensor: Int32) {
     mj_inverseSkip(_model, data._data, skipStage, skipSensor)
   }
 
+  @inlinable
   public func reset(data: MjData) {
     mj_resetData(_model, data._data)
   }
 
+  @inlinable
   public func reset(data: MjData, keyframe: Int32) {
     mj_resetDataKeyframe(_model, data._data, keyframe)
   }
 
   // Initial State.
-  var qpos0: MjNumArray {
+  @inlinable
+  public var qpos0: MjNumArray {
     get {
       MjNumArray(array: _model.pointee.qpos0, object: self, len: _model.pointee.nq)
     }
@@ -77,7 +88,8 @@ public final class MjModel {
     }
   }
 
-  var qpos_spring: MjNumArray {
+  @inlinable
+  public var qpos_spring: MjNumArray {
     get {
       MjNumArray(array: _model.pointee.qpos_spring, object: self, len: _model.pointee.nq)
     }

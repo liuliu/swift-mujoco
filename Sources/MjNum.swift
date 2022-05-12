@@ -5,6 +5,7 @@ public struct MjNumArray {
   var len: Int32
   @usableFromInline
   var _array: UnsafeMutablePointer<Double>
+  @usableFromInline
   init(array: UnsafeMutablePointer<Double>, object: AnyObject, len: Int32) {
     _array = array
     self.object = object
