@@ -32,9 +32,9 @@ http_archive(
 new_git_repository(
     name = "SwiftArgumentParser",
     build_file = "swift-argument-parser.BUILD",
-    commit = "4273ad222e6c51969e8585541f9da5187ad94e47",
+    commit = "82905286cc3f0fa8adc4674bf49437cab65a8373",
     remote = "https://github.com/apple/swift-argument-parser.git",
-    shallow_since = "1607637753 -0600",
+    shallow_since = "1647436700 -0500",
 )
 
 new_git_repository(
