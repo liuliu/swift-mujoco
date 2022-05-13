@@ -12,7 +12,7 @@ public final class GLContext {
   let window: OpaquePointer
 
   public init(width: Int, height: Int, title: String) {
-    Factory.factory.sink() // Make sure we init glfw.
+    Factory.factory.sink()  // Make sure we init glfw.
     window = glfwCreateWindow(Int32(width), Int32(height), title, nil, nil)
   }
 
@@ -26,7 +26,9 @@ public final class GLContext {
     return result
   }
 
-  public func runLoop(swapInterval: Int32, _ closure: (_ width: Int32, _ height: Int32) throws -> Void) rethrows {
+  public func runLoop(
+    swapInterval: Int32, _ closure: (_ width: Int32, _ height: Int32) throws -> Void
+  ) rethrows {
     glfwSwapInterval(swapInterval)
     while glfwWindowShouldClose(window) == 0 {
       var width: Int32 = 0
