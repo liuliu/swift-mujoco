@@ -11,7 +11,7 @@ cc_library(
 swift_library(
     name = "swift-mujoco",
     srcs = glob(["Sources/**/*.swift"]),
-    module_name = "Mujoco",
+    module_name = "MuJoCo",
     visibility = ["//visibility:public"],
     deps = [
         ":C_glfw",

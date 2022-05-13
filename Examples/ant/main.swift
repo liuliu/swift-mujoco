@@ -1,4 +1,4 @@
-import Mujoco
+import MuJoCo
 
 let glContext = GLContext(width: 1280, height: 720, title: "demo")
 let model = MjModel(fromXMLPath: "Examples/assets/ant.xml")!

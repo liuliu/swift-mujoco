@@ -1,4 +1,4 @@
-import Mujoco
+import MuJoCo
 import XCTest
 
 final class ModelTests: XCTestCase {
