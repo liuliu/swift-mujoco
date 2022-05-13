@@ -38,19 +38,35 @@ new_git_repository(
 )
 
 new_git_repository(
+    name = "SwiftSystem",
+    build_file = "swift-system.BUILD",
+    commit = "836bc4557b74fe6d2660218d56e3ce96aff76574",
+    remote = "https://github.com/apple/swift-system.git",
+    shallow_since = "1638472952 -0800",
+)
+
+new_git_repository(
+    name = "SwiftToolsSupportCore",
+    build_file = "swift-tools-support-core.BUILD",
+    commit = "b7667f3e266af621e5cc9c77e74cacd8e8c00cb4",
+    remote = "https://github.com/apple/swift-tools-support-core.git",
+    shallow_since = "1643831290 -0800",
+)
+
+new_git_repository(
     name = "SwiftSyntax",
     build_file = "swift-syntax.BUILD",
-    commit = "593d01f4017cf8b71ec28689629f7b9a6739df0b",
+    commit = "0b6c22b97f8e9320bca62e82cdbee601cf37ad3f",
     remote = "https://github.com/apple/swift-syntax.git",
-    shallow_since = "1626726674 -0700",
+    shallow_since = "1647591231 +0100",
 )
 
 new_git_repository(
     name = "SwiftFormat",
     build_file = "swift-format.BUILD",
-    commit = "aaed43cdaa3c12d3382f069ddcad09f052839e2a",
+    commit = "e6b8c60c7671066d229e30efa1e31acf57be412e",
     remote = "https://github.com/apple/swift-format.git",
-    shallow_since = "1629916966 -0700",
+    shallow_since = "1647972246 -0700",
 )
 
 # buildifier is written in Go and hence needs rules_go to be built.
