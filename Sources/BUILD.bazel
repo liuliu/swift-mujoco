@@ -1,0 +1,27 @@
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_binary", "swift_library")
+
+swift_library(
+    name = "ChangeCases",
+    srcs = ["codegen/changeCases.swift"],
+    module_name = "ChangeCases",
+)
+
+swift_binary(
+    name = "codegen",
+    srcs = ["codegen/main.swift"],
+    deps = [
+        ":ChangeCases",
+    ],
+)
+
+filegroup(
+    name = "Sources",
+    srcs = glob(["*.swift"]),
+    visibility = ["//:__pkg__"],
+)
+
+filegroup(
+    name = "glfw_headers",
+    srcs = ["glfw/glfw.h"],
+    visibility = ["//:__pkg__"],
+)
