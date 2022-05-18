@@ -1,19 +1,28 @@
-import C_mujoco
-
-public enum MjFontScale: Int32 {
-  case _50 = 50
-  case _100 = 100
-  case _150 = 150
-  case _200 = 200
-  case _250 = 250
-  case _300 = 300
+public enum MjWarning: Int32 {
+  case inertia = 0
+  case contactfull
+  case cnstrfull
+  case vgeomfull
+  case badqpos
+  case badqvel
+  case badqacc
+  case badctrl
 }
 
-public enum MjCatBit: Int32 {
-  case `static` = 1
-  case `dynamic` = 2
-  case decor = 4
-  case all = 7
+public enum MjTimer: Int32 {
+  case step = 0
+  case forward
+  case inverse
+  case position
+  case velocity
+  case actuation
+  case acceleration
+  case constraint
+  case posKinematics
+  case posInertia
+  case posCollision
+  case posMake
+  case posProject
 }
 
 public enum MjDisableBit: Int32 {
@@ -257,4 +266,166 @@ public enum MjLRMode: Int32 {
   case muscle
   case muscleuser
   case allProcessAllActuators
+}
+
+public enum MjGridPos: Int32 {
+  case topleft = 0
+  case topright
+  case bottomleft
+  case bottomrightBottomRight
+}
+
+public enum MjFramebuffer: Int32 {
+  case window = 0
+  case offscreenOffscreenBuffer
+}
+
+public enum MjFontScale: Int32 {
+  case _50 = 50
+  case _100 = 100
+  case _150 = 150
+  case _200 = 200
+  case _250 = 250
+  case _300 = 300
+}
+
+public enum MjFont: Int32 {
+  case normal = 0
+  case shadow
+  case bigBigFontForUserAlerts
+}
+
+public enum MjButton: Int32 {
+  case none = 0
+  case left
+  case right
+  case middleMiddleButton
+}
+
+public enum MjEvent: Int32 {
+  case none = 0
+  case move
+  case press
+  case release
+  case scroll
+  case key
+  case resizeResize
+}
+
+public enum MjItem: Int32 {
+  case end = -2
+  case section = -1
+  case separator = 0
+  case `static`
+  case button
+  case checkint
+  case checkbyte
+  case radio
+  case radioline
+  case select
+  case sliderint
+  case slidernum
+  case editint
+  case editnum
+  case edittxt
+}
+
+public enum MjCatBit: Int32 {
+  case `static` = 1
+  case `dynamic` = 2
+  case decor = 4
+  case all = 7
+}
+
+public enum MjMouse: Int32 {
+  case none = 0
+  case rotateV
+  case rotateH
+  case moveV
+  case moveH
+  case zoom
+  case selectSelection
+}
+
+public enum MjPertBit: Int32 {
+  case translate = 1
+  case rotate = 2
+}
+
+public enum MjCamera: Int32 {
+  case free = 0
+  case tracking
+  case fixed
+  case userUserIsResponsibleForSettingOpenglCamera
+}
+
+public enum MjLabel: Int32 {
+  case none = 0
+  case body
+  case joint
+  case geom
+  case site
+  case camera
+  case light
+  case tendon
+  case actuator
+  case constraint
+  case skin
+  case selection
+  case selpnt
+  case contactforce
+}
+
+public enum MjFrame: Int32 {
+  case none = 0
+  case body
+  case geom
+  case site
+  case camera
+  case light
+  case contact
+  case world
+}
+
+public enum MjVisFlag: Int32 {
+  case convexhull = 0
+  case texture
+  case joint
+  case actuator
+  case camera
+  case light
+  case tendon
+  case rangefinder
+  case constraint
+  case inertia
+  case sclinertia
+  case pertforce
+  case pertobj
+  case contactpoint
+  case contactforce
+  case contactsplit
+  case transparent
+  case autoconnect
+  case com
+  case select
+  case `static`
+  case skin
+}
+
+public enum MjRndFlag: Int32 {
+  case shadow = 0
+  case wireframe
+  case reflection
+  case additive
+  case skybox
+  case fog
+  case haze
+  case segment
+  case idcolor
+}
+
+public enum MjStereo: Int32 {
+  case none = 0
+  case quadbuffered
+  case sidebysideSideBySide
 }
