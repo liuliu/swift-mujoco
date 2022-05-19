@@ -1,4 +1,5 @@
 import C_mujoco
+import Foundation
 
 public final class MjModel {
   @usableFromInline
@@ -12,23 +13,55 @@ public final class MjModel {
     mj_deleteModel(_model)
   }
 
-  public convenience init?(fromBinaryPath filePath: String) {
-    guard let model = mj_loadModel(filePath, nil) else {
+  public convenience init?(fromBinaryPath filePath: String, vfs: MjVFS? = nil) {
+    guard let model = mj_loadModel(filePath, vfs?._vfs) else {
       return nil
     }
     self.init(model: model)
   }
 
-  public convenience init?(fromXMLPath filePath: String) {
-    guard let model = mj_loadXML(filePath, nil, nil, 0) else {
+  public convenience init?(fromXMLPath filePath: String, vfs: MjVFS? = nil) {
+    let error = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
+    guard let model = mj_loadXML(filePath, vfs?._vfs, error, 1024) else {
+      print(error)
+      error.deallocate()
       return nil
     }
+    error.deallocate()
+    self.init(model: model)
+  }
+
+  public convenience init?(fromXML: String, assets: [String: Data]? = nil) {
+    var xmlString = fromXML
+    let error = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
+    let model: UnsafeMutablePointer<mjModel>? = xmlString.withUTF8 { utf8 in
+      let vfs = assets.flatMap { MjVFS(assets: $0) } ?? MjVFS()
+      // Avoid name duplication.
+      var modelName = "model_"
+      while assets?[modelName + ".xml"] != nil {
+        modelName += "_"
+      }
+      vfs.makeEmptyFile(filename: "\(modelName).xml", filesize: Int32(utf8.count))
+      vfs.filedata[Int(vfs.nfile - 1)]?.assumingMemoryBound(to: UInt8.self).assign(
+        from: utf8.baseAddress!, count: utf8.count)
+      let model = mj_loadXML("model_.xml", vfs._vfs, error, 1024)
+      return model
+    }
+    guard let model = model else {
+      print(error)
+      error.deallocate()
+      return nil
+    }
+    error.deallocate()
     self.init(model: model)
   }
 
   public func makeData() -> MjData {
     let data = mj_makeData(_model)!
-    return MjData(data: data, nq: _model.pointee.nq, nv: _model.pointee.nv, na: _model.pointee.na, nu: _model.pointee.nu, nbody: _model.pointee.nbody, nmocap: _model.pointee.nmocap, nuserdata: _model.pointee.nuserdata, nsensordata: _model.pointee.nsensordata)
+    return MjData(
+      data: data, nq: _model.pointee.nq, nv: _model.pointee.nv, na: _model.pointee.na,
+      nu: _model.pointee.nu, nbody: _model.pointee.nbody, nmocap: _model.pointee.nmocap,
+      nuserdata: _model.pointee.nuserdata, nsensordata: _model.pointee.nsensordata)
   }
 
   @inlinable
@@ -78,9 +111,9 @@ public final class MjModel {
 
   // Initial State.
   @inlinable
-  public var qpos0: MjNumArray {
+  public var qpos0: MjArray<Double> {
     get {
-      MjNumArray(array: _model.pointee.qpos0, object: self, len: _model.pointee.nq)
+      MjArray<Double>(array: _model.pointee.qpos0, object: self, len: _model.pointee.nq)
     }
     set {
       guard _model.pointee.qpos0 != newValue._array else { return }
@@ -89,9 +122,9 @@ public final class MjModel {
   }
 
   @inlinable
-  public var qpos_spring: MjNumArray {
+  public var qpos_spring: MjArray<Double> {
     get {
-      MjNumArray(array: _model.pointee.qpos_spring, object: self, len: _model.pointee.nq)
+      MjArray<Double>(array: _model.pointee.qpos_spring, object: self, len: _model.pointee.nq)
     }
     set {
       guard _model.pointee.qpos_spring != newValue._array else { return }

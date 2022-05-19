@@ -20,7 +20,10 @@ public final class MjData {
   @usableFromInline
   let nsensordata: Int32
 
-  init(data: UnsafeMutablePointer<mjData>, nq: Int32, nv: Int32, na: Int32, nu: Int32, nbody: Int32, nmocap: Int32, nuserdata: Int32, nsensordata: Int32) {
+  init(
+    data: UnsafeMutablePointer<mjData>, nq: Int32, nv: Int32, na: Int32, nu: Int32, nbody: Int32,
+    nmocap: Int32, nuserdata: Int32, nsensordata: Int32
+  ) {
     _data = data
     self.nq = nq
     self.nv = nv
@@ -48,9 +51,9 @@ public final class MjData {
 
   // State.
   @inlinable
-  public var qpos: MjNumArray {
+  public var qpos: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.qpos, object: self, len: nq)
+      MjArray<Double>(array: _data.pointee.qpos, object: self, len: nq)
     }
     set {
       guard _data.pointee.qpos != newValue._array else { return }
@@ -59,9 +62,9 @@ public final class MjData {
   }
 
   @inlinable
-  public var qvel: MjNumArray {
+  public var qvel: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.qvel, object: self, len: nv)
+      MjArray<Double>(array: _data.pointee.qvel, object: self, len: nv)
     }
     set {
       guard _data.pointee.qvel != newValue._array else { return }
@@ -70,9 +73,9 @@ public final class MjData {
   }
 
   @inlinable
-  public var act: MjNumArray {
+  public var act: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.act, object: self, len: na)
+      MjArray<Double>(array: _data.pointee.act, object: self, len: na)
     }
     set {
       guard _data.pointee.act != newValue._array else { return }
@@ -81,9 +84,9 @@ public final class MjData {
   }
 
   @inlinable
-  public var qaccWarmstart: MjNumArray {
+  public var qaccWarmstart: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.qacc_warmstart, object: self, len: nv)
+      MjArray<Double>(array: _data.pointee.qacc_warmstart, object: self, len: nv)
     }
     set {
       guard _data.pointee.qacc_warmstart != newValue._array else { return }
@@ -93,9 +96,9 @@ public final class MjData {
 
   // Control.
   @inlinable
-  public var ctrl: MjNumArray {
+  public var ctrl: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.ctrl, object: self, len: nu)
+      MjArray<Double>(array: _data.pointee.ctrl, object: self, len: nu)
     }
     set {
       guard _data.pointee.ctrl != newValue._array else { return }
@@ -104,9 +107,9 @@ public final class MjData {
   }
 
   @inlinable
-  public var qfrcApplied: MjNumArray {
+  public var qfrcApplied: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.qfrc_applied, object: self, len: nv)
+      MjArray<Double>(array: _data.pointee.qfrc_applied, object: self, len: nv)
     }
     set {
       guard _data.pointee.qfrc_applied != newValue._array else { return }
@@ -115,9 +118,9 @@ public final class MjData {
   }
 
   @inlinable
-  public var xfrcApplied: MjNumArray {
+  public var xfrcApplied: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.xfrc_applied, object: self, len: nbody * 6)
+      MjArray<Double>(array: _data.pointee.xfrc_applied, object: self, len: nbody * 6)
     }
     set {
       guard _data.pointee.xfrc_applied != newValue._array else { return }
@@ -127,9 +130,9 @@ public final class MjData {
 
   // Mocap data.
   @inlinable
-  public var mocapPos: MjNumArray {
+  public var mocapPos: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.mocap_pos, object: self, len: nmocap * 3)
+      MjArray<Double>(array: _data.pointee.mocap_pos, object: self, len: nmocap * 3)
     }
     set {
       guard _data.pointee.mocap_pos != newValue._array else { return }
@@ -138,9 +141,9 @@ public final class MjData {
   }
 
   @inlinable
-  public var mocapQuat: MjNumArray {
+  public var mocapQuat: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.mocap_quat, object: self, len: nmocap * 4)
+      MjArray<Double>(array: _data.pointee.mocap_quat, object: self, len: nmocap * 4)
     }
     set {
       guard _data.pointee.mocap_quat != newValue._array else { return }
@@ -150,9 +153,9 @@ public final class MjData {
 
   // Dynamics.
   @inlinable
-  public var qacc: MjNumArray {
+  public var qacc: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.qacc, object: self, len: nv)
+      MjArray<Double>(array: _data.pointee.qacc, object: self, len: nv)
     }
     set {
       guard _data.pointee.qacc != newValue._array else { return }
@@ -161,9 +164,9 @@ public final class MjData {
   }
 
   @inlinable
-  public var actDot: MjNumArray {
+  public var actDot: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.act_dot, object: self, len: na)
+      MjArray<Double>(array: _data.pointee.act_dot, object: self, len: na)
     }
     set {
       guard _data.pointee.act_dot != newValue._array else { return }
@@ -173,9 +176,9 @@ public final class MjData {
 
   // User data.
   @inlinable
-  public var userdata: MjNumArray {
+  public var userdata: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.userdata, object: self, len: nuserdata)
+      MjArray<Double>(array: _data.pointee.userdata, object: self, len: nuserdata)
     }
     set {
       guard _data.pointee.userdata != newValue._array else { return }
@@ -185,9 +188,9 @@ public final class MjData {
 
   // Sensors.
   @inlinable
-  public var sensordata: MjNumArray {
+  public var sensordata: MjArray<Double> {
     get {
-      MjNumArray(array: _data.pointee.sensordata, object: self, len: nsensordata)
+      MjArray<Double>(array: _data.pointee.sensordata, object: self, len: nsensordata)
     }
     set {
       guard _data.pointee.sensordata != newValue._array else { return }

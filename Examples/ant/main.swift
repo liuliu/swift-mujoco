@@ -1,8 +1,9 @@
 import MuJoCo
 
-let glContext = GLContext(width: 1280, height: 720, title: "demo")
 let model = MjModel(fromXMLPath: "Examples/assets/ant.xml")!
 let data = model.makeData()
+
+let glContext = GLContext(width: 1280, height: 720, title: "demo")
 
 glContext.makeCurrent {
   var camera = MjvCamera()
@@ -20,4 +21,3 @@ glContext.makeCurrent {
     context.render(viewport: viewport, scene: scene)
   }
 }
-
