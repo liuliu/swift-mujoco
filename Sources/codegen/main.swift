@@ -217,7 +217,7 @@ for thisEnum in enums {
 */
 
 for thisStruct in structs {
-  if thisStruct.name == "mjvCamera_" {
+  if thisStruct.name == "mjContact_" {
     print(structExtension(thisStruct))
   }
 }
