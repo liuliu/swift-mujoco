@@ -161,13 +161,20 @@ let SwiftType: [String: String] = [
   "bool": "Bool",
   "mjtByte": "UInt8",
   "mjtNum": "Double",
+  "void": "UInt8",
+  "mjContact": "MjContact",
 ]
 
 func swiftFieldType(structName: String, fieldName: String, fieldType: FieldType) -> String {
   var primitiveType = ""
   switch fieldType {
   case .plain(let typeName):
-    primitiveType = SwiftType[typeName]!
+    if typeName.hasSuffix("*") {
+      let elTypeName = typeName.dropLast().trimmingCharacters(in: .whitespaces)
+      primitiveType = "MjArray<\(SwiftType[elTypeName]!)>"
+    } else {
+      primitiveType = SwiftType[typeName]!
+    }
   case .product(_):
     let fieldName = cleanupFieldName(name: fieldName)
     primitiveType = "\(structName).__Unnamed_struct_\(fieldName)"
@@ -187,7 +194,7 @@ func cleanupFieldName(name: String) -> String {
   return String(name.prefix(while: { $0 != "[" }))
 }
 
-func structExtension(_ thisStruct: Struct) -> String {
+func structExtension(_ thisStruct: Struct, prefix: String = "", deny: [String] = []) -> String {
   precondition(thisStruct.name.hasPrefix("mj"))
   let swiftName_ =
     "Mj"
@@ -195,15 +202,45 @@ func structExtension(_ thisStruct: Struct) -> String {
   let swiftName = swiftName_.prefix(upTo: swiftName_.index(swiftName_.endIndex, offsetBy: -1))
   let varName = swiftName.suffix(from: thisStruct.name.firstIndex(where: \.isUppercase)!)
     .lowercased()
+  let denySet = Set(deny)
   var code = "public extension \(swiftName) {\n"
-  for (name, type, _) in thisStruct.fields {
+  for (name, type, comment) in thisStruct.fields {
     guard let name = name else { continue }  // Handle sum type.
-    code += "  @inlinable\n"
     let fieldName = cleanupFieldName(name: name)
+    guard !denySet.contains(fieldName) else { continue }
+    code += "  @inlinable\n"
     let fieldType = swiftFieldType(structName: thisStruct.name, fieldName: name, fieldType: type)
     code += "  var \(fieldName.camelCase()): \(fieldType) {\n"
-    code += "    get { _\(varName).\(fieldName) }\n"
-    code += "    set { _\(varName).\(fieldName) = newValue }\n"
+    // If this is MjArray, we need to have more parsing, particularly on the comment.
+    if fieldType.hasPrefix("MjArray") {
+      guard let comment = comment else { fatalError() }
+      let range = comment.range(of: #"\(n\w+.*\)"#, options: .regularExpression)!
+      let count = comment[range].dropFirst().dropLast().replacingOccurrences(of: " x ", with: " * ")
+      let cast = fieldType.hasPrefix("MjArray<Mj")  // For these, we need to force cast the type.
+      if cast {
+        let castType = fieldType.suffix(from: fieldType.index(fieldType.startIndex, offsetBy: 8))
+          .dropLast()
+        code +=
+          "    get { \(fieldType)(array: UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(castType).self), object: self, len: \(count)) }\n"
+        code += "    set {\n"
+        code +=
+          "      let unsafeMutablePointer = UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(castType).self)\n"
+        code += "      guard unsafeMutablePointer != newValue._array else { return }\n"
+        code += "      unsafeMutablePointer.assign(from: newValue._array, count: Int(\(count)))\n"
+        code += "    }\n"
+      } else {
+        code +=
+          "    get { \(fieldType)(array: _\(varName)\(prefix).\(fieldName), object: self, len: \(count)) }\n"
+        code += "    set {\n"
+        code += "      guard _\(varName)\(prefix).\(fieldName) != newValue._array else { return }\n"
+        code +=
+          "      _\(varName)\(prefix).\(fieldName).assign(from: newValue._array, count: Int(\(count)))\n"
+        code += "    }\n"
+      }
+    } else {
+      code += "    get { _\(varName)\(prefix).\(fieldName) }\n"
+      code += "    set { _\(varName)\(prefix).\(fieldName) = newValue }\n"
+    }
     code += "  }\n"
   }
   code += "}\n"
@@ -217,7 +254,9 @@ for thisEnum in enums {
 */
 
 for thisStruct in structs {
-  if thisStruct.name == "mjContact_" {
-    print(structExtension(thisStruct))
+  if thisStruct.name == "mjData_" {
+    print(
+      structExtension(
+        thisStruct, prefix: ".pointee", deny: ["warning", "timer", "solver", "buffer", "stack"]))
   }
 }

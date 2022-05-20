@@ -61,7 +61,11 @@ public final class MjModel {
     return MjData(
       data: data, nq: _model.pointee.nq, nv: _model.pointee.nv, na: _model.pointee.na,
       nu: _model.pointee.nu, nbody: _model.pointee.nbody, nmocap: _model.pointee.nmocap,
-      nuserdata: _model.pointee.nuserdata, nsensordata: _model.pointee.nsensordata)
+      nuserdata: _model.pointee.nuserdata, nsensordata: _model.pointee.nsensordata,
+      njnt: _model.pointee.njnt, ngeom: _model.pointee.ngeom, nsite: _model.pointee.nsite,
+      ncam: _model.pointee.ncam, nlight: _model.pointee.nlight, ntendon: _model.pointee.ntendon,
+      nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
+      njmax: _model.pointee.njmax)
   }
 
   @inlinable

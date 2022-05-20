@@ -40,7 +40,7 @@ extension MjContact {
     set { _contact.mu = newValue }
   }
   @inlinable
-  public var h:
+  public var H:
     (
       Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double,
       Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double,
