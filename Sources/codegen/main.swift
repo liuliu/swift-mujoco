@@ -56,7 +56,14 @@ for filePath in CommandLine.arguments[1...] {
       } else {
         // Poor-man's parser for enum.
         let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.hasPrefix("mjN") && !trimmed.hasPrefix("/") else { continue }
+        // Ignore comments.
+        guard !trimmed.hasPrefix("/") else { continue }
+        // These are counting number of enums. Used as array size in some places. Keep them.
+        guard !trimmed.hasPrefix("mjN") else {
+          let parts = trimmed.split(whereSeparator: \.isWhitespace)
+          definedConstants[String(parts[0])] = currentEnum.keyValues.count
+          continue
+        }
         let kv = trimmed.prefix(while: { $0 != "," }).split(separator: "=")
         var value: String? = nil
         if kv.count > 1 {
@@ -186,7 +193,7 @@ func structExtension(_ thisStruct: Struct) -> String {
     "Mj"
     + thisStruct.name.suffix(from: thisStruct.name.index(thisStruct.name.startIndex, offsetBy: 2))
   let swiftName = swiftName_.prefix(upTo: swiftName_.index(swiftName_.endIndex, offsetBy: -1))
-  let varName = swiftName.suffix(from: swiftName.index(swiftName.startIndex, offsetBy: 2))
+  let varName = swiftName.suffix(from: thisStruct.name.firstIndex(where: \.isUppercase)!)
     .lowercased()
   var code = "public extension \(swiftName) {\n"
   for (name, type, _) in thisStruct.fields {
@@ -210,7 +217,7 @@ for thisEnum in enums {
 */
 
 for thisStruct in structs {
-  if thisStruct.name == "mjOption_" {
+  if thisStruct.name == "mjvCamera_" {
     print(structExtension(thisStruct))
   }
 }
