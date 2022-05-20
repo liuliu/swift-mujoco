@@ -6,8 +6,6 @@ struct Enum {
   var keyValues: [(key: String, value: String?)]
 }
 
-var enums = [Enum]()
-
 struct AnonymousStruct {
   var fields: [(name: String, type: String, comment: String?)]
 }
@@ -27,7 +25,9 @@ struct Struct {
   var fields: [(name: String?, type: FieldType, comment: String?)]
 }
 
+var enums = [Enum]()
 var structs = [Struct]()
+var definedConstants = [String: Int]()
 
 for filePath in CommandLine.arguments[1...] {
   let fileContent = try! String(contentsOf: URL(fileURLWithPath: filePath), encoding: .utf8)
@@ -40,7 +40,12 @@ for filePath in CommandLine.arguments[1...] {
 
   for line in lines {
     // The start of a enum.
-    if let range = line.range(of: #"\s*typedef\s+enum\s+(\w)+\s+\{"#, options: .regularExpression) {
+    if let range = line.range(of: #"\s*#define\s+\w+\s+\d+"#, options: .regularExpression) {
+      let matched = line[range].split(whereSeparator: \.isWhitespace)
+      definedConstants[String(matched[1])] = Int(matched[2])!
+    } else if let range = line.range(
+      of: #"\s*typedef\s+enum\s+(\w)+\s+\{"#, options: .regularExpression)
+    {
       let matched = line[range].split(whereSeparator: \.isWhitespace)
       thisEnum = Enum(name: String(matched[2]), keyValues: [])
     } else if let currentEnum = thisEnum {
@@ -151,6 +156,30 @@ let SwiftType: [String: String] = [
   "mjtNum": "Double",
 ]
 
+func swiftFieldType(structName: String, fieldName: String, fieldType: FieldType) -> String {
+  var primitiveType = ""
+  switch fieldType {
+  case .plain(let typeName):
+    primitiveType = SwiftType[typeName]!
+  case .product(_):
+    let fieldName = cleanupFieldName(name: fieldName)
+    primitiveType = "\(structName).__Unnamed_struct_\(fieldName)"
+  case .sum(_):
+    break
+  }
+  // This is an array type.
+  if let range = fieldName.range(of: #"\[\w+\]"#, options: .regularExpression) {
+    let matched = fieldName[range].dropFirst().dropLast()
+    let count = Int(matched) ?? definedConstants[String(matched)]!
+    return "(" + [String](repeating: primitiveType, count: count).joined(separator: ", ") + ")"
+  }
+  return primitiveType
+}
+
+func cleanupFieldName(name: String) -> String {
+  return String(name.prefix(while: { $0 != "[" }))
+}
+
 func structExtension(_ thisStruct: Struct) -> String {
   precondition(thisStruct.name.hasPrefix("mj"))
   let swiftName_ =
@@ -163,16 +192,11 @@ func structExtension(_ thisStruct: Struct) -> String {
   for (name, type, _) in thisStruct.fields {
     guard let name = name else { continue }  // Handle sum type.
     code += "  @inlinable\n"
-    switch type {
-    case .plain(let typeName):
-      code += "  var \(name.camelCase()): \(SwiftType[typeName]!) {\n"
-    case .product(_):
-      code += "  var \(name.camelCase()): \(thisStruct.name).__Unnamed_struct_\(name) {\n"
-    case .sum(_):
-      break
-    }
-    code += "    get { _\(varName).\(name) }\n"
-    code += "    set { _\(varName).\(name) = newValue }\n"
+    let fieldName = cleanupFieldName(name: name)
+    let fieldType = swiftFieldType(structName: thisStruct.name, fieldName: name, fieldType: type)
+    code += "  var \(fieldName.camelCase()): \(fieldType) {\n"
+    code += "    get { _\(varName).\(fieldName) }\n"
+    code += "    set { _\(varName).\(fieldName) = newValue }\n"
     code += "  }\n"
   }
   code += "}\n"
@@ -186,7 +210,7 @@ for thisEnum in enums {
 */
 
 for thisStruct in structs {
-  if thisStruct.name == "mjVisual_" {
+  if thisStruct.name == "mjOption_" {
     print(structExtension(thisStruct))
   }
 }
