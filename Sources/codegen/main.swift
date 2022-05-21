@@ -112,16 +112,18 @@ for filePath in CommandLine.arguments[2...] {
         let comment: String? =
           fieldAndComment.count > 1 ? fieldAndComment[1].trimmingCharacters(in: .whitespaces) : nil
         // If it is anonymous struct, append this.
+        let fieldName = String(field.last!)
+        let fieldType = field.dropLast().joined(separator: " ")
         if thisAnonymousStruct != nil {
           thisAnonymousStruct?.fields.append(
-            (name: String(field[1]), type: String(field[0]), comment: comment))
+            (name: fieldName, type: fieldType, comment: comment))
         } else if thisAnonymousUnion != nil {
           thisAnonymousUnion?.fields.append(
-            (name: String(field[2]), type: String(field[1]), comment: comment))
+            (name: fieldName, type: fieldType, comment: comment))
         } else {
           // Otherwise append to struct.
           thisStruct?.fields.append(
-            (name: String(field[1]), type: .plain(String(field[0])), comment: comment))
+            (name: fieldName, type: .plain(fieldType), comment: comment))
         }
       }
     }
