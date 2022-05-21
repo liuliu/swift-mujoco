@@ -178,13 +178,42 @@ let WrappedMjStructs: [String] = [
   "MjOption", "MjVisual",
 ]
 
-func swiftFieldType(structName: String, fieldName: String, fieldType: FieldType) -> String {
+enum SwiftFieldType {
+  case plain(String)
+  case tuple(String, Int)
+  case array(String)
+  var primitive: String {
+    switch self {
+    case .plain(let name):
+      return name
+    case .tuple(let name, _):
+      return name
+    case .array(let name):
+      return name
+    }
+  }
+}
+
+extension SwiftFieldType: CustomStringConvertible {
+  var description: String {
+    switch self {
+    case .plain(let name):
+      return name
+    case .tuple(let name, let count):
+      return "(" + [String](repeating: name, count: count).joined(separator: ", ") + ")"
+    case .array(let name):
+      return "MjArray<\(name)>"
+    }
+  }
+}
+
+func swiftFieldType(structName: String, fieldName: String, fieldType: FieldType) -> SwiftFieldType {
   var primitiveType = ""
   switch fieldType {
   case .plain(let typeName):
     if typeName.hasSuffix("*") {
       let elTypeName = typeName.dropLast().trimmingCharacters(in: .whitespaces)
-      primitiveType = "MjArray<\(SwiftType[elTypeName]!)>"
+      return .array(SwiftType[elTypeName]!)
     } else {
       primitiveType = SwiftType[typeName]!
     }
@@ -198,9 +227,9 @@ func swiftFieldType(structName: String, fieldName: String, fieldType: FieldType)
   if let range = fieldName.range(of: #"\[\w+\]"#, options: .regularExpression) {
     let matched = fieldName[range].dropFirst().dropLast()
     let count = Int(matched) ?? definedConstants[String(matched)]!
-    return "(" + [String](repeating: primitiveType, count: count).joined(separator: ", ") + ")"
+    return .tuple(primitiveType, count)
   }
-  return primitiveType
+  return .plain(primitiveType)
 }
 
 func cleanupFieldName(name: String) -> String {
@@ -234,22 +263,20 @@ func structExtension(
       code += "  var \(fieldName.camelCase()): \(fieldType) {\n"
     }
     // If this is MjArray, we need to have more parsing, particularly on the comment.
-    if fieldType.hasPrefix("MjArray") {
+    if case .array(let elType) = fieldType {
       guard let comment = comment else { fatalError() }
       let range = comment.range(of: #"\(n\w+.*\)"#, options: .regularExpression)!
       var count = comment[range].dropFirst().dropLast().replacingOccurrences(of: " x ", with: " * ")
       for (key, value) in propertiesMapping {
         count = count.replacingOccurrences(of: key, with: value)
       }
-      let cast = fieldType.hasPrefix("MjArray<Mj")  // For these, we need to force cast the type.
+      let cast = elType.hasPrefix("Mj")  // For these, we need to force cast the type.
       if cast {
-        let castType = fieldType.suffix(from: fieldType.index(fieldType.startIndex, offsetBy: 8))
-          .dropLast()
         code +=
-          "    get { \(fieldType)(array: UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(castType).self), object: self, len: \(count)) }\n"
+          "    get { \(fieldType)(array: UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(elType).self), object: self, len: \(count)) }\n"
         code += "    set {\n"
         code +=
-          "      let unsafeMutablePointer = UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(castType).self)\n"
+          "      let unsafeMutablePointer = UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(elType).self)\n"
         code += "      guard unsafeMutablePointer != newValue._array else { return }\n"
         code += "      unsafeMutablePointer.assign(from: newValue._array, count: Int(\(count)))\n"
         code += "    }\n"
@@ -262,10 +289,10 @@ func structExtension(
           "      _\(varName)\(prefix).\(fieldName).assign(from: newValue._array, count: Int(\(count)))\n"
         code += "    }\n"
       }
-    } else if WrappedMjStructs.contains(fieldType) {
+    } else if WrappedMjStructs.contains(fieldType.primitive) {
       code += "    get { \(fieldType)(_\(varName)\(prefix).\(fieldName)) }\n"
       code +=
-        "    set { _\(varName)\(prefix).\(fieldName) = newValue._\(fieldType.suffix(from: fieldName.index(fieldType.startIndex, offsetBy: 2)).lowercased()) }\n"
+        "    set { _\(varName)\(prefix).\(fieldName) = newValue._\(fieldType.primitive.suffix(from: fieldName.index(fieldType.primitive.startIndex, offsetBy: 2)).lowercased()) }\n"
     } else {
       code += "    get { _\(varName)\(prefix).\(fieldName) }\n"
       code += "    set { _\(varName)\(prefix).\(fieldName) = newValue }\n"
