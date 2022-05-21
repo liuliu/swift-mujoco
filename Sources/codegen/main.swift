@@ -212,14 +212,27 @@ extension SwiftFieldType: CustomStringConvertible {
 }
 
 func swiftFieldType(
-  structName: String, fieldName: String, fieldType: FieldType, staticArrayAsDynamic: [String]
+  structName: String, fieldName: String, fieldType: FieldType, comment: String?,
+  staticArrayAsDynamic: [String]
 ) -> SwiftFieldType {
   var primitiveType = ""
+  let commentType: String?
+  if let comment = comment,
+    let range = comment.range(of: #"\(mjt\w+\)"#, options: .regularExpression)
+  {
+    // This is enum type, and we need to cast.
+    var elType = String(comment[range].dropFirst().dropLast())  // Remove mjt and add the rest.
+    elType = "Mj" + elType.suffix(from: elType.index(elType.startIndex, offsetBy: 3))
+    commentType = elType
+  } else {
+    commentType = nil
+  }
   switch fieldType {
   case .plain(let typeName):
     if typeName.hasSuffix("*") {
       let elTypeName = typeName.dropLast().trimmingCharacters(in: .whitespaces)
-      return .array(SwiftType[elTypeName]!, nil, false)
+      let elType = commentType ?? SwiftType[elTypeName]!
+      return .array(elType, nil, false)
     } else {
       primitiveType = SwiftType[typeName]!
     }
@@ -235,7 +248,8 @@ func swiftFieldType(
     let count = Int(matched) ?? definedConstants[String(matched)]!
     // Treat this as dynamic array (these with suffix *).
     if staticArrayAsDynamic.contains(cleanupFieldName(name: fieldName)) {
-      return .array(primitiveType, count, true)
+      let elType = commentType ?? primitiveType
+      return .array(elType, count, true)
     } else {
       return .tuple(primitiveType, count)
     }
@@ -268,7 +282,7 @@ func structExtension(
     guard !denySet.contains(fieldName) else { continue }
     code += "  @inlinable\n"
     let fieldType = swiftFieldType(
-      structName: thisStruct.name, fieldName: name, fieldType: type,
+      structName: thisStruct.name, fieldName: name, fieldType: type, comment: comment,
       staticArrayAsDynamic: staticArrayAsDynamic)
     if excludingCamelCaseForProperties.contains(fieldName) {
       code += "  var \(fieldName): \(fieldType) {\n"

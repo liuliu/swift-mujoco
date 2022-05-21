@@ -191,15 +191,17 @@ extension MjrContext {
     set { _context.ntexture = newValue }
   }
   @inlinable
-  public var textureType: MjArray<Int32> {
+  public var textureType: MjArray<MjTexture> {
     get {
-      MjArray<Int32>(
-        array: withUnsafeMutablePointer(to: &_context.textureType.0, { $0 }), object: self,
-        len: ntexture)
+      MjArray<MjTexture>(
+        array: UnsafeMutableRawPointer(
+          withUnsafeMutablePointer(to: &_context.textureType.0, { $0 })
+        ).assumingMemoryBound(to: MjTexture.self), object: self, len: ntexture)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = withUnsafeMutablePointer(
-        to: &_context.textureType.0, { $0 })
+      let unsafeMutablePointer: UnsafeMutablePointer<MjTexture> = UnsafeMutableRawPointer(
+        withUnsafeMutablePointer(to: &_context.textureType.0, { $0 })
+      ).assumingMemoryBound(to: MjTexture.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(ntexture))
     }
