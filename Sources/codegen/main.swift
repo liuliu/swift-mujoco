@@ -428,6 +428,16 @@ for thisStruct in structs {
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvScene+Extensions.swift"),
       atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjvFigure_" {
+    let code = structExtension(
+      thisStruct, prefix: ".pointee",
+      deny: [
+        "linergb", "range", "xformat", "yformat", "minwidth", "title", "xlabel", "linename",
+        "linedata",
+      ], staticArrayAsDynamic: ["linepnt"])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvFigure+Extensions.swift"),
+      atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjrContext_" {
     let code = structExtension(
       thisStruct,
