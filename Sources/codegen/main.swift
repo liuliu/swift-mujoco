@@ -29,7 +29,9 @@ var enums = [Enum]()
 var structs = [Struct]()
 var definedConstants = [String: Int]()
 
-for filePath in CommandLine.arguments[1...] {
+var WorkDir = CommandLine.arguments[1]
+
+for filePath in CommandLine.arguments[2...] {
   let fileContent = try! String(contentsOf: URL(fileURLWithPath: filePath), encoding: .utf8)
   let lines = fileContent.split(whereSeparator: \.isNewline)
 
@@ -205,7 +207,8 @@ func cleanupFieldName(name: String) -> String {
 
 func structExtension(
   _ thisStruct: Struct, prefix: String = "", deny: [String] = [],
-  propertiesMapping: [String: String] = [:]
+  propertiesMapping: [String: String] = [:],
+  excludingCamelCaseForProperties: [String] = []
 ) -> String {
   precondition(thisStruct.name.hasPrefix("mj"))
   let swiftName_ =
@@ -222,7 +225,11 @@ func structExtension(
     guard !denySet.contains(fieldName) else { continue }
     code += "  @inlinable\n"
     let fieldType = swiftFieldType(structName: thisStruct.name, fieldName: name, fieldType: type)
-    code += "  var \(fieldName.camelCase()): \(fieldType) {\n"
+    if excludingCamelCaseForProperties.contains(fieldName) {
+      code += "  var \(fieldName): \(fieldType) {\n"
+    } else {
+      code += "  var \(fieldName.camelCase()): \(fieldType) {\n"
+    }
     // If this is MjArray, we need to have more parsing, particularly on the comment.
     if fieldType.hasPrefix("MjArray") {
       guard let comment = comment else { fatalError() }
@@ -266,28 +273,67 @@ func structExtension(
   return code
 }
 
-/*
+var mjtCode = ""
 for thisEnum in enums {
-  print(enumDecl(thisEnum))
+  mjtCode += enumDecl(thisEnum)
 }
-*/
+try! mjtCode.write(
+  to: URL(fileURLWithPath: WorkDir).appendingPathComponent("Mjt.swift"), atomically: false,
+  encoding: .utf8)
 
 for thisStruct in structs {
-  /*
-  if thisStruct.name == "mjData_" {
-    print(
-      structExtension(
-        thisStruct, prefix: ".pointee", deny: ["warning", "timer", "solver", "buffer", "stack"]))
-  }
-  */
-  if thisStruct.name == "mjModel_" {
-    print(
-      structExtension(
-        thisStruct, prefix: ".pointee", deny: ["buffer"],
-        propertiesMapping: [
-          "nuser_jnt": "nuserJnt", "nuser_geom": "nuserGeom", "nuser_site": "nuserSite",
-          "nuser_cam": "nuserCam", "nuser_tendon": "nuserTendon", "nuser_actuator": "nuserActuator",
-          "nuser_sensor": "nuserSensor", "nuser_body": "nuserBody",
-        ]))
+  if thisStruct.name == "mjContact_" {
+    let code = structExtension(thisStruct, excludingCamelCaseForProperties: ["H"])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjContact+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjLROpt_" {
+    let code = structExtension(thisStruct)
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjLROpt+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjOption_" {
+    let code = structExtension(thisStruct)
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjOption+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjVisual_" {
+    let code = "import C_mujoco\n" + structExtension(thisStruct)
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjVisual+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjvCamera_" {
+    let code = structExtension(thisStruct)
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvCamera+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjvOption_" {
+    let code = structExtension(thisStruct)
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvOption+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjvPerturb_" {
+    let code = structExtension(thisStruct)
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvPerturb+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjData_" {
+    let code = structExtension(
+      thisStruct, prefix: ".pointee", deny: ["warning", "timer", "solver", "buffer", "stack"])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjData+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjModel_" {
+    var code = "import C_mujoco\n"
+    code += structExtension(
+      thisStruct, prefix: ".pointee", deny: ["buffer"],
+      propertiesMapping: [
+        "nuser_jnt": "nuserJnt", "nuser_geom": "nuserGeom", "nuser_site": "nuserSite",
+        "nuser_cam": "nuserCam", "nuser_tendon": "nuserTendon", "nuser_actuator": "nuserActuator",
+        "nuser_sensor": "nuserSensor", "nuser_body": "nuserBody",
+      ])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjModel+Extensions.swift"),
+      atomically: false, encoding: .utf8)
   }
 }
