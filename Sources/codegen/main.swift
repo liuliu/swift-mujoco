@@ -170,6 +170,8 @@ let SwiftType: [String: String] = [
   "mjOption": "MjOption",
   "mjVisual": "MjVisual",
   "mjStatistic": "MjStatistic",
+  "mjvGLCamera": "MjvGLCamera",
+  "mjvGeom": "MjvGeom",
 ]
 
 let WrappedMjStructs: [String] = [
@@ -208,6 +210,7 @@ func cleanupFieldName(name: String) -> String {
 func structExtension(
   _ thisStruct: Struct, prefix: String = "", deny: [String] = [],
   propertiesMapping: [String: String] = [:],
+  staticArrayAsDynamic: [String] = [],
   excludingCamelCaseForProperties: [String] = []
 ) -> String {
   precondition(thisStruct.name.hasPrefix("mj"))
@@ -307,6 +310,11 @@ for thisStruct in structs {
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvCamera+Extensions.swift"),
       atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjvGLCamera_" {
+    let code = structExtension(thisStruct)
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvGLCamera+Extensions.swift"),
+      atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjvOption_" {
     let code = structExtension(thisStruct)
     try! code.write(
@@ -322,6 +330,11 @@ for thisStruct in structs {
       thisStruct, prefix: ".pointee", deny: ["warning", "timer", "solver", "buffer", "stack"])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjData+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjvScene_" {
+    let code = structExtension(thisStruct, deny: ["lights", "camera"])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvScene+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjModel_" {
     var code = "import C_mujoco\n"
