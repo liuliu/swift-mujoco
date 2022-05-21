@@ -82,6 +82,14 @@ extension MjvScene {
     set { _scene.nlight = newValue }
   }
   @inlinable
+  public var camera: (MjvGLCamera, MjvGLCamera) {
+    get { (MjvGLCamera(_scene.camera.0), MjvGLCamera(_scene.camera.1)) }
+    set {
+      _scene.camera.0 = newValue.0._glcamera
+      _scene.camera.1 = newValue.1._glcamera
+    }
+  }
+  @inlinable
   public var enabletransform: UInt8 {
     get { _scene.enabletransform }
     set { _scene.enabletransform = newValue }

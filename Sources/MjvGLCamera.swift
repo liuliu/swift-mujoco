@@ -6,4 +6,7 @@ public struct MjvGLCamera {
   public init() {
     _glcamera = mjvGLCamera()
   }
+  public init(_ glcamera: mjvGLCamera) {
+    _glcamera = glcamera
+  }
 }

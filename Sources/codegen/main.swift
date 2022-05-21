@@ -175,7 +175,7 @@ let SwiftType: [String: String] = [
 ]
 
 let WrappedMjStructs: [String] = [
-  "MjOption", "MjVisual",
+  "MjOption", "MjVisual", "MjvGLCamera",
 ]
 
 enum SwiftFieldType {
@@ -290,9 +290,25 @@ func structExtension(
         code += "    }\n"
       }
     } else if WrappedMjStructs.contains(fieldType.primitive) {
-      code += "    get { \(fieldType)(_\(varName)\(prefix).\(fieldName)) }\n"
-      code +=
-        "    set { _\(varName)\(prefix).\(fieldName) = newValue._\(fieldType.primitive.suffix(from: fieldName.index(fieldType.primitive.startIndex, offsetBy: 2)).lowercased()) }\n"
+      if case let .plain(primitiveType) = fieldType {
+        code += "    get { \(primitiveType)(_\(varName)\(prefix).\(fieldName)) }\n"
+        var fieldVarName = String(primitiveType.dropFirst())
+        fieldVarName = fieldVarName.suffix(from: fieldVarName.firstIndex(where: \.isUppercase)!)
+          .lowercased()
+        code +=
+          "    set { _\(varName)\(prefix).\(fieldName) = newValue._\(fieldVarName) }\n"
+      } else if case let .tuple(primitiveType, count) = fieldType {
+        code +=
+          "    get { (\((0..<count).map({ "\(primitiveType)(_\(varName)\(prefix).\(fieldName).\($0))" }).joined(separator: ", "))) }\n"
+        var fieldVarName = String(primitiveType.dropFirst())
+        fieldVarName = fieldVarName.suffix(from: fieldVarName.firstIndex(where: \.isUppercase)!)
+          .lowercased()
+        code += "    set {\n"
+        for i in 0..<count {
+          code += "      _\(varName)\(prefix).\(fieldName).\(i) = newValue.\(i)._\(fieldVarName)\n"
+        }
+        code += "    }\n"
+      }
     } else {
       code += "    get { _\(varName)\(prefix).\(fieldName) }\n"
       code += "    set { _\(varName)\(prefix).\(fieldName) = newValue }\n"
@@ -359,7 +375,7 @@ for thisStruct in structs {
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjData+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjvScene_" {
-    let code = structExtension(thisStruct, deny: ["lights", "camera"])
+    let code = structExtension(thisStruct, deny: ["lights"])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvScene+Extensions.swift"),
       atomically: false, encoding: .utf8)
