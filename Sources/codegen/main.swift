@@ -162,6 +162,7 @@ func enumDecl(_ thisEnum: Enum) -> String {
 
 let SwiftType: [String: String] = [
   "int": "Int32",
+  "unsigned int": "UInt32",
   "bool": "Bool",
   "mjtByte": "UInt8",
   "mjtNum": "Double",
@@ -292,9 +293,9 @@ func structExtension(
       if staticArray {
         if cast {
           ump =
-            "UnsafeMutableRawPointer(withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName), { $0 })).assumingMemoryBound(to: \(elType).self)"
+            "UnsafeMutableRawPointer(withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0, { $0 })).assumingMemoryBound(to: \(elType).self)"
         } else {
-          ump = "withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName), { $0 })"
+          ump = "withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0, { $0 })"
         }
       } else {
         if cast {
@@ -396,11 +397,6 @@ for thisStruct in structs {
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjData+Extensions.swift"),
       atomically: false, encoding: .utf8)
-  } else if thisStruct.name == "mjvScene_" {
-    let code = structExtension(thisStruct, staticArrayAsDynamic: ["lights"])
-    try! code.write(
-      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvScene+Extensions.swift"),
-      atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjModel_" {
     var code = "import C_mujoco\n"
     code += structExtension(
@@ -412,6 +408,24 @@ for thisStruct in structs {
       ])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjModel+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjvScene_" {
+    let code = structExtension(thisStruct, staticArrayAsDynamic: ["lights"])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvScene+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjrContext_" {
+    let code = structExtension(
+      thisStruct,
+      staticArrayAsDynamic: [
+        "auxWidth", "auxHeight", "auxSamples", "auxFBO", "auxFBO_r", "auxColor", "auxColor_r",
+        "textureType", "texture", "charWidth", "charWidthBig",
+      ],
+      excludingCamelCaseForProperties: [
+        "offFBO_r", "offColor_r", "offDepthStencil_r", "auxFBO_r", "auxColor_r",
+      ])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjrContext+Extensions.swift"),
       atomically: false, encoding: .utf8)
   }
 }
