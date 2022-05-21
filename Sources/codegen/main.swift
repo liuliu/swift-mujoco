@@ -172,6 +172,7 @@ let SwiftType: [String: String] = [
   "mjStatistic": "MjStatistic",
   "mjvGLCamera": "MjvGLCamera",
   "mjvGeom": "MjvGeom",
+  "mjvLight": "MjvLight",
 ]
 
 let WrappedMjStructs: [String] = [
@@ -181,14 +182,14 @@ let WrappedMjStructs: [String] = [
 enum SwiftFieldType {
   case plain(String)
   case tuple(String, Int)
-  case array(String)
+  case array(String, Int?, Bool)
   var primitive: String {
     switch self {
     case .plain(let name):
       return name
     case .tuple(let name, _):
       return name
-    case .array(let name):
+    case .array(let name, _, _):
       return name
     }
   }
@@ -201,19 +202,21 @@ extension SwiftFieldType: CustomStringConvertible {
       return name
     case .tuple(let name, let count):
       return "(" + [String](repeating: name, count: count).joined(separator: ", ") + ")"
-    case .array(let name):
+    case .array(let name, _, _):
       return "MjArray<\(name)>"
     }
   }
 }
 
-func swiftFieldType(structName: String, fieldName: String, fieldType: FieldType) -> SwiftFieldType {
+func swiftFieldType(
+  structName: String, fieldName: String, fieldType: FieldType, staticArrayAsDynamic: [String]
+) -> SwiftFieldType {
   var primitiveType = ""
   switch fieldType {
   case .plain(let typeName):
     if typeName.hasSuffix("*") {
       let elTypeName = typeName.dropLast().trimmingCharacters(in: .whitespaces)
-      return .array(SwiftType[elTypeName]!)
+      return .array(SwiftType[elTypeName]!, nil, false)
     } else {
       primitiveType = SwiftType[typeName]!
     }
@@ -223,11 +226,16 @@ func swiftFieldType(structName: String, fieldName: String, fieldType: FieldType)
   case .sum(_):
     break
   }
-  // This is an array type.
+  // This is an static array.
   if let range = fieldName.range(of: #"\[\w+\]"#, options: .regularExpression) {
     let matched = fieldName[range].dropFirst().dropLast()
     let count = Int(matched) ?? definedConstants[String(matched)]!
-    return .tuple(primitiveType, count)
+    // Treat this as dynamic array (these with suffix *).
+    if staticArrayAsDynamic.contains(cleanupFieldName(name: fieldName)) {
+      return .array(primitiveType, count, true)
+    } else {
+      return .tuple(primitiveType, count)
+    }
   }
   return .plain(primitiveType)
 }
@@ -256,39 +264,51 @@ func structExtension(
     let fieldName = cleanupFieldName(name: name)
     guard !denySet.contains(fieldName) else { continue }
     code += "  @inlinable\n"
-    let fieldType = swiftFieldType(structName: thisStruct.name, fieldName: name, fieldType: type)
+    let fieldType = swiftFieldType(
+      structName: thisStruct.name, fieldName: name, fieldType: type,
+      staticArrayAsDynamic: staticArrayAsDynamic)
     if excludingCamelCaseForProperties.contains(fieldName) {
       code += "  var \(fieldName): \(fieldType) {\n"
     } else {
       code += "  var \(fieldName.camelCase()): \(fieldType) {\n"
     }
     // If this is MjArray, we need to have more parsing, particularly on the comment.
-    if case .array(let elType) = fieldType {
+    if case let .array(elType, maxCount, staticArray) = fieldType {
       guard let comment = comment else { fatalError() }
-      let range = comment.range(of: #"\(n\w+.*\)"#, options: .regularExpression)!
-      var count = comment[range].dropFirst().dropLast().replacingOccurrences(of: " x ", with: " * ")
-      for (key, value) in propertiesMapping {
-        count = count.replacingOccurrences(of: key, with: value)
+      // If the maxCount is available, use that. And then if we can extract more precise information, use that later.
+      var arrayCount: String? = maxCount.flatMap { "\($0)" }
+      if let range = comment.range(of: #"\(n\w+.*\)"#, options: .regularExpression) {
+        arrayCount = comment[range].dropFirst().dropLast().replacingOccurrences(
+          of: " x ", with: " * ")
+        for (key, value) in propertiesMapping {
+          arrayCount = arrayCount?.replacingOccurrences(of: key, with: value)
+        }
       }
+      let count = arrayCount!
       let cast = elType.hasPrefix("Mj")  // For these, we need to force cast the type.
-      if cast {
-        code +=
-          "    get { \(fieldType)(array: UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(elType).self), object: self, len: \(count)) }\n"
-        code += "    set {\n"
-        code +=
-          "      let unsafeMutablePointer = UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(elType).self)\n"
-        code += "      guard unsafeMutablePointer != newValue._array else { return }\n"
-        code += "      unsafeMutablePointer.assign(from: newValue._array, count: Int(\(count)))\n"
-        code += "    }\n"
+      let ump: String
+      if staticArray {
+        if cast {
+          ump =
+            "UnsafeMutableRawPointer(withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName), { $0 })).assumingMemoryBound(to: \(elType).self)"
+        } else {
+          ump = "withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName), { $0 })"
+        }
       } else {
-        code +=
-          "    get { \(fieldType)(array: _\(varName)\(prefix).\(fieldName), object: self, len: \(count)) }\n"
-        code += "    set {\n"
-        code += "      guard _\(varName)\(prefix).\(fieldName) != newValue._array else { return }\n"
-        code +=
-          "      _\(varName)\(prefix).\(fieldName).assign(from: newValue._array, count: Int(\(count)))\n"
-        code += "    }\n"
+        if cast {
+          ump =
+            "UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(elType).self)"
+        } else {
+          ump = "_\(varName)\(prefix).\(fieldName)"
+        }
       }
+      code +=
+        "    get { \(fieldType)(array: \(ump), object: self, len: \(count)) }\n"
+      code += "    set {\n"
+      code += "      let unsafeMutablePointer: UnsafeMutablePointer<\(elType)> = \(ump)\n"
+      code += "      guard unsafeMutablePointer != newValue._array else { return }\n"
+      code += "      unsafeMutablePointer.assign(from: newValue._array, count: Int(\(count)))\n"
+      code += "    }\n"
     } else if WrappedMjStructs.contains(fieldType.primitive) {
       if case let .plain(primitiveType) = fieldType {
         code += "    get { \(primitiveType)(_\(varName)\(prefix).\(fieldName)) }\n"
@@ -375,7 +395,7 @@ for thisStruct in structs {
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjData+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjvScene_" {
-    let code = structExtension(thisStruct, deny: ["lights"])
+    let code = structExtension(thisStruct, staticArrayAsDynamic: ["lights"])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvScene+Extensions.swift"),
       atomically: false, encoding: .utf8)

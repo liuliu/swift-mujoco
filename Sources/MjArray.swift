@@ -1,3 +1,6 @@
+// The difference of this v.s. using UnsafeMutableBufferPointer is that MjArray will hold a
+// reference to the owner of that piece of memory, therefore, making sure the access is safe even
+// though underlying it is backed by UnsafeMutablePointer.
 public struct MjArray<Element> {
   private var object: AnyObject  // Make sure the array is valid.
   @usableFromInline

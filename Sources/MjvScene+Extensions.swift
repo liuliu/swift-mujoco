@@ -17,8 +17,9 @@ extension MjvScene {
         object: self, len: ngeom)
     }
     set {
-      let unsafeMutablePointer = UnsafeMutableRawPointer(_scene.geoms).assumingMemoryBound(
-        to: MjvGeom.self)
+      let unsafeMutablePointer: UnsafeMutablePointer<MjvGeom> = UnsafeMutableRawPointer(
+        _scene.geoms
+      ).assumingMemoryBound(to: MjvGeom.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(ngeom))
     }
@@ -27,8 +28,9 @@ extension MjvScene {
   public var geomorder: MjArray<Int32> {
     get { MjArray<Int32>(array: _scene.geomorder, object: self, len: ngeom) }
     set {
-      guard _scene.geomorder != newValue._array else { return }
-      _scene.geomorder.assign(from: newValue._array, count: Int(ngeom))
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _scene.geomorder
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(ngeom))
     }
   }
   @inlinable
@@ -40,46 +42,66 @@ extension MjvScene {
   public var skinfacenum: MjArray<Int32> {
     get { MjArray<Int32>(array: _scene.skinfacenum, object: self, len: nskin) }
     set {
-      guard _scene.skinfacenum != newValue._array else { return }
-      _scene.skinfacenum.assign(from: newValue._array, count: Int(nskin))
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _scene.skinfacenum
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nskin))
     }
   }
   @inlinable
   public var skinvertadr: MjArray<Int32> {
     get { MjArray<Int32>(array: _scene.skinvertadr, object: self, len: nskin) }
     set {
-      guard _scene.skinvertadr != newValue._array else { return }
-      _scene.skinvertadr.assign(from: newValue._array, count: Int(nskin))
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _scene.skinvertadr
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nskin))
     }
   }
   @inlinable
   public var skinvertnum: MjArray<Int32> {
     get { MjArray<Int32>(array: _scene.skinvertnum, object: self, len: nskin) }
     set {
-      guard _scene.skinvertnum != newValue._array else { return }
-      _scene.skinvertnum.assign(from: newValue._array, count: Int(nskin))
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _scene.skinvertnum
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nskin))
     }
   }
   @inlinable
   public var skinvert: MjArray<Float> {
     get { MjArray<Float>(array: _scene.skinvert, object: self, len: nskin) }
     set {
-      guard _scene.skinvert != newValue._array else { return }
-      _scene.skinvert.assign(from: newValue._array, count: Int(nskin))
+      let unsafeMutablePointer: UnsafeMutablePointer<Float> = _scene.skinvert
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nskin))
     }
   }
   @inlinable
   public var skinnormal: MjArray<Float> {
     get { MjArray<Float>(array: _scene.skinnormal, object: self, len: nskin) }
     set {
-      guard _scene.skinnormal != newValue._array else { return }
-      _scene.skinnormal.assign(from: newValue._array, count: Int(nskin))
+      let unsafeMutablePointer: UnsafeMutablePointer<Float> = _scene.skinnormal
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nskin))
     }
   }
   @inlinable
   public var nlight: Int32 {
     get { _scene.nlight }
     set { _scene.nlight = newValue }
+  }
+  @inlinable
+  public var lights: MjArray<MjvLight> {
+    get {
+      MjArray<MjvLight>(
+        array: UnsafeMutableRawPointer(withUnsafeMutablePointer(to: &_scene.lights, { $0 }))
+          .assumingMemoryBound(to: MjvLight.self), object: self, len: nlight)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<MjvLight> = UnsafeMutableRawPointer(
+        withUnsafeMutablePointer(to: &_scene.lights, { $0 })
+      ).assumingMemoryBound(to: MjvLight.self)
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nlight))
+    }
   }
   @inlinable
   public var camera: (MjvGLCamera, MjvGLCamera) {
