@@ -112,27 +112,4 @@ public final class MjModel {
   public func reset(data: MjData, keyframe: Int32) {
     mj_resetDataKeyframe(_model, data._data, keyframe)
   }
-
-  // Initial State.
-  @inlinable
-  public var qpos0: MjArray<Double> {
-    get {
-      MjArray<Double>(array: _model.pointee.qpos0, object: self, len: _model.pointee.nq)
-    }
-    set {
-      guard _model.pointee.qpos0 != newValue._array else { return }
-      _model.pointee.qpos0.assign(from: newValue._array, count: Int(_model.pointee.nq))
-    }
-  }
-
-  @inlinable
-  public var qpos_spring: MjArray<Double> {
-    get {
-      MjArray<Double>(array: _model.pointee.qpos_spring, object: self, len: _model.pointee.nq)
-    }
-    set {
-      guard _model.pointee.qpos_spring != newValue._array else { return }
-      _model.pointee.qpos_spring.assign(from: newValue._array, count: Int(_model.pointee.nq))
-    }
-  }
 }

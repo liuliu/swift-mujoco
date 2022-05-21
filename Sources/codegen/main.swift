@@ -161,8 +161,17 @@ let SwiftType: [String: String] = [
   "bool": "Bool",
   "mjtByte": "UInt8",
   "mjtNum": "Double",
+  "char": "Int8",
   "void": "UInt8",
+  "float": "Float",
   "mjContact": "MjContact",
+  "mjOption": "MjOption",
+  "mjVisual": "MjVisual",
+  "mjStatistic": "MjStatistic",
+]
+
+let WrappedMjStructs: [String] = [
+  "MjOption", "MjVisual",
 ]
 
 func swiftFieldType(structName: String, fieldName: String, fieldType: FieldType) -> String {
@@ -194,7 +203,10 @@ func cleanupFieldName(name: String) -> String {
   return String(name.prefix(while: { $0 != "[" }))
 }
 
-func structExtension(_ thisStruct: Struct, prefix: String = "", deny: [String] = []) -> String {
+func structExtension(
+  _ thisStruct: Struct, prefix: String = "", deny: [String] = [],
+  propertiesMapping: [String: String] = [:]
+) -> String {
   precondition(thisStruct.name.hasPrefix("mj"))
   let swiftName_ =
     "Mj"
@@ -215,7 +227,10 @@ func structExtension(_ thisStruct: Struct, prefix: String = "", deny: [String] =
     if fieldType.hasPrefix("MjArray") {
       guard let comment = comment else { fatalError() }
       let range = comment.range(of: #"\(n\w+.*\)"#, options: .regularExpression)!
-      let count = comment[range].dropFirst().dropLast().replacingOccurrences(of: " x ", with: " * ")
+      var count = comment[range].dropFirst().dropLast().replacingOccurrences(of: " x ", with: " * ")
+      for (key, value) in propertiesMapping {
+        count = count.replacingOccurrences(of: key, with: value)
+      }
       let cast = fieldType.hasPrefix("MjArray<Mj")  // For these, we need to force cast the type.
       if cast {
         let castType = fieldType.suffix(from: fieldType.index(fieldType.startIndex, offsetBy: 8))
@@ -237,6 +252,10 @@ func structExtension(_ thisStruct: Struct, prefix: String = "", deny: [String] =
           "      _\(varName)\(prefix).\(fieldName).assign(from: newValue._array, count: Int(\(count)))\n"
         code += "    }\n"
       }
+    } else if WrappedMjStructs.contains(fieldType) {
+      code += "    get { \(fieldType)(_\(varName)\(prefix).\(fieldName)) }\n"
+      code +=
+        "    set { _\(varName)\(prefix).\(fieldName) = newValue._\(fieldType.suffix(from: fieldName.index(fieldType.startIndex, offsetBy: 2)).lowercased()) }\n"
     } else {
       code += "    get { _\(varName)\(prefix).\(fieldName) }\n"
       code += "    set { _\(varName)\(prefix).\(fieldName) = newValue }\n"
@@ -254,9 +273,21 @@ for thisEnum in enums {
 */
 
 for thisStruct in structs {
+  /*
   if thisStruct.name == "mjData_" {
     print(
       structExtension(
         thisStruct, prefix: ".pointee", deny: ["warning", "timer", "solver", "buffer", "stack"]))
+  }
+  */
+  if thisStruct.name == "mjModel_" {
+    print(
+      structExtension(
+        thisStruct, prefix: ".pointee", deny: ["buffer"],
+        propertiesMapping: [
+          "nuser_jnt": "nuserJnt", "nuser_geom": "nuserGeom", "nuser_site": "nuserSite",
+          "nuser_cam": "nuserCam", "nuser_tendon": "nuserTendon", "nuser_actuator": "nuserActuator",
+          "nuser_sensor": "nuserSensor", "nuser_body": "nuserBody",
+        ]))
   }
 }
