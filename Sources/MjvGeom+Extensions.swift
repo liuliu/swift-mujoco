@@ -1,8 +1,8 @@
 extension MjvGeom {
   @inlinable
-  public var type: Int32 {
-    get { _geom.type }
-    set { _geom.type = newValue }
+  public var type: MjGeom {
+    get { MjGeom(rawValue: _geom.type)! }
+    set { _geom.type = newValue.rawValue }
   }
   @inlinable
   public var dataid: Int32 {

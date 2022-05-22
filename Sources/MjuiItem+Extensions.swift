@@ -1,8 +1,8 @@
 extension MjuiItem {
   @inlinable
-  public var type: Int32 {
-    get { _item.pointee.type }
-    set { _item.pointee.type = newValue }
+  public var type: MjItem {
+    get { MjItem(rawValue: _item.pointee.type)! }
+    set { _item.pointee.type = newValue.rawValue }
   }
   @inlinable
   public var name: String {

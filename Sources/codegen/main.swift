@@ -186,6 +186,8 @@ let WrappedMjStructs: [String] = [
   "MjOption", "MjVisual", "MjvGLCamera", "MjuiThemeSpacing", "MjuiThemeColor",
 ]
 
+var WrappedMjEnums = Set<String>()
+
 enum SwiftArrayType {
   case plain(String)
   case tuple(String, Int)
@@ -276,7 +278,7 @@ func swiftFieldType(
       let elType = commentType ?? SwiftType[elTypeName]!
       return .array(.plain(elType), nil, false)
     } else {
-      primitiveType = SwiftType[typeName]!
+      primitiveType = commentType ?? SwiftType[typeName]!
     }
   case .product(_):
     let fieldName = cleanupFieldName(name: fieldName)
@@ -422,6 +424,20 @@ func structExtension(
         }
         code += "    }\n"
       }
+    } else if WrappedMjEnums.contains(fieldType.primitive) {
+      if case let .plain(primitiveType) = fieldType {
+        code += "    get { \(primitiveType)(rawValue: _\(varName)\(prefix).\(fieldName))! }\n"
+        code +=
+          "    set { _\(varName)\(prefix).\(fieldName) = newValue.rawValue }\n"
+      } else if case let .tuple(primitiveType, count) = fieldType {
+        code +=
+          "    get { (\((0..<count).map({ "\(primitiveType)(rawValue: _\(varName)\(prefix).\(fieldName).\($0))!" }).joined(separator: ", "))) }\n"
+        code += "    set {\n"
+        for i in 0..<count {
+          code += "      _\(varName)\(prefix).\(fieldName).\(i) = newValue.\(i).rawValue\n"
+        }
+        code += "    }\n"
+      }
     } else if case .staticString(let count) = fieldType {
       code += "    get {\n"
       code += "      var value = _\(varName)\(prefix).\(fieldName)\n"
@@ -454,6 +470,10 @@ func structExtension(
 
 var mjtCode = ""
 for thisEnum in enums {
+  let swiftName_ =
+    "Mj" + thisEnum.name.suffix(from: thisEnum.name.index(thisEnum.name.startIndex, offsetBy: 3))
+  let swiftName = swiftName_.prefix(upTo: swiftName_.index(swiftName_.endIndex, offsetBy: -1))
+  WrappedMjEnums.insert(String(swiftName))
   mjtCode += enumDecl(thisEnum)
 }
 try! mjtCode.write(

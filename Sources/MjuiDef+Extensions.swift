@@ -1,8 +1,8 @@
 extension MjuiDef {
   @inlinable
-  public var type: Int32 {
-    get { _def.type }
-    set { _def.type = newValue }
+  public var type: MjItem {
+    get { MjItem(rawValue: _def.type)! }
+    set { _def.type = newValue.rawValue }
   }
   @inlinable
   public var name: String {

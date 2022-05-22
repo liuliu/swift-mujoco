@@ -1,13 +1,13 @@
 extension MjvOption {
   @inlinable
-  public var label: Int32 {
-    get { _option.label }
-    set { _option.label = newValue }
+  public var label: MjLabel {
+    get { MjLabel(rawValue: _option.label)! }
+    set { _option.label = newValue.rawValue }
   }
   @inlinable
-  public var frame: Int32 {
-    get { _option.frame }
-    set { _option.frame = newValue }
+  public var frame: MjFrame {
+    get { MjFrame(rawValue: _option.frame)! }
+    set { _option.frame = newValue.rawValue }
   }
   @inlinable
   public var geomgroup: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8) {

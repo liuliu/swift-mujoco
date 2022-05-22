@@ -1,8 +1,8 @@
 extension MjvCamera {
   @inlinable
-  public var type: Int32 {
-    get { _camera.type }
-    set { _camera.type = newValue }
+  public var type: MjCamera {
+    get { MjCamera(rawValue: _camera.type)! }
+    set { _camera.type = newValue.rawValue }
   }
   @inlinable
   public var fixedcamid: Int32 {

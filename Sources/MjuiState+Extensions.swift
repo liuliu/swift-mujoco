@@ -41,9 +41,9 @@ extension MjuiState {
     set { _state.doubleclick = newValue }
   }
   @inlinable
-  public var button: Int32 {
-    get { _state.button }
-    set { _state.button = newValue }
+  public var button: MjButton {
+    get { MjButton(rawValue: _state.button)! }
+    set { _state.button = newValue.rawValue }
   }
   @inlinable
   public var buttontime: Double {
@@ -116,8 +116,8 @@ extension MjuiState {
     set { _state.dragrect = newValue }
   }
   @inlinable
-  public var dragbutton: Int32 {
-    get { _state.dragbutton }
-    set { _state.dragbutton = newValue }
+  public var dragbutton: MjButton {
+    get { MjButton(rawValue: _state.dragbutton)! }
+    set { _state.dragbutton = newValue.rawValue }
   }
 }

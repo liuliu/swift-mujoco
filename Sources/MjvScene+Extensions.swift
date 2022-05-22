@@ -132,9 +132,9 @@ extension MjvScene {
     set { _scene.scale = newValue }
   }
   @inlinable
-  public var stereo: Int32 {
-    get { _scene.stereo }
-    set { _scene.stereo = newValue }
+  public var stereo: MjStereo {
+    get { MjStereo(rawValue: _scene.stereo)! }
+    set { _scene.stereo = newValue.rawValue }
   }
   @inlinable
   public var flags: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8) {

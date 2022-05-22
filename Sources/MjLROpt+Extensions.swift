@@ -1,8 +1,8 @@
 extension MjLROpt {
   @inlinable
-  public var mode: Int32 {
-    get { _lropt.mode }
-    set { _lropt.mode = newValue }
+  public var mode: MjLRMode {
+    get { MjLRMode(rawValue: _lropt.mode)! }
+    set { _lropt.mode = newValue.rawValue }
   }
   @inlinable
   public var useexisting: Int32 {
