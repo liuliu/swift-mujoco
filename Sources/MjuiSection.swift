@@ -11,3 +11,50 @@ public struct MjuiSection {
     _section = section
   }
 }
+
+public struct MjuiItemArray {
+  @usableFromInline
+  var object: AnyObject  // Make sure the array is valid.
+  @usableFromInline
+  var len: Int32
+  @usableFromInline
+  var _array: UnsafeMutablePointer<mjuiItem_>
+  @usableFromInline
+  init(array: UnsafeMutablePointer<mjuiItem_>, object: AnyObject, len: Int32) {
+    _array = array
+    self.object = object
+    self.len = len
+  }
+  @inlinable
+  public subscript(index: Int) -> MjuiItem {
+    get {
+      precondition(index < len)
+      return MjuiItem(object: object, item: _array + index)
+    }
+    set {
+      precondition(index < len)
+      guard _array + index != newValue._item else { return }
+      (_array + index).assign(from: newValue._item, count: 1)
+    }
+  }
+  @inlinable
+  public var count: Int { Int(len) }
+}
+
+extension MjuiSection {
+  @inlinable
+  public var item: MjuiItemArray {
+    get {
+      MjuiItemArray(
+        array: withUnsafeMutablePointer(to: &_section.pointee.item.0) { $0 }, object: object,
+        len: _section.pointee.nitem)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<mjuiItem_> = withUnsafeMutablePointer(
+        to: &_section.pointee.item.0
+      ) { $0 }
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(_section.pointee.nitem))
+    }
+  }
+}

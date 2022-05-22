@@ -604,5 +604,10 @@ for thisStruct in structs {
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjUI+Extensions.swift"),
       atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjuiDef_" {
+    let code = structExtension(thisStruct, deny: ["pdata"])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiDef+Extensions.swift"),
+      atomically: false, encoding: .utf8)
   }
 }

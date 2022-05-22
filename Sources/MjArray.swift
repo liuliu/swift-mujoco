@@ -24,6 +24,8 @@ public struct MjArray<Element> {
       _array[index] = newValue
     }
   }
+  @inlinable
+  public var count: Int { Int(len) }
 }
 
 public struct MjStaticStringArray {
@@ -61,4 +63,6 @@ public struct MjStaticStringArray {
       }
     }
   }
+  @inlinable
+  public var count: Int { Int(len) }
 }
