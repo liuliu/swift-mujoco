@@ -7,7 +7,8 @@ public struct MjVisual {
     _visual = mjVisual()
     mj_defaultVisual(&_visual)
   }
-  public init(_ visual: mjVisual) {
+  @usableFromInline
+  init(_ visual: mjVisual) {
     _visual = visual
   }
 }

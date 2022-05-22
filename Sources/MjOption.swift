@@ -7,7 +7,8 @@ public struct MjOption {
     _option = mjOption()
     mj_defaultOption(&_option)
   }
-  public init(_ option: mjOption) {
+  @usableFromInline
+  init(_ option: mjOption) {
     _option = option
   }
 }

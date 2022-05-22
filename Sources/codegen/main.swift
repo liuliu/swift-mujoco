@@ -178,10 +178,12 @@ let SwiftType: [String: String] = [
   "mjvGeom": "MjvGeom",
   "mjvLight": "MjvLight",
   "mjrRect": "MjrRect",
+  "mjuiThemeSpacing": "MjuiThemeSpacing",
+  "mjuiThemeColor": "MjuiThemeColor",
 ]
 
 let WrappedMjStructs: [String] = [
-  "MjOption", "MjVisual", "MjvGLCamera",
+  "MjOption", "MjVisual", "MjvGLCamera", "MjuiThemeSpacing", "MjuiThemeColor",
 ]
 
 enum SwiftArrayType {
@@ -547,6 +549,21 @@ for thisStruct in structs {
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjrContext+Extensions.swift"),
       atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjuiState_" {
+    let code = structExtension(thisStruct, deny: ["userdata"])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiState+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjuiThemeSpacing_" {
+    let code = structExtension(thisStruct)
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiThemeSpacing+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjuiThemeColor_" {
+    let code = structExtension(thisStruct)
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiThemeColor+Extensions.swift"),
+      atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItemSingle_" {
     let code = structExtension(thisStruct, prefix: ".pointee")
     try! code.write(
@@ -575,6 +592,17 @@ for thisStruct in structs {
       boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItem+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjuiSection_" {
+    let code = structExtension(thisStruct, prefix: ".pointee", deny: ["item"])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiSection+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjUI_" {
+    let code = structExtension(
+      thisStruct, prefix: ".pointee", deny: ["predicate", "userdata", "editchanged", "sect"])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjUI+Extensions.swift"),
       atomically: false, encoding: .utf8)
   }
 }
