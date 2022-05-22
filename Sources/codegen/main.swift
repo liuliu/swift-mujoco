@@ -177,6 +177,7 @@ let SwiftType: [String: String] = [
   "mjvGLCamera": "MjvGLCamera",
   "mjvGeom": "MjvGeom",
   "mjvLight": "MjvLight",
+  "mjrRect": "MjrRect",
 ]
 
 let WrappedMjStructs: [String] = [
@@ -567,6 +568,13 @@ for thisStruct in structs {
       thisStruct, prefix: ".pointee", staticArrayAsDynamic: ["range"])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemEdit+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjuiItem_" {
+    let code = structExtension(
+      thisStruct, prefix: ".pointee", deny: ["*pdata", "single", "multi", "slider", "edit"],
+      boundingObject: "object")
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItem+Extensions.swift"),
       atomically: false, encoding: .utf8)
   }
 }
