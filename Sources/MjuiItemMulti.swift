@@ -1,9 +1,12 @@
 import C_mujoco
 
-public final class MjuiItemMulti {
+public struct MjuiItemMulti {
   @usableFromInline
-  var _itemmulti: mjuiItemMulti_
-  public init() {
-    _itemmulti = mjuiItemMulti_()
+  var object: AnyObject
+  @usableFromInline
+  var _itemmulti: UnsafeMutablePointer<mjuiItemMulti_>
+  public init(object: AnyObject, itemmulti: UnsafeMutablePointer<mjuiItemMulti_>) {
+    self.object = object
+    _itemmulti = itemmulti
   }
 }

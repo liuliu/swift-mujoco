@@ -324,7 +324,8 @@ func structExtension(
   _ thisStruct: Struct, prefix: String = "", deny: [String] = [],
   propertiesMapping: [String: String] = [:],
   staticArrayAsDynamic: [String] = [],
-  excludingCamelCaseForProperties: [String] = []
+  excludingCamelCaseForProperties: [String] = [],
+  boundingObject: String = "self"
 ) -> String {
   precondition(thisStruct.name.hasPrefix("mj"))
   let swiftName_ =
@@ -365,7 +366,7 @@ func structExtension(
         precondition(staticArray)
         let ump = "withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0.0, { $0 })"
         code +=
-          "    get { \(fieldType)(array: \(ump), object: self, len: \(count), strlen: \(strlen)) }\n"
+          "    get { \(fieldType)(array: \(ump), object: \(boundingObject), len: \(count), strlen: \(strlen)) }\n"
         code += "    set {\n"
         code += "      let unsafeMutablePointer: UnsafeMutablePointer<CChar> = \(ump)\n"
         code += "      guard unsafeMutablePointer != newValue._array else { return }\n"
@@ -391,7 +392,7 @@ func structExtension(
           }
         }
         code +=
-          "    get { \(fieldType)(array: \(ump), object: self, len: \(count)) }\n"
+          "    get { \(fieldType)(array: \(ump), object: \(boundingObject), len: \(count)) }\n"
         code += "    set {\n"
         code += "      let unsafeMutablePointer: UnsafeMutablePointer<\(elType)> = \(ump)\n"
         code += "      guard unsafeMutablePointer != newValue._array else { return }\n"
@@ -545,13 +546,25 @@ for thisStruct in structs {
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjrContext+Extensions.swift"),
       atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjuiItemSingle_" {
+    let code = structExtension(thisStruct, prefix: ".pointee", boundingObject: "object")
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemSingle+Extensions.swift"),
+      atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItemMulti_" {
-    let code = structExtension(thisStruct, staticArrayAsDynamic: ["name"])
+    let code = structExtension(
+      thisStruct, prefix: ".pointee", staticArrayAsDynamic: ["name"], boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemMulti+Extensions.swift"),
       atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjuiItemSlider_" {
+    let code = structExtension(thisStruct, prefix: ".pointee", boundingObject: "object")
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemSlider+Extensions.swift"),
+      atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItemEdit_" {
-    let code = structExtension(thisStruct, staticArrayAsDynamic: ["range"])
+    let code = structExtension(
+      thisStruct, prefix: ".pointee", staticArrayAsDynamic: ["range"], boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemRange+Extensions.swift"),
       atomically: false, encoding: .utf8)

@@ -1,9 +1,12 @@
 import C_mujoco
 
-public final class MjuiItemEdit {
+public struct MjuiItemEdit {
   @usableFromInline
-  var _itemedit: mjuiItemEdit_
-  public init() {
-    _itemedit = mjuiItemEdit_()
+  var object: AnyObject
+  @usableFromInline
+  var _itemedit: UnsafeMutablePointer<mjuiItemEdit_>
+  public init(object: AnyObject, itemedit: UnsafeMutablePointer<mjuiItemEdit_>) {
+    self.object = object
+    _itemedit = itemedit
   }
 }
