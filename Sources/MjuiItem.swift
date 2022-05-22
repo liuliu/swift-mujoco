@@ -6,13 +6,15 @@ public struct MjuiItem {
   var object: AnyObject
   @usableFromInline
   var _item: UnsafeMutablePointer<mjuiItem_>
-  public init(object: AnyObject, item: UnsafeMutablePointer<mjuiItem_>) {
+  @usableFromInline
+  init(object: AnyObject, item: UnsafeMutablePointer<mjuiItem_>) {
     self.object = object
     _item = item
   }
 }
 
 extension MjuiItem {
+  @inlinable
   public var single: MjuiItemSingle {
     get {
       MjuiItemSingle(
@@ -24,6 +26,7 @@ extension MjuiItem {
       unsafeMutablePointer.assign(from: newValue._itemsingle, count: 1)
     }
   }
+  @inlinable
   public var multi: MjuiItemMulti {
     get {
       MjuiItemMulti(
@@ -35,6 +38,7 @@ extension MjuiItem {
       unsafeMutablePointer.assign(from: newValue._itemmulti, count: 1)
     }
   }
+  @inlinable
   public var slider: MjuiItemSlider {
     get {
       MjuiItemSlider(
@@ -46,6 +50,7 @@ extension MjuiItem {
       unsafeMutablePointer.assign(from: newValue._itemslider, count: 1)
     }
   }
+  @inlinable
   public var edit: MjuiItemEdit {
     get {
       MjuiItemEdit(

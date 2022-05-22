@@ -565,24 +565,24 @@ for thisStruct in structs {
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiThemeColor+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItemSingle_" {
-    let code = structExtension(thisStruct, prefix: ".pointee")
+    let code = structExtension(thisStruct, prefix: ".pointee", boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemSingle+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItemMulti_" {
     let code = structExtension(
-      thisStruct, prefix: ".pointee", staticArrayAsDynamic: ["name"])
+      thisStruct, prefix: ".pointee", staticArrayAsDynamic: ["name"], boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemMulti+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItemSlider_" {
-    let code = structExtension(thisStruct, prefix: ".pointee")
+    let code = structExtension(thisStruct, prefix: ".pointee", boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemSlider+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItemEdit_" {
     let code = structExtension(
-      thisStruct, prefix: ".pointee", staticArrayAsDynamic: ["range"])
+      thisStruct, prefix: ".pointee", staticArrayAsDynamic: ["range"], boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemEdit+Extensions.swift"),
       atomically: false, encoding: .utf8)
