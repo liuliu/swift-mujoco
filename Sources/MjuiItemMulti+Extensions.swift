@@ -8,7 +8,7 @@ extension MjuiItemMulti {
   public var name: MjStaticStringArray {
     get {
       MjStaticStringArray(
-        array: withUnsafeMutablePointer(to: &_itemmulti.pointee.name.0.0, { $0 }), object: object,
+        array: withUnsafeMutablePointer(to: &_itemmulti.pointee.name.0.0, { $0 }), object: self,
         len: 35, strlen: 40)
     }
     set {

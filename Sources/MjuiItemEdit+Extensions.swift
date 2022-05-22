@@ -8,7 +8,7 @@ extension MjuiItemEdit {
   public var range: MjArray<(Double, Double)> {
     get {
       MjArray<(Double, Double)>(
-        array: withUnsafeMutablePointer(to: &_itemedit.pointee.range.0, { $0 }), object: object,
+        array: withUnsafeMutablePointer(to: &_itemedit.pointee.range.0, { $0 }), object: self,
         len: 7)
     }
     set {
