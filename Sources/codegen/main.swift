@@ -238,7 +238,11 @@ extension SwiftFieldType: CustomStringConvertible {
     case .tuple(let name, let count):
       return "(" + [String](repeating: name, count: count).joined(separator: ", ") + ")"
     case .array(let name, _, _):
-      return "MjArray<\(name)>"
+      if case .staticString(_) = name {
+        return "MjStaticStringArray"
+      } else {
+        return "MjArray<\(name)>"
+      }
     case .staticString(_):
       return "String"
     }
@@ -356,30 +360,43 @@ func structExtension(
         }
       }
       let count = arrayCount!
-      let cast = elType.primitive.hasPrefix("Mj")  // For these, we need to force cast the type.
-      let ump: String
-      if staticArray {
-        if cast {
-          ump =
-            "UnsafeMutableRawPointer(withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0, { $0 })).assumingMemoryBound(to: \(elType).self)"
-        } else {
-          ump = "withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0, { $0 })"
-        }
+      if case .staticString(let strlen) = elType {
+        precondition(staticArray)
+        let ump = "withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0.0, { $0 })"
+        code +=
+          "    get { \(fieldType)(array: \(ump), object: self, len: \(count), strlen: \(strlen)) }\n"
+        code += "    set {\n"
+        code += "      let unsafeMutablePointer: UnsafeMutablePointer<CChar> = \(ump)\n"
+        code += "      guard unsafeMutablePointer != newValue._array else { return }\n"
+        code +=
+          "      unsafeMutablePointer.assign(from: newValue._array, count: Int(\(count)) * \(strlen))\n"
+        code += "    }\n"
       } else {
-        if cast {
-          ump =
-            "UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(elType).self)"
+        let cast = elType.primitive.hasPrefix("Mj")  // For these, we need to force cast the type.
+        let ump: String
+        if staticArray {
+          if cast {
+            ump =
+              "UnsafeMutableRawPointer(withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0, { $0 })).assumingMemoryBound(to: \(elType).self)"
+          } else {
+            ump = "withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0, { $0 })"
+          }
         } else {
-          ump = "_\(varName)\(prefix).\(fieldName)"
+          if cast {
+            ump =
+              "UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(elType).self)"
+          } else {
+            ump = "_\(varName)\(prefix).\(fieldName)"
+          }
         }
+        code +=
+          "    get { \(fieldType)(array: \(ump), object: self, len: \(count)) }\n"
+        code += "    set {\n"
+        code += "      let unsafeMutablePointer: UnsafeMutablePointer<\(elType)> = \(ump)\n"
+        code += "      guard unsafeMutablePointer != newValue._array else { return }\n"
+        code += "      unsafeMutablePointer.assign(from: newValue._array, count: Int(\(count)))\n"
+        code += "    }\n"
       }
-      code +=
-        "    get { \(fieldType)(array: \(ump), object: self, len: \(count)) }\n"
-      code += "    set {\n"
-      code += "      let unsafeMutablePointer: UnsafeMutablePointer<\(elType)> = \(ump)\n"
-      code += "      guard unsafeMutablePointer != newValue._array else { return }\n"
-      code += "      unsafeMutablePointer.assign(from: newValue._array, count: Int(\(count)))\n"
-      code += "    }\n"
     } else if WrappedMjStructs.contains(fieldType.primitive) {
       if case let .plain(primitiveType) = fieldType {
         code += "    get { \(primitiveType)(_\(varName)\(prefix).\(fieldName)) }\n"
@@ -510,10 +527,7 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjvFigure_" {
     let code = structExtension(
       thisStruct, prefix: ".pointee",
-      deny: [
-        "linergb", "range", "xformat", "yformat", "minwidth", "title", "xlabel", "linename",
-        "linedata",
-      ], staticArrayAsDynamic: ["linepnt"])
+      deny: ["linedata"], staticArrayAsDynamic: ["linergb", "range", "linename", "linepnt"])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvFigure+Extensions.swift"),
       atomically: false, encoding: .utf8)

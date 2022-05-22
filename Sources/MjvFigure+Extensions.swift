@@ -70,6 +70,142 @@ extension MjvFigure {
     set { _figure.pointee.textrgb = newValue }
   }
   @inlinable
+  public var linergb: MjArray<(Float, Float, Float)> {
+    get {
+      MjArray<(Float, Float, Float)>(
+        array: withUnsafeMutablePointer(to: &_figure.pointee.linergb.0, { $0 }), object: self,
+        len: 100)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<(Float, Float, Float)> =
+        withUnsafeMutablePointer(to: &_figure.pointee.linergb.0, { $0 })
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(100))
+    }
+  }
+  @inlinable
+  public var range: MjArray<(Float, Float)> {
+    get {
+      MjArray<(Float, Float)>(
+        array: withUnsafeMutablePointer(to: &_figure.pointee.range.0, { $0 }), object: self, len: 2)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<(Float, Float)> = withUnsafeMutablePointer(
+        to: &_figure.pointee.range.0, { $0 })
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(2))
+    }
+  }
+  @inlinable
+  public var xformat: String {
+    get {
+      var value = _figure.pointee.xformat
+      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }
+    }
+    set {
+      var value = newValue
+      value.withUTF8 { utf8 in
+        precondition(utf8.count < 20)
+        withUnsafeMutablePointer(to: &_figure.pointee.xformat.0) { pos in
+          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {
+            pos.assign(from: $0, count: utf8.count)
+          }
+          pos[utf8.count] = 0
+        }
+      }
+    }
+  }
+  @inlinable
+  public var yformat: String {
+    get {
+      var value = _figure.pointee.yformat
+      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }
+    }
+    set {
+      var value = newValue
+      value.withUTF8 { utf8 in
+        precondition(utf8.count < 20)
+        withUnsafeMutablePointer(to: &_figure.pointee.yformat.0) { pos in
+          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {
+            pos.assign(from: $0, count: utf8.count)
+          }
+          pos[utf8.count] = 0
+        }
+      }
+    }
+  }
+  @inlinable
+  public var minwidth: String {
+    get {
+      var value = _figure.pointee.minwidth
+      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }
+    }
+    set {
+      var value = newValue
+      value.withUTF8 { utf8 in
+        precondition(utf8.count < 20)
+        withUnsafeMutablePointer(to: &_figure.pointee.minwidth.0) { pos in
+          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {
+            pos.assign(from: $0, count: utf8.count)
+          }
+          pos[utf8.count] = 0
+        }
+      }
+    }
+  }
+  @inlinable
+  public var title: String {
+    get {
+      var value = _figure.pointee.title
+      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }
+    }
+    set {
+      var value = newValue
+      value.withUTF8 { utf8 in
+        precondition(utf8.count < 1000)
+        withUnsafeMutablePointer(to: &_figure.pointee.title.0) { pos in
+          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {
+            pos.assign(from: $0, count: utf8.count)
+          }
+          pos[utf8.count] = 0
+        }
+      }
+    }
+  }
+  @inlinable
+  public var xlabel: String {
+    get {
+      var value = _figure.pointee.xlabel
+      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }
+    }
+    set {
+      var value = newValue
+      value.withUTF8 { utf8 in
+        precondition(utf8.count < 100)
+        withUnsafeMutablePointer(to: &_figure.pointee.xlabel.0) { pos in
+          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {
+            pos.assign(from: $0, count: utf8.count)
+          }
+          pos[utf8.count] = 0
+        }
+      }
+    }
+  }
+  @inlinable
+  public var linename: MjStaticStringArray {
+    get {
+      MjStaticStringArray(
+        array: withUnsafeMutablePointer(to: &_figure.pointee.linename.0.0, { $0 }), object: self,
+        len: 100, strlen: 100)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<CChar> = withUnsafeMutablePointer(
+        to: &_figure.pointee.linename.0.0, { $0 })
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(100) * 100)
+    }
+  }
+  @inlinable
   public var legendoffset: Int32 {
     get { _figure.pointee.legendoffset }
     set { _figure.pointee.legendoffset = newValue }
