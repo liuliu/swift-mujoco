@@ -2544,10 +2544,10 @@ extension MjModel {
     }
   }
   @inlinable
-  public var textData: MjArray<Int8> {
-    get { MjArray<Int8>(array: _model.pointee.text_data, object: self, len: ntextdata * 1) }
+  public var textData: MjArray<CChar> {
+    get { MjArray<CChar>(array: _model.pointee.text_data, object: self, len: ntextdata * 1) }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int8> = _model.pointee.text_data
+      let unsafeMutablePointer: UnsafeMutablePointer<CChar> = _model.pointee.text_data
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(ntextdata * 1))
     }
@@ -2841,10 +2841,10 @@ extension MjModel {
     }
   }
   @inlinable
-  public var names: MjArray<Int8> {
-    get { MjArray<Int8>(array: _model.pointee.names, object: self, len: nnames * 1) }
+  public var names: MjArray<CChar> {
+    get { MjArray<CChar>(array: _model.pointee.names, object: self, len: nnames * 1) }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int8> = _model.pointee.names
+      let unsafeMutablePointer: UnsafeMutablePointer<CChar> = _model.pointee.names
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nnames * 1))
     }

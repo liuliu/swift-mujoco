@@ -166,7 +166,7 @@ let SwiftType: [String: String] = [
   "bool": "Bool",
   "mjtByte": "UInt8",
   "mjtNum": "Double",
-  "char": "Int8",
+  "char": "CChar",
   "void": "UInt8",
   "float": "Float",
   "mjContact": "MjContact",
@@ -182,10 +182,40 @@ let WrappedMjStructs: [String] = [
   "MjOption", "MjVisual", "MjvGLCamera",
 ]
 
+enum SwiftArrayType {
+  case plain(String)
+  case tuple(String, Int)
+  case staticString(Int)
+  var primitive: String {
+    switch self {
+    case .plain(let name):
+      return name
+    case .tuple(let name, _):
+      return name
+    case .staticString(_):
+      return "String"
+    }
+  }
+}
+
+extension SwiftArrayType: CustomStringConvertible {
+  var description: String {
+    switch self {
+    case .plain(let name):
+      return name
+    case .tuple(let name, let count):
+      return "(" + [String](repeating: name, count: count).joined(separator: ", ") + ")"
+    case .staticString(_):
+      return "String"
+    }
+  }
+}
+
 enum SwiftFieldType {
   case plain(String)
   case tuple(String, Int)
-  case array(String, Int?, Bool)
+  case staticString(Int)
+  case array(SwiftArrayType, Int?, Bool)
   var primitive: String {
     switch self {
     case .plain(let name):
@@ -193,7 +223,9 @@ enum SwiftFieldType {
     case .tuple(let name, _):
       return name
     case .array(let name, _, _):
-      return name
+      return name.primitive
+    case .staticString(_):
+      return "String"
     }
   }
 }
@@ -207,6 +239,8 @@ extension SwiftFieldType: CustomStringConvertible {
       return "(" + [String](repeating: name, count: count).joined(separator: ", ") + ")"
     case .array(let name, _, _):
       return "MjArray<\(name)>"
+    case .staticString(_):
+      return "String"
     }
   }
 }
@@ -232,7 +266,7 @@ func swiftFieldType(
     if typeName.hasSuffix("*") {
       let elTypeName = typeName.dropLast().trimmingCharacters(in: .whitespaces)
       let elType = commentType ?? SwiftType[elTypeName]!
-      return .array(elType, nil, false)
+      return .array(.plain(elType), nil, false)
     } else {
       primitiveType = SwiftType[typeName]!
     }
@@ -246,11 +280,31 @@ func swiftFieldType(
   if let range = fieldName.range(of: #"\[\w+\]"#, options: .regularExpression) {
     let matched = fieldName[range].dropFirst().dropLast()
     let count = Int(matched) ?? definedConstants[String(matched)]!
+    let restOfField = String(fieldName.suffix(from: fieldName.firstIndex(where: { $0 == "]" })!))
+    let secondaryCount: Int?
+    if let secondRange = restOfField.range(of: #"\[\w+\]"#, options: .regularExpression) {
+      let matched = restOfField[secondRange].dropFirst().dropLast()
+      secondaryCount = Int(matched) ?? definedConstants[String(matched)]!
+    } else {
+      secondaryCount = nil
+    }
     // Treat this as dynamic array (these with suffix *).
     if staticArrayAsDynamic.contains(cleanupFieldName(name: fieldName)) {
       let elType = commentType ?? primitiveType
-      return .array(elType, count, true)
+      if let secondaryCount = secondaryCount {
+        if elType == "CChar" {
+          return .array(.staticString(secondaryCount), count, true)
+        } else {
+          return .array(.tuple(elType, secondaryCount), count, true)
+        }
+      } else {
+        return .array(.plain(elType), count, true)
+      }
+    } else if primitiveType == "CChar" {
+      precondition(secondaryCount == nil)
+      return .staticString(count)
     } else {
+      precondition(secondaryCount == nil)
       return .tuple(primitiveType, count)
     }
   }
@@ -302,7 +356,7 @@ func structExtension(
         }
       }
       let count = arrayCount!
-      let cast = elType.hasPrefix("Mj")  // For these, we need to force cast the type.
+      let cast = elType.primitive.hasPrefix("Mj")  // For these, we need to force cast the type.
       let ump: String
       if staticArray {
         if cast {
@@ -346,6 +400,26 @@ func structExtension(
         }
         code += "    }\n"
       }
+    } else if case .staticString(let count) = fieldType {
+      code += "    get {\n"
+      code += "      var value = _\(varName)\(prefix).\(fieldName)\n"
+      code +=
+        "      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }\n"
+      code += "    }\n"
+      code += "    set {\n"
+      code += "      var value = newValue\n"
+      code += "      value.withUTF8 { utf8 in\n"
+      code += "        precondition(utf8.count < \(count))\n"
+      code +=
+        "        withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0) { pos in\n"
+      code +=
+        "          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {\n"
+      code += "            pos.assign(from: $0, count: utf8.count)\n"
+      code += "          }\n"
+      code += "          pos[utf8.count] = 0\n"
+      code += "        }\n"
+      code += "      }\n"
+      code += "    }\n"
     } else {
       code += "    get { _\(varName)\(prefix).\(fieldName) }\n"
       code += "    set { _\(varName)\(prefix).\(fieldName) = newValue }\n"
@@ -394,6 +468,11 @@ for thisStruct in structs {
     let code = structExtension(thisStruct)
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvGLCamera+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjvGeom_" {
+    let code = structExtension(thisStruct)
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvGeom+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjvOption_" {
     let code = structExtension(thisStruct)
