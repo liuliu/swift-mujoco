@@ -169,6 +169,7 @@ let SwiftType: [String: String] = [
   "char": "CChar",
   "void": "UInt8",
   "float": "Float",
+  "double": "Double",
   "mjContact": "MjContact",
   "mjOption": "MjOption",
   "mjVisual": "MjVisual",
@@ -543,6 +544,16 @@ for thisStruct in structs {
       ])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjrContext+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjuiItemMulti_" {
+    let code = structExtension(thisStruct, staticArrayAsDynamic: ["name"])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemMulti+Extensions.swift"),
+      atomically: false, encoding: .utf8)
+  } else if thisStruct.name == "mjuiItemEdit_" {
+    let code = structExtension(thisStruct, staticArrayAsDynamic: ["range"])
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemRange+Extensions.swift"),
       atomically: false, encoding: .utf8)
   }
 }
