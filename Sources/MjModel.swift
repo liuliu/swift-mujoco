@@ -65,7 +65,7 @@ public final class MjModel {
       njnt: _model.pointee.njnt, ngeom: _model.pointee.ngeom, nsite: _model.pointee.nsite,
       ncam: _model.pointee.ncam, nlight: _model.pointee.nlight, ntendon: _model.pointee.ntendon,
       nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
-      njmax: _model.pointee.njmax)
+      njmax: _model.pointee.njmax, nD: _model.pointee.nD)
   }
 
   @inlinable

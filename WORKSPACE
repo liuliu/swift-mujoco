@@ -20,11 +20,52 @@ swift_rules_extra_dependencies()
 
 # Mojoco dependency.
 
-http_archive(
+new_git_repository(
+    name = "lodepng",
+    build_file = "lodepng.BUILD",
+    commit = "5601b8272a6850b7c5d693dd0c0e16da50be8d8d",
+    remote = "https://github.com/lvandeve/lodepng.git",
+    shallow_since = "1641772872 +0100",
+)
+
+new_git_repository(
+    name = "tinyxml2",
+    build_file = "tinyxml2.BUILD",
+    commit = "e45d9d16d430a3f5d3eee9fe40d5e194e1e5e63a",
+    remote = "https://github.com/leethomason/tinyxml2.git",
+    shallow_since = "1648934420 -0700",
+)
+
+new_git_repository(
+    name = "tinyobjloader",
+    build_file = "tinyobjloader.BUILD",
+    commit = "8322e00ae685ea623ab6ac5a6cebcfa2d22fbf93",
+    remote = "https://github.com/tinyobjloader/tinyobjloader.git",
+    shallow_since = "1640603894 +0900",
+)
+
+new_git_repository(
+    name = "ccd",
+    build_file = "ccd.BUILD",
+    commit = "7931e764a19ef6b21b443376c699bbc9c6d4fba8",
+    remote = "https://github.com/danfis/libccd.git",
+    shallow_since = "1545480825 +0100",
+)
+
+new_git_repository(
+    name = "qhull",
+    build_file = "qhull.BUILD",
+    commit = "3df027b91202cf179f3fba3c46eebe65bbac3790",
+    remote = "https://github.com/qhull/qhull.git",
+    shallow_since = "1636586665 -0500",
+)
+
+new_git_repository(
     name = "mujoco",
     build_file = "mujoco.BUILD",
-    sha256 = "3f1804d28833295a310aac23279401936f2558dee63cd3778429577e4ab55dff",
-    urls = ["https://github.com/deepmind/mujoco/releases/download/2.1.5/mujoco-2.1.5-linux-x86_64.tar.gz"],
+    commit = "01e232446dcfd24a273b21c71867d6b4021f5796",
+    remote = "https://github.com/deepmind/mujoco.git",
+    shallow_since = "1653328031 -0700",
 )
 
 # Swift formatter.

@@ -252,6 +252,11 @@ extension MjModel {
     set { _model.pointee.nM = newValue }
   }
   @inlinable
+  public var nD: Int32 {
+    get { _model.pointee.nD }
+    set { _model.pointee.nD = newValue }
+  }
+  @inlinable
   public var nemax: Int32 {
     get { _model.pointee.nemax }
     set { _model.pointee.nemax = newValue }
@@ -2258,6 +2263,15 @@ extension MjModel {
     }
   }
   @inlinable
+  public var actuatorActlimited: MjArray<UInt8> {
+    get { MjArray<UInt8>(array: _model.pointee.actuator_actlimited, object: self, len: nu * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<UInt8> = _model.pointee.actuator_actlimited
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * 1))
+    }
+  }
+  @inlinable
   public var actuatorDynprm: MjArray<Double> {
     get { MjArray<Double>(array: _model.pointee.actuator_dynprm, object: self, len: nu * mjNDYN) }
     set {
@@ -2298,6 +2312,15 @@ extension MjModel {
     get { MjArray<Double>(array: _model.pointee.actuator_forcerange, object: self, len: nu * 2) }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<Double> = _model.pointee.actuator_forcerange
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * 2))
+    }
+  }
+  @inlinable
+  public var actuatorActrange: MjArray<Double> {
+    get { MjArray<Double>(array: _model.pointee.actuator_actrange, object: self, len: nu * 2) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _model.pointee.actuator_actrange
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * 2))
     }

@@ -42,7 +42,7 @@ public enum MjEnableBit: Int32 {
   case energy = 2
   case fwdinv = 4
   case sensornoise = 8
-  case multiccd = 1_073_741_824
+  case multiccd = 16
 }
 public enum MjJoint: Int32 {
   case free = 0
@@ -81,7 +81,8 @@ public enum MjTexture: Int32 {
 }
 public enum MjIntegrator: Int32 {
   case euler = 0
-  case rk4_4thOrderRungeKutta
+  case rk4
+  case implicitImplicitInVelocity
 }
 public enum MjCollision: Int32 {
   case all = 0

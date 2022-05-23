@@ -39,12 +39,14 @@ public final class MjData {
   let nconmax: Int32
   @usableFromInline
   let njmax: Int32
+  @usableFromInline
+  let nD: Int32
 
   init(
     data: UnsafeMutablePointer<mjData>, nq: Int32, nv: Int32, na: Int32, nu: Int32, nbody: Int32,
     nmocap: Int32, nuserdata: Int32, nsensordata: Int32, njnt: Int32, ngeom: Int32, nsite: Int32,
     ncam: Int32, nlight: Int32, ntendon: Int32, nwrap: Int32, nM: Int32, nconmax: Int32,
-    njmax: Int32
+    njmax: Int32, nD: Int32
   ) {
     _data = data
     self.nq = nq
@@ -65,6 +67,7 @@ public final class MjData {
     self.nM = nM
     self.nconmax = nconmax
     self.njmax = njmax
+    self.nD = nD
   }
 
   deinit {

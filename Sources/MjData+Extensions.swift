@@ -816,6 +816,51 @@ extension MjData {
     }
   }
   @inlinable
+  public var dRownnz: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.D_rownnz, object: self, len: nv * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.D_rownnz
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
+    }
+  }
+  @inlinable
+  public var dRowadr: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.D_rowadr, object: self, len: nv * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.D_rowadr
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
+    }
+  }
+  @inlinable
+  public var dColind: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.D_colind, object: self, len: nD * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.D_colind
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nD * 1))
+    }
+  }
+  @inlinable
+  public var qDeriv: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.qDeriv, object: self, len: nD * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.qDeriv
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nD * 1))
+    }
+  }
+  @inlinable
+  public var qLu: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.qLU, object: self, len: nD * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.qLU
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nD * 1))
+    }
+  }
+  @inlinable
   public var actuatorForce: MjArray<Double> {
     get { MjArray<Double>(array: _data.pointee.actuator_force, object: self, len: nu * 1) }
     set {
@@ -834,19 +879,19 @@ extension MjData {
     }
   }
   @inlinable
-  public var qfrcUnc: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.qfrc_unc, object: self, len: nv * 1) }
+  public var qfrcSmooth: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.qfrc_smooth, object: self, len: nv * 1) }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.qfrc_unc
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.qfrc_smooth
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
     }
   }
   @inlinable
-  public var qaccUnc: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.qacc_unc, object: self, len: nv * 1) }
+  public var qaccSmooth: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.qacc_smooth, object: self, len: nv * 1) }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.qacc_unc
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.qacc_smooth
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
     }
