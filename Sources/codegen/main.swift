@@ -72,8 +72,9 @@ for filePath in CommandLine.arguments[2...] {
         let trimmed = parameter.trimmingCharacters(in: .whitespaces)
         guard trimmed != "void" else { continue }
         let typeSeparator = trimmed.lastIndex(where: { $0 == " " || $0 == "*" })!
-        let type = trimmed.prefix(upTo: typeSeparator)
-        let name = trimmed.suffix(from: typeSeparator)
+        let type = trimmed.prefix(upTo: typeSeparator).trimmingCharacters(in: .whitespaces)
+        let name = trimmed.suffix(from: trimmed.index(typeSeparator, offsetBy: 1))
+          .trimmingCharacters(in: .whitespaces)
         apiDefinition.parameters.append((name: String(name), type: String(type)))
       }
       if !trimmed.contains(");") {
@@ -87,8 +88,9 @@ for filePath in CommandLine.arguments[2...] {
         let trimmed = parameter.trimmingCharacters(in: .whitespaces)
         guard trimmed != "void" else { continue }
         let typeSeparator = trimmed.lastIndex(where: { $0 == " " || $0 == "*" })!
-        let type = trimmed.prefix(upTo: typeSeparator)
-        let name = trimmed.suffix(from: typeSeparator)
+        let type = trimmed.prefix(upTo: typeSeparator).trimmingCharacters(in: .whitespaces)
+        let name = trimmed.suffix(from: trimmed.index(typeSeparator, offsetBy: 1))
+          .trimmingCharacters(in: .whitespaces)
         currentAPIDefinition.parameters.append((name: String(name), type: String(type)))
       }
       thisAPIDefinition = currentAPIDefinition
