@@ -6,6 +6,12 @@ struct Enum {
   var keyValues: [(key: String, value: String?)]
 }
 
+struct APIDefinition {
+  var name: String
+  var returnType: String
+  var parameters: [(name: String, type: String)]
+}
+
 struct AnonymousStruct {
   var fields: [(name: String, type: String, comment: String?)]
 }
@@ -28,6 +34,7 @@ struct Struct {
 var enums = [Enum]()
 var structs = [Struct]()
 var definedConstants = [String: Int]()
+var apiDefinitions = [APIDefinition]()
 
 var WorkDir = CommandLine.arguments[1]
 
@@ -39,12 +46,56 @@ for filePath in CommandLine.arguments[2...] {
   var thisStruct: Struct? = nil
   var thisAnonymousStruct: AnonymousStruct? = nil
   var thisAnonymousUnion: AnonymousUnion? = nil
+  var thisAPIDefinition: APIDefinition? = nil
 
   for line in lines {
     // The start of a enum.
     if let range = line.range(of: #"\s*#define\s+\w+\s+\d+"#, options: .regularExpression) {
       let matched = line[range].split(whereSeparator: \.isWhitespace)
       definedConstants[String(matched[1])] = Int(matched[2])!
+    } else if line.hasPrefix("MJAPI ") {  // This is API definition.
+      let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+      let matched = trimmed.split(maxSplits: 2, whereSeparator: \.isWhitespace)
+      guard
+        matched.count == 3 && matched[2].hasPrefix("mj")
+          && matched[2].range(of: #"[\w\_]+\("#, options: .regularExpression) != nil
+      else { continue }
+      let nameSeparator = matched[2].firstIndex(where: { $0 == "(" })!
+      let apiName = matched[2].prefix(upTo: nameSeparator)
+      var apiDefinition = APIDefinition(
+        name: String(apiName), returnType: String(matched[1]), parameters: [])
+      // Find parameters up until the closing.
+      let restParameters = matched[2].suffix(from: matched[2].index(nameSeparator, offsetBy: 1))
+        .prefix(while: { $0 != ")" })
+      let separatedParameters = restParameters.split(separator: ",")
+      for parameter in separatedParameters {
+        let trimmed = parameter.trimmingCharacters(in: .whitespaces)
+        guard trimmed != "void" else { continue }
+        let typeSeparator = trimmed.lastIndex(where: { $0 == " " || $0 == "*" })!
+        let type = trimmed.prefix(upTo: typeSeparator)
+        let name = trimmed.suffix(from: typeSeparator)
+        apiDefinition.parameters.append((name: String(name), type: String(type)))
+      }
+      if !trimmed.contains(");") {
+        // We need to continue.
+        thisAPIDefinition = apiDefinition
+      }
+    } else if var currentAPIDefinition = thisAPIDefinition {
+      let restParameters = line.prefix(while: { $0 != ")" })
+      let separatedParameters = restParameters.split(separator: ",")
+      for parameter in separatedParameters {
+        let trimmed = parameter.trimmingCharacters(in: .whitespaces)
+        guard trimmed != "void" else { continue }
+        let typeSeparator = trimmed.lastIndex(where: { $0 == " " || $0 == "*" })!
+        let type = trimmed.prefix(upTo: typeSeparator)
+        let name = trimmed.suffix(from: typeSeparator)
+        currentAPIDefinition.parameters.append((name: String(name), type: String(type)))
+      }
+      thisAPIDefinition = currentAPIDefinition
+      if line.contains(");") {
+        apiDefinitions.append(currentAPIDefinition)
+        thisAPIDefinition = nil
+      }
     } else if let range = line.range(
       of: #"\s*typedef\s+enum\s+(\w)+\s+\{"#, options: .regularExpression)
     {
