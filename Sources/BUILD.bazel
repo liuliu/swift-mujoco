@@ -11,6 +11,7 @@ swift_library(
     srcs = [
         "codegen/enumDecl.swift",
         "codegen/functionExtension.swift",
+        "codegen/parseHeaders.swift",
         "codegen/structExtension.swift",
     ],
     module_name = "MuJoCoCSyntax",
