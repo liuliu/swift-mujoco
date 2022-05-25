@@ -23,7 +23,7 @@ public final class MjModel {
   public convenience init?(fromXMLPath filePath: String, vfs: MjVFS? = nil) {
     let error = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
     guard let model = mj_loadXML(filePath, vfs?._vfs, error, 1024) else {
-      print(error)
+      Swift.print(error)
       error.deallocate()
       return nil
     }
@@ -48,7 +48,7 @@ public final class MjModel {
       return model
     }
     guard let model = model else {
-      print(error)
+      Swift.print(error)
       error.deallocate()
       return nil
     }

@@ -37,6 +37,7 @@ let SwiftType: [String: String] = [
   "mjtByte": "UInt8",
   "mjtNum": "Double",
   "char": "CChar",
+  "unsigned char": "Int8",
   "void": "UInt8",
   "float": "Float",
   "double": "Double",

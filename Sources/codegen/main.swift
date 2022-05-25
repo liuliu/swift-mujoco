@@ -212,6 +212,7 @@ for thisStruct in structs {
 // ----- Generate code for functions -----
 
 let FunctionDeny: Set<String> = Set([
+  // Implemented manually.
   "mj_defaultVFS",
   "mj_addFileVFS",
   "mj_makeEmptyFileVFS",
@@ -219,20 +220,13 @@ let FunctionDeny: Set<String> = Set([
   "mj_deleteFileVFS",
   "mj_deleteVFS",
   "mj_loadXML",
-  "mj_saveLastXML",
-  "mj_freeLastXML",
-  "mj_printSchema",
   "mj_defaultLROpt",
   "mj_defaultSolRefImp",
   "mj_defaultOption",
   "mj_defaultVisual",
-  "mj_copyModel",
-  "mj_saveModel",
   "mj_loadModel",
   "mj_deleteModel",
-  "mj_sizeModel",
   "mj_makeData",
-  "mj_copyData",
   "mj_deleteData",
   "mjv_defaultCamera",
   "mjv_defaultPerturb",
@@ -246,6 +240,27 @@ let FunctionDeny: Set<String> = Set([
   "mjr_freeContext",
   "mjui_themeSpacing",
   "mjui_themeColor",
+  // Implemented manually, but should be automated.
+  "mj_step",
+  "mj_step1",
+  "mj_step2",
+  "mj_forward",
+  "mj_inverse",
+  "mj_forwardSkip",
+  "mj_inverseSkip",
+  "mj_resetData",
+  "mj_resetDataKeyframe",
+  "mjr_render",
+  // Unimplemented. But better implemented manually.
+  "mj_copyModel",
+  "mj_saveModel",
+  "mj_sizeModel",
+  "mj_copyData",
+  "mj_saveLastXML",
+  "mj_freeLastXML",
+  "mj_printSchema",
+  "mj_stackAlloc",
+  // Not going to be implemented.
   "mju_malloc",
   "mju_free",
   "mj_activate",
@@ -337,14 +352,26 @@ let FunctionDeny: Set<String> = Set([
   "mju_sigmoid",
 ])
 
+var sourceCodeMapping: [String: String] = [:]
+
 for apiDefinition in apiDefinitions {
   guard !FunctionDeny.contains(apiDefinition.name) else { continue }
-  print(
-    functionExtension(
-      apiDefinition,
-      deny: ["mjrRect"],
-      nameMapping: [
-        "m": ["model"], "d": ["data"], "con": ["contact", "context"], "scn": ["scene"],
-        "key": ["keyframe"],
-      ]))
+  let (mainType, sourceCode) = functionExtension(
+    apiDefinition,
+    deny: ["mjrRect"],
+    nameMapping: [
+      "m": ["model"], "d": ["data"], "con": ["contact", "context"], "scn": ["scene"],
+      "key": ["keyframe"],
+    ])
+  guard let mainType = mainType else { continue }
+  sourceCodeMapping[mainType] = sourceCodeMapping[mainType, default: ""] + sourceCode
+}
+
+for (mainType, sourceCode) in sourceCodeMapping {
+  var code = "extension \(mainType) {\n"
+  code += sourceCode
+  code += "}"
+  try! code.write(
+    to: URL(fileURLWithPath: WorkDir).appendingPathComponent("\(mainType)+Functions.swift"),
+    atomically: false, encoding: .utf8)
 }

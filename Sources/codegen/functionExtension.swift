@@ -26,13 +26,13 @@ func swiftParameterType(name: String, type: String) -> SwiftFieldType {
 
 public func functionExtension(
   _ apiDefinition: APIDefinition, deny: [String] = [], nameMapping: [String: [String]] = [:]
-) -> String {
+) -> (mainType: String?, sourceCode: String) {
   // First, identify primary owner of the function.
   // Rule:
   // 1. Only look at first or last parameter (excluding mjt* or ordinary C types) as the primary owner, if cannot find any, fatal.
   // 2. Identify parameter corresponding to the function signature, if the function starts with mjv_
   //    find the parameter has type mjv*.
-  guard apiDefinition.parameters.count > 0 else { return "" }
+  guard apiDefinition.parameters.count > 0 else { return (mainType: nil, sourceCode: "") }
   let prefix = apiDefinition.name.prefix(while: { $0 != "_" })
   var mainInd: Int? = nil
   var mainType: String? = nil
@@ -61,9 +61,13 @@ public func functionExtension(
       }
     }
   }
-  guard var mainType = mainType, let mainInd = mainInd else { return "" }
+  guard var mainType = mainType, let mainInd = mainInd else {
+    return (mainType: nil, sourceCode: "")
+  }
   // Handle cases where mainType is not a mj*
-  guard mainType.hasPrefix("mj") && !mainType.hasPrefix("mjt") else { return "\(apiDefinition)" }
+  guard mainType.hasPrefix("mj") && !mainType.hasPrefix("mjt") else {
+    return (mainType: nil, sourceCode: "")
+  }
   // Now we have main type, we can create functions for them.
   if mainType.last == "*" {
     mainType = String(mainType.dropLast().trimmingCharacters(in: .whitespaces))
@@ -100,29 +104,46 @@ public func functionExtension(
       apiDefinition.name.firstIndex(where: { $0 == "_" })!, offsetBy: 1))
   let lowercasedName = funcName.lowercased()
   var parameterSuffix = ""
+  var suffixIndexes = Set<Int>()
   for i in 0..<apiDefinition.parameters.count {
     guard i != mainInd, let namedParameter = positionedNamedParameters[i] else { continue }
     if lowercasedName.contains(namedParameter.name.lowercased()) {
       parameterSuffix += namedParameter.name.lowercased()
+      suffixIndexes.insert(i)
+    } else {
+      break
     }
   }
+  var anonymousIndexes = Set<Int>()
   if lowercasedName.hasSuffix(parameterSuffix) {
-    funcName = funcName.prefix(
-      upTo: funcName.index(
-        funcName.startIndex, offsetBy: lowercasedName.count - parameterSuffix.count))
+    // We have a problem, we cannot have function that has no name. In this case, make function name
+    // whatever it is, and make the parameters not named.
+    if lowercasedName.hasPrefix(parameterSuffix) {
+      // Now these matching suffix indexes should be anonymous.
+      anonymousIndexes = suffixIndexes
+    } else {
+      // Other, remove these suffixes.
+      funcName = funcName.prefix(
+        upTo: funcName.index(
+          funcName.startIndex, offsetBy: lowercasedName.count - parameterSuffix.count))
+    }
   }
-  var code = "extension \(mainType) {\n"
   var parameterPairs = [String]()
   for i in 0..<apiDefinition.parameters.count {
     guard i != mainInd, let namedParameter = positionedNamedParameters[i] else { continue }
-    parameterPairs.append(
-      "\(cleanupFieldName(name: namedParameter.name)): \(swiftParameterType(name: namedParameter.name, type: namedParameter.type))"
-    )
+    if anonymousIndexes.contains(i) {
+      parameterPairs.append(
+        "_ \(cleanupFieldName(name: namedParameter.name)): \(swiftParameterType(name: namedParameter.name, type: namedParameter.type))"
+      )
+    } else {
+      parameterPairs.append(
+        "\(cleanupFieldName(name: namedParameter.name)): \(swiftParameterType(name: namedParameter.name, type: namedParameter.type))"
+      )
+    }
   }
-  code += "  @inlinable\n"
+  var code = "  @inlinable\n"
   code += "  public func \(funcName)(\(parameterPairs.joined(separator: ", "))) {\n"
-  code += "    \(apiDefinition)\n"
+  // code += "    \(apiDefinition)\n"
   code += "  }\n"
-  code += "}\n"
-  return code
+  return (mainType: mainType, sourceCode: code)
 }
