@@ -6,11 +6,24 @@ swift_library(
     module_name = "ChangeCases",
 )
 
+swift_library(
+    name = "MuJoCoCSyntax",
+    srcs = [
+        "codegen/enumDecl.swift",
+        "codegen/functionExtension.swift",
+        "codegen/structExtension.swift",
+    ],
+    module_name = "MuJoCoCSyntax",
+    deps = [
+        ":ChangeCases",
+    ],
+)
+
 swift_binary(
     name = "codegen",
     srcs = ["codegen/main.swift"],
     deps = [
-        ":ChangeCases",
+        ":MuJoCoCSyntax",
     ],
 )
 
