@@ -13,18 +13,15 @@ extension MjUI {
   }
   @inlinable
   public func resize(context: MjrContext) {
-    var context__context = context._context
-    mjui_resize(self._ui, &context__context)
+    mjui_resize(self._ui, context._context)
   }
   @inlinable
   public func event(state: inout MjuiState, context: MjrContext) {
-    var context__context = context._context
-    mjui_event(self._ui, &state._state, &context__context)
+    mjui_event(self._ui, &state._state, context._context)
   }
   @inlinable
   public func render(state: MjuiState, context: MjrContext) {
     var state__state = state._state
-    var context__context = context._context
-    mjui_render(self._ui, &state__state, &context__context)
+    mjui_render(self._ui, &state__state, context._context)
   }
 }

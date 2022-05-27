@@ -3,20 +3,29 @@ import Foundation
 
 public final class MjVFS {
   @usableFromInline
-  var _vfs: UnsafeMutablePointer<mjVFS>
+  let _storage = Storage()
+  @inlinable
+  var _vfs: UnsafeMutablePointer<mjVFS> { _storage._vfs }
 
-  deinit {
-    mj_deleteVFS(_vfs)
-    _vfs.deallocate()
+  @usableFromInline
+  final class Storage {
+    @usableFromInline
+    let _vfs: UnsafeMutablePointer<mjVFS>
+
+    deinit {
+      mj_deleteVFS(_vfs)
+      _vfs.deallocate()
+    }
+
+    init() {
+      _vfs = UnsafeMutablePointer.allocate(capacity: 1)
+      mj_defaultVFS(_vfs)
+    }
   }
 
-  public init() {
-    _vfs = UnsafeMutablePointer.allocate(capacity: 1)
-    mj_defaultVFS(_vfs)
-  }
+  public init() {}
 
-  public convenience init(assets: [String: Data]) {
-    self.init()
+  public init(assets: [String: Data]) {
     for (key, value) in assets {
       makeEmptyFile(filename: key, filesize: Int32(value.count))
       value.withUnsafeBytes {

@@ -1,26 +1,39 @@
 import C_mujoco
 import Foundation
 
-public final class MjModel {
+public struct MjModel {
+
   @usableFromInline
-  let _model: UnsafeMutablePointer<mjModel>
+  let _storage: Storage
+  @inlinable
+  var _model: UnsafeMutablePointer<mjModel> { _storage._model }
+
+  @usableFromInline
+  final class Storage {
+    @usableFromInline
+    let _model: UnsafeMutablePointer<mjModel>
+
+    init(model: UnsafeMutablePointer<mjModel>) {
+      _model = model
+    }
+
+    deinit {
+      mj_deleteModel(_model)
+    }
+  }
 
   init(model: UnsafeMutablePointer<mjModel>) {
-    _model = model
+    _storage = Storage(model: model)
   }
 
-  deinit {
-    mj_deleteModel(_model)
-  }
-
-  public convenience init?(fromBinaryPath filePath: String, vfs: MjVFS? = nil) {
+  public init?(fromBinaryPath filePath: String, vfs: MjVFS? = nil) {
     guard let model = mj_loadModel(filePath, vfs?._vfs) else {
       return nil
     }
     self.init(model: model)
   }
 
-  public convenience init?(fromXMLPath filePath: String, vfs: MjVFS? = nil) {
+  public init?(fromXMLPath filePath: String, vfs: MjVFS? = nil) {
     let error = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
     guard let model = mj_loadXML(filePath, vfs?._vfs, error, 1024) else {
       Swift.print(error)
@@ -31,7 +44,7 @@ public final class MjModel {
     self.init(model: model)
   }
 
-  public convenience init?(fromXML: String, assets: [String: Data]? = nil) {
+  public init?(fromXML: String, assets: [String: Data]? = nil) {
     var xmlString = fromXML
     let error = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
     let model: UnsafeMutablePointer<mjModel>? = xmlString.withUTF8 { utf8 in

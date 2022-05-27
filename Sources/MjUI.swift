@@ -1,13 +1,21 @@
 import C_mujoco
 
-public final class MjUI {
+public struct MjUI {
   @usableFromInline
-  var _ui: UnsafeMutablePointer<mjUI_>
-  public init() {
-    _ui = UnsafeMutablePointer.allocate(capacity: 1)
-  }
-  deinit {
-    _ui.deallocate()
+  let _storage = Storage()
+  @inlinable
+  var _ui: UnsafeMutablePointer<mjUI_> { _storage._ui }
+
+  @usableFromInline
+  final class Storage {
+    @usableFromInline
+    let _ui: UnsafeMutablePointer<mjUI_>
+    init() {
+      _ui = UnsafeMutablePointer.allocate(capacity: 1)
+    }
+    deinit {
+      _ui.deallocate()
+    }
   }
 }
 
@@ -45,7 +53,7 @@ extension MjUI {
   public var sect: MjuiSectionArray {
     get {
       MjuiSectionArray(
-        array: withUnsafeMutablePointer(to: &_ui.pointee.sect.0) { $0 }, object: self,
+        array: withUnsafeMutablePointer(to: &_ui.pointee.sect.0) { $0 }, object: _storage,
         len: _ui.pointee.nsect)
     }
     set {
@@ -59,6 +67,6 @@ extension MjUI {
   @inlinable
   public var editchanged: MjuiItem? {
     let unsafeMutablePointer: UnsafeMutablePointer<mjuiItem_>? = _ui.pointee.editchanged
-    return unsafeMutablePointer.flatMap { MjuiItem(object: self, item: $0) }
+    return unsafeMutablePointer.flatMap { MjuiItem(object: _storage, item: $0) }
   }
 }

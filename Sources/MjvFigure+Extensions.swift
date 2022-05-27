@@ -73,7 +73,7 @@ extension MjvFigure {
   public var linergb: MjArray<(Float, Float, Float)> {
     get {
       MjArray<(Float, Float, Float)>(
-        array: withUnsafeMutablePointer(to: &_figure.pointee.linergb.0, { $0 }), object: self,
+        array: withUnsafeMutablePointer(to: &_figure.pointee.linergb.0, { $0 }), object: _storage,
         len: 100)
     }
     set {
@@ -87,7 +87,8 @@ extension MjvFigure {
   public var range: MjArray<(Float, Float)> {
     get {
       MjArray<(Float, Float)>(
-        array: withUnsafeMutablePointer(to: &_figure.pointee.range.0, { $0 }), object: self, len: 2)
+        array: withUnsafeMutablePointer(to: &_figure.pointee.range.0, { $0 }), object: _storage,
+        len: 2)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<(Float, Float)> = withUnsafeMutablePointer(
@@ -195,8 +196,8 @@ extension MjvFigure {
   public var linename: MjStaticStringArray {
     get {
       MjStaticStringArray(
-        array: withUnsafeMutablePointer(to: &_figure.pointee.linename.0.0, { $0 }), object: self,
-        len: 100, strlen: 100)
+        array: withUnsafeMutablePointer(to: &_figure.pointee.linename.0.0, { $0 }),
+        object: _storage, len: 100, strlen: 100)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<CChar> = withUnsafeMutablePointer(
@@ -234,7 +235,7 @@ extension MjvFigure {
   public var linepnt: MjArray<Int32> {
     get {
       MjArray<Int32>(
-        array: withUnsafeMutablePointer(to: &_figure.pointee.linepnt.0, { $0 }), object: self,
+        array: withUnsafeMutablePointer(to: &_figure.pointee.linepnt.0, { $0 }), object: _storage,
         len: 100)
     }
     set {

@@ -196,7 +196,8 @@ func cleanupFieldName(name: String) -> String {
 
 public func structExtension(
   _ thisStruct: Struct, definedConstants: [String: Int], wrappedMjEnums: Set<String>,
-  prefix: String = "", deny: [String] = [], propertiesMapping: [String: String] = [:],
+  prefix: String = "",
+  suffix: String = "", deny: [String] = [], propertiesMapping: [String: String] = [:],
   staticArrayAsDynamic: [String] = [], excludingCamelCaseForProperties: [String] = [],
   boundingObject: String = "self"
 ) -> String {
@@ -237,7 +238,8 @@ public func structExtension(
       let count = arrayCount!
       if case .staticString(let strlen) = elType {
         precondition(staticArray)
-        let ump = "withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0.0, { $0 })"
+        let ump =
+          "withUnsafeMutablePointer(to: &\(prefix)_\(varName)\(suffix).\(fieldName).0.0, { $0 })"
         code +=
           "    get { \(fieldType)(array: \(ump), object: \(boundingObject), len: \(count), strlen: \(strlen)) }\n"
         code += "    set {\n"
@@ -252,16 +254,17 @@ public func structExtension(
         if staticArray {
           if cast {
             ump =
-              "UnsafeMutableRawPointer(withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0, { $0 })).assumingMemoryBound(to: \(elType).self)"
+              "UnsafeMutableRawPointer(withUnsafeMutablePointer(to: &\(prefix)_\(varName)\(suffix).\(fieldName).0, { $0 })).assumingMemoryBound(to: \(elType).self)"
           } else {
-            ump = "withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0, { $0 })"
+            ump =
+              "withUnsafeMutablePointer(to: &\(prefix)_\(varName)\(suffix).\(fieldName).0, { $0 })"
           }
         } else {
           if cast {
             ump =
-              "UnsafeMutableRawPointer(_\(varName)\(prefix).\(fieldName)).assumingMemoryBound(to: \(elType).self)"
+              "UnsafeMutableRawPointer(\(prefix)_\(varName)\(suffix).\(fieldName)).assumingMemoryBound(to: \(elType).self)"
           } else {
-            ump = "_\(varName)\(prefix).\(fieldName)"
+            ump = "\(prefix)_\(varName)\(suffix).\(fieldName)"
           }
         }
         code +=
@@ -274,41 +277,41 @@ public func structExtension(
       }
     } else if WrappedMjStructs.contains(fieldType.primitive) {
       if case let .plain(primitiveType) = fieldType {
-        code += "    get { \(primitiveType)(_\(varName)\(prefix).\(fieldName)) }\n"
+        code += "    get { \(primitiveType)(_\(varName)\(suffix).\(fieldName)) }\n"
         var fieldVarName = String(primitiveType.dropFirst())
         fieldVarName = fieldVarName.suffix(from: fieldVarName.firstIndex(where: \.isUppercase)!)
           .lowercased()
         code +=
-          "    set { _\(varName)\(prefix).\(fieldName) = newValue._\(fieldVarName) }\n"
+          "    set { _\(varName)\(suffix).\(fieldName) = newValue._\(fieldVarName) }\n"
       } else if case let .tuple(primitiveType, count) = fieldType {
         code +=
-          "    get { (\((0..<count).map({ "\(primitiveType)(_\(varName)\(prefix).\(fieldName).\($0))" }).joined(separator: ", "))) }\n"
+          "    get { (\((0..<count).map({ "\(primitiveType)(_\(varName)\(suffix).\(fieldName).\($0))" }).joined(separator: ", "))) }\n"
         var fieldVarName = String(primitiveType.dropFirst())
         fieldVarName = fieldVarName.suffix(from: fieldVarName.firstIndex(where: \.isUppercase)!)
           .lowercased()
         code += "    set {\n"
         for i in 0..<count {
-          code += "      _\(varName)\(prefix).\(fieldName).\(i) = newValue.\(i)._\(fieldVarName)\n"
+          code += "      _\(varName)\(suffix).\(fieldName).\(i) = newValue.\(i)._\(fieldVarName)\n"
         }
         code += "    }\n"
       }
     } else if wrappedMjEnums.contains(fieldType.primitive) {
       if case let .plain(primitiveType) = fieldType {
-        code += "    get { \(primitiveType)(rawValue: _\(varName)\(prefix).\(fieldName))! }\n"
+        code += "    get { \(primitiveType)(rawValue: _\(varName)\(suffix).\(fieldName))! }\n"
         code +=
-          "    set { _\(varName)\(prefix).\(fieldName) = newValue.rawValue }\n"
+          "    set { _\(varName)\(suffix).\(fieldName) = newValue.rawValue }\n"
       } else if case let .tuple(primitiveType, count) = fieldType {
         code +=
-          "    get { (\((0..<count).map({ "\(primitiveType)(rawValue: _\(varName)\(prefix).\(fieldName).\($0))!" }).joined(separator: ", "))) }\n"
+          "    get { (\((0..<count).map({ "\(primitiveType)(rawValue: _\(varName)\(suffix).\(fieldName).\($0))!" }).joined(separator: ", "))) }\n"
         code += "    set {\n"
         for i in 0..<count {
-          code += "      _\(varName)\(prefix).\(fieldName).\(i) = newValue.\(i).rawValue\n"
+          code += "      _\(varName)\(suffix).\(fieldName).\(i) = newValue.\(i).rawValue\n"
         }
         code += "    }\n"
       }
     } else if case .staticString(let count) = fieldType {
       code += "    get {\n"
-      code += "      var value = _\(varName)\(prefix).\(fieldName)\n"
+      code += "      var value = _\(varName)\(suffix).\(fieldName)\n"
       code +=
         "      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }\n"
       code += "    }\n"
@@ -317,7 +320,7 @@ public func structExtension(
       code += "      value.withUTF8 { utf8 in\n"
       code += "        precondition(utf8.count < \(count))\n"
       code +=
-        "        withUnsafeMutablePointer(to: &_\(varName)\(prefix).\(fieldName).0) { pos in\n"
+        "        withUnsafeMutablePointer(to: &_\(varName)\(suffix).\(fieldName).0) { pos in\n"
       code +=
         "          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {\n"
       code += "            pos.assign(from: $0, count: utf8.count)\n"
@@ -327,8 +330,8 @@ public func structExtension(
       code += "      }\n"
       code += "    }\n"
     } else {
-      code += "    get { _\(varName)\(prefix).\(fieldName) }\n"
-      code += "    set { _\(varName)\(prefix).\(fieldName) = newValue }\n"
+      code += "    get { _\(varName)\(suffix).\(fieldName) }\n"
+      code += "    set { _\(varName)\(suffix).\(fieldName) = newValue }\n"
     }
     code += "  }\n"
   }

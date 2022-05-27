@@ -3,8 +3,7 @@ import C_mujoco
 extension MjvScene {
   @inlinable
   public func frustumHeight() {
-    var __scene = self._scene
-    mjv_frustumHeight(&__scene)
+    mjv_frustumHeight(self._scene)
   }
   @inlinable
   public func updateScene(
@@ -14,7 +13,7 @@ extension MjvScene {
     var opt__option = opt._option
     var pert__perturb = pert._perturb
     mjv_updateScene(
-      model._model, data._data, &opt__option, &pert__perturb, &cam._camera, catmask, &self._scene)
+      model._model, data._data, &opt__option, &pert__perturb, &cam._camera, catmask, self._scene)
   }
   @inlinable
   public func addGeoms(
@@ -22,18 +21,18 @@ extension MjvScene {
   ) {
     var opt__option = opt._option
     var pert__perturb = pert._perturb
-    mjv_addGeoms(model._model, data._data, &opt__option, &pert__perturb, catmask, &self._scene)
+    mjv_addGeoms(model._model, data._data, &opt__option, &pert__perturb, catmask, self._scene)
   }
   @inlinable
   public func makeLights(model: MjModel, data: inout MjData) {
-    mjv_makeLights(model._model, data._data, &self._scene)
+    mjv_makeLights(model._model, data._data, self._scene)
   }
   @inlinable
   public func updateCamera(model: MjModel, data: inout MjData, cam: inout MjvCamera) {
-    mjv_updateCamera(model._model, data._data, &cam._camera, &self._scene)
+    mjv_updateCamera(model._model, data._data, &cam._camera, self._scene)
   }
   @inlinable
   public func updateSkin(model: MjModel, data: inout MjData) {
-    mjv_updateSkin(model._model, data._data, &self._scene)
+    mjv_updateSkin(model._model, data._data, self._scene)
   }
 }

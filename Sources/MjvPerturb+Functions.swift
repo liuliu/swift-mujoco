@@ -5,13 +5,11 @@ extension MjvPerturb {
   public mutating func movePerturb(
     model: MjModel, data: MjData, action: Int32, reldx: Double, reldy: Double, scene: MjvScene
   ) {
-    var scene__scene = scene._scene
-    mjv_movePerturb(model._model, data._data, action, reldx, reldy, &scene__scene, &self._perturb)
+    mjv_movePerturb(model._model, data._data, action, reldx, reldy, scene._scene, &self._perturb)
   }
   @inlinable
   public mutating func initPerturb(model: MjModel, data: MjData, scene: MjvScene) {
-    var scene__scene = scene._scene
-    mjv_initPerturb(model._model, data._data, &scene__scene, &self._perturb)
+    mjv_initPerturb(model._model, data._data, scene._scene, &self._perturb)
   }
   @inlinable
   public func applyPerturbPose(model: MjModel, data: inout MjData, flgPaused: Int32) {

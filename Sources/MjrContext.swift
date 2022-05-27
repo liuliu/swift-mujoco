@@ -1,14 +1,28 @@
 import C_mujoco
 
-public final class MjrContext {
+public struct MjrContext {
   @usableFromInline
-  var _context: mjrContext
-  public init(model: MjModel, fontScale: MjFontScale) {
-    _context = mjrContext()
-    mjr_defaultContext(&_context)
-    mjr_makeContext(model._model, &_context, fontScale.rawValue)
+  let _storage: Storage
+  @inlinable
+  var _context: UnsafeMutablePointer<mjrContext> {
+    withUnsafeMutablePointer(to: &_storage._context) { $0 }
   }
-  deinit {
-    mjr_freeContext(&_context)
+
+  @usableFromInline
+  final class Storage {
+    @usableFromInline
+    var _context: mjrContext
+    init(model: MjModel, fontScale: MjFontScale) {
+      _context = mjrContext()
+      mjr_defaultContext(&_context)
+      mjr_makeContext(model._model, &_context, fontScale.rawValue)
+    }
+    deinit {
+      mjr_freeContext(&_context)
+    }
+  }
+
+  public init(model: MjModel, fontScale: MjFontScale) {
+    _storage = Storage(model: model, fontScale: fontScale)
   }
 }

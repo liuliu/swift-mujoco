@@ -85,7 +85,8 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjData_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
-      prefix: ".pointee", deny: ["warning", "timer", "solver", "buffer", "stack"])
+      suffix: ".pointee", deny: ["warning", "timer", "solver", "buffer", "stack"],
+      boundingObject: "_storage")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjData+Extensions.swift"),
       atomically: false, encoding: .utf8)
@@ -93,40 +94,43 @@ for thisStruct in structs {
     var code = "import C_mujoco\n"
     code += structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
-      prefix: ".pointee", deny: ["buffer"],
+      suffix: ".pointee", deny: ["buffer"],
       propertiesMapping: [
         "nuser_jnt": "nuserJnt", "nuser_geom": "nuserGeom", "nuser_site": "nuserSite",
         "nuser_cam": "nuserCam", "nuser_tendon": "nuserTendon", "nuser_actuator": "nuserActuator",
         "nuser_sensor": "nuserSensor", "nuser_body": "nuserBody",
-      ])
+      ], boundingObject: "_storage")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjModel+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjvScene_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
-      staticArrayAsDynamic: ["lights"])
+      suffix: ".pointee",
+      staticArrayAsDynamic: ["lights"], boundingObject: "_storage")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvScene+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjvFigure_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
-      prefix: ".pointee",
-      deny: ["linedata"], staticArrayAsDynamic: ["linergb", "range", "linename", "linepnt"])
+      suffix: ".pointee",
+      deny: ["linedata"], staticArrayAsDynamic: ["linergb", "range", "linename", "linepnt"],
+      boundingObject: "_storage")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvFigure+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjrContext_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      suffix: ".pointee",
       staticArrayAsDynamic: [
         "auxWidth", "auxHeight", "auxSamples", "auxFBO", "auxFBO_r", "auxColor", "auxColor_r",
         "textureType", "texture", "charWidth", "charWidthBig",
       ],
       excludingCamelCaseForProperties: [
         "offFBO_r", "offColor_r", "offDepthStencil_r", "auxFBO_r", "auxColor_r",
-      ])
+      ], boundingObject: "_storage")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjrContext+Extensions.swift"),
       atomically: false, encoding: .utf8)
@@ -152,35 +156,35 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjuiItemSingle_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
-      prefix: ".pointee", boundingObject: "object")
+      suffix: ".pointee", boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemSingle+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItemMulti_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
-      prefix: ".pointee", staticArrayAsDynamic: ["name"], boundingObject: "object")
+      suffix: ".pointee", staticArrayAsDynamic: ["name"], boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemMulti+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItemSlider_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
-      prefix: ".pointee", boundingObject: "object")
+      suffix: ".pointee", boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemSlider+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItemEdit_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
-      prefix: ".pointee", staticArrayAsDynamic: ["range"], boundingObject: "object")
+      suffix: ".pointee", staticArrayAsDynamic: ["range"], boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemEdit+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItem_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
-      prefix: ".pointee", deny: ["*pdata", "single", "multi", "slider", "edit"],
+      suffix: ".pointee", deny: ["*pdata", "single", "multi", "slider", "edit"],
       boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItem+Extensions.swift"),
@@ -188,14 +192,15 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjuiSection_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
-      prefix: ".pointee", deny: ["item"])
+      suffix: ".pointee", deny: ["item"])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiSection+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjUI_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
-      prefix: ".pointee", deny: ["predicate", "userdata", "editchanged", "sect"])
+      suffix: ".pointee", deny: ["predicate", "userdata", "editchanged", "sect"],
+      boundingObject: "_storage")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjUI+Extensions.swift"),
       atomically: false, encoding: .utf8)

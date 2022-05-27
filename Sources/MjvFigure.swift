@@ -1,15 +1,23 @@
 import C_mujoco
 
-public final class MjvFigure {
+public struct MjvFigure {
   @usableFromInline
-  var _figure: UnsafeMutablePointer<mjvFigure>
+  let _storage = Storage()
+  @inlinable
+  var _figure: UnsafeMutablePointer<mjvFigure> { _storage._figure }
 
-  deinit {
-    _figure.deallocate()
-  }
+  @usableFromInline
+  final class Storage {
+    @usableFromInline
+    let _figure: UnsafeMutablePointer<mjvFigure>
 
-  public init() {
-    _figure = UnsafeMutablePointer.allocate(capacity: 1)
-    mjv_defaultFigure(_figure)
+    deinit {
+      _figure.deallocate()
+    }
+
+    init() {
+      _figure = UnsafeMutablePointer.allocate(capacity: 1)
+      mjv_defaultFigure(_figure)
+    }
   }
 }
