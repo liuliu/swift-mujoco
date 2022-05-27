@@ -67,49 +67,4 @@ public final class MjModel {
       nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
       njmax: _model.pointee.njmax, nD: _model.pointee.nD)
   }
-
-  @inlinable
-  public func step(data: MjData) {
-    mj_step(_model, data._data)
-  }
-
-  @inlinable
-  public func step1(data: MjData) {
-    mj_step1(_model, data._data)
-  }
-
-  @inlinable
-  public func step2(data: MjData) {
-    mj_step2(_model, data._data)
-  }
-
-  @inlinable
-  public func forward(data: MjData) {
-    mj_forward(_model, data._data)
-  }
-
-  @inlinable
-  public func inverse(data: MjData) {
-    mj_inverse(_model, data._data)
-  }
-
-  @inlinable
-  public func forwardSkip(data: MjData, skipStage: Int32, skipSensor: Int32) {
-    mj_forwardSkip(_model, data._data, skipStage, skipSensor)
-  }
-
-  @inlinable
-  public func inverseSkip(data: MjData, skipStage: Int32, skipSensor: Int32) {
-    mj_inverseSkip(_model, data._data, skipStage, skipSensor)
-  }
-
-  @inlinable
-  public func reset(data: MjData) {
-    mj_resetData(_model, data._data)
-  }
-
-  @inlinable
-  public func reset(data: MjData, keyframe: Int32) {
-    mj_resetDataKeyframe(_model, data._data, keyframe)
-  }
 }

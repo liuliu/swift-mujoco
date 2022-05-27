@@ -66,3 +66,133 @@ public struct MjStaticStringArray {
   @inlinable
   public var count: Int { Int(len) }
 }
+
+public protocol MjInt32BufferPointer {
+  func withContiguousBufferPointer(_: (UnsafeBufferPointer<Int32>) -> Void)
+}
+
+public protocol MjInt32MutableBufferPointer: MjInt32BufferPointer {
+  mutating func withContiguousMutableBufferPointer(_: (UnsafeMutableBufferPointer<Int32>) -> Void)
+}
+
+public protocol MjFloatBufferPointer {
+  func withContiguousBufferPointer(_: (UnsafeBufferPointer<Float>) -> Void)
+}
+
+public protocol MjFloatMutableBufferPointer: MjFloatBufferPointer {
+  mutating func withContiguousMutableBufferPointer(_: (UnsafeMutableBufferPointer<Float>) -> Void)
+}
+
+public protocol MjDoubleBufferPointer {
+  func withContiguousBufferPointer(_: (UnsafeBufferPointer<Double>) -> Void)
+}
+
+public protocol MjDoubleMutableBufferPointer: MjDoubleBufferPointer {
+  mutating func withContiguousMutableBufferPointer(_: (UnsafeMutableBufferPointer<Double>) -> Void)
+}
+
+extension MjArray: MjInt32MutableBufferPointer & MjInt32BufferPointer where Element == Int32 {
+  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Int32>) -> Void) {
+    closure(UnsafeBufferPointer(start: _array, count: count))
+  }
+  public mutating func withContiguousMutableBufferPointer(
+    _ closure: (UnsafeMutableBufferPointer<Int32>) -> Void
+  ) {
+    closure(UnsafeMutableBufferPointer(start: _array, count: count))
+  }
+}
+
+extension MjArray: MjFloatMutableBufferPointer & MjFloatBufferPointer where Element == Float {
+  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Float>) -> Void) {
+    closure(UnsafeBufferPointer(start: _array, count: count))
+  }
+  public mutating func withContiguousMutableBufferPointer(
+    _ closure: (UnsafeMutableBufferPointer<Float>) -> Void
+  ) {
+    closure(UnsafeMutableBufferPointer(start: _array, count: count))
+  }
+}
+
+extension MjArray: MjDoubleMutableBufferPointer & MjDoubleBufferPointer where Element == Double {
+  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Double>) -> Void) {
+    closure(UnsafeBufferPointer(start: _array, count: count))
+  }
+  public mutating func withContiguousMutableBufferPointer(
+    _ closure: (UnsafeMutableBufferPointer<Double>) -> Void
+  ) {
+    closure(UnsafeMutableBufferPointer(start: _array, count: count))
+  }
+}
+
+extension Array: MjInt32MutableBufferPointer & MjInt32BufferPointer where Element == Int32 {
+  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Int32>) -> Void) {
+    withUnsafeBufferPointer(closure)
+  }
+  public mutating func withContiguousMutableBufferPointer(
+    _ closure: (UnsafeMutableBufferPointer<Int32>) -> Void
+  ) {
+    withUnsafeMutableBufferPointer { closure($0) }
+  }
+}
+
+extension Array: MjFloatMutableBufferPointer & MjFloatBufferPointer where Element == Float {
+  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Float>) -> Void) {
+    withUnsafeBufferPointer(closure)
+  }
+  public mutating func withContiguousMutableBufferPointer(
+    _ closure: (UnsafeMutableBufferPointer<Float>) -> Void
+  ) {
+    withUnsafeMutableBufferPointer { closure($0) }
+  }
+}
+
+extension Array: MjDoubleMutableBufferPointer & MjDoubleBufferPointer where Element == Double {
+  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Double>) -> Void) {
+    withUnsafeBufferPointer(closure)
+  }
+  public mutating func withContiguousMutableBufferPointer(
+    _ closure: (UnsafeMutableBufferPointer<Double>) -> Void
+  ) {
+    withUnsafeMutableBufferPointer { closure($0) }
+  }
+}
+
+extension MjDoubleBufferPointer {
+  // 1, 3, 4, 6, 9
+  public static func tuple(_ element: (Double)) -> MjDoubleBufferPointer {
+    return MjTuple(element, count: 1)
+  }
+  public static func tuple(_ element: (Double, Double, Double)) -> MjDoubleBufferPointer {
+    return MjTuple(element, count: 3)
+  }
+  public static func tuple(_ element: (Double, Double, Double, Double)) -> MjDoubleBufferPointer {
+    return MjTuple(element, count: 4)
+  }
+  public static func tuple(_ element: (Double, Double, Double, Double, Double, Double))
+    -> MjDoubleBufferPointer
+  {
+    return MjTuple(element, count: 6)
+  }
+  public static func tuple(
+    _ element: (Double, Double, Double, Double, Double, Double, Double, Double, Double)
+  ) -> MjDoubleBufferPointer {
+    return MjTuple(element, count: 9)
+  }
+}
+
+public struct MjTuple<Element>: MjDoubleBufferPointer {
+  private var element: Element
+  private var count: Int
+  init(_ element: Element, count: Int) {
+    self.element = element
+    self.count = count
+  }
+  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Double>) -> Void) {
+    var local = element
+    withUnsafeMutablePointer(to: &local) {
+      closure(
+        UnsafeBufferPointer(
+          start: UnsafeRawPointer($0).assumingMemoryBound(to: Double.self), count: count))
+    }
+  }
+}

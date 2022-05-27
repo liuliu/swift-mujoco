@@ -12,16 +12,132 @@ public struct APIDefinition {
   }
 }
 
-func swiftParameterType(name: String, type: String) -> SwiftFieldType {
-  if type == "const char *" || type == "const char*" { return .staticString(0) }
+enum SwiftParameterType {
+  case plain(String, Bool, Bool)  // name, isPointer, isConst
+  case string
+  case tuple(String, Bool, Int)  // name, isConst, Repeat
+  case array(String, Bool)  // name, isConst
+
+  var isPointer: Bool {
+    switch self {
+    case .plain(_, let isPointer, _):
+      return isPointer
+    case .array, .tuple, .string:
+      return true
+    }
+  }
+
+  var isConst: Bool {
+    switch self {
+    case .plain(_, _, let isConst), .array(_, let isConst), .tuple(_, let isConst, _):
+      return isConst
+    case .string:
+      return true
+    }
+  }
+
+  var swiftType: String {
+    switch self {
+    case let .plain(name, _, _):
+      return name
+    case let .tuple(name, isPointer, _), let .array(name, isPointer):
+      return isPointer ? "Mj\(name)MutableBufferPointer" : "Mj\(name)BufferPointer"
+    case .string:
+      return "String"
+    }
+  }
+}
+
+extension SwiftParameterType: CustomStringConvertible {
+  var description: String {
+    switch self {
+    case let .plain(name, _, _):
+      return name
+    case let .tuple(name, _, count):
+      return "(" + [String](repeating: name, count: count).joined(separator: ", ") + ")"
+    case let .array(name, _):
+      return "[" + name + "]"
+    case .string:
+      return "String"
+    }
+  }
+}
+
+func swiftParameterType(name: String, type: String) -> SwiftParameterType {
+  if type == "const char *" || type == "const char*" { return .string }
   let matched = type.split(separator: " ", maxSplits: 1)
-  let nakedType = String(matched.last!)
+  let isConst = matched.count > 1 && matched[0] == "const"
+  let nakedType = isConst ? String(matched.last!) : type
   var mainType = nakedType
-  if mainType.last == "*" {
+  let isPointer = (mainType.last == "*")
+  if isPointer {
     mainType = String(mainType.dropLast().trimmingCharacters(in: .whitespaces))
   }
   mainType = (SwiftType[mainType] ?? mainType).firstUppercased()
-  return .plain(mainType)
+  if let range = name.range(of: #"\[\w+\]"#, options: .regularExpression) {
+    let matched = name[range].dropFirst().dropLast()
+    let count = Int(matched)!
+    precondition(!isPointer)  // We cannot handle static array with pointer.
+    return .tuple(mainType, isConst, count)
+  }
+  if mainType.hasPrefix("Mj") || !isPointer {
+    return .plain(mainType, isPointer, isConst)
+  } else {
+    return .array(mainType, isConst)
+  }
+}
+
+// We have 3 ways to handle Mj* types. These are either value like MjvCamera, itself is a final
+// class / struct, and contains the struct of mjvCamera. Or ref, like MjModel, itself is a final
+// class / struct, and contains the UnsafeMutablePointer to mjModel. The other is the alias like
+// MjrRect, it is the same as mjrRect.
+enum MjType {
+  case value
+  case ref
+  case alias
+}
+
+let MjTypes: [String: MjType] = [
+  "MjContact": .value,
+  "MjData": .ref,
+  "MjLROpt": .value,
+  "MjModel": .ref,
+  "MjOption": .value,
+  "MjrContext": .value,
+  "MjrRect": .alias,
+  "MjSolverStat": .alias,
+  "MjStatistic": .alias,
+  "MjTimerStat": .alias,
+  "MjuiDef": .value,
+  "MjuiItemEdit": .ref,
+  "MjuiItemMulti": .ref,
+  "MjuiItemSingle": .ref,
+  "MjuiItemSlider": .ref,
+  "MjuiItem": .ref,
+  "MjuiSection": .ref,
+  "MjuiState": .value,
+  "MjUI": .ref,
+  "MjuiThemeColor": .value,
+  "MjuiThemeSpacing": .value,
+  "MjvCamera": .value,
+  "MjvFigure": .ref,
+  "MjVFS": .ref,
+  "MjvGeom": .value,
+  "MjvGLCamera": .value,
+  "MjVisual": .value,
+  "MjvLight": .alias,
+  "MjvOption": .value,
+  "MjvPerturb": .value,
+  "MjvScene": .value,
+  "MjWarningStat": .alias,
+]
+
+func varName(_ name: String) -> String {
+  precondition(name.hasPrefix("Mj"))
+  let internalProperty = name.dropFirst()
+  let varName = internalProperty.suffix(from: internalProperty.firstIndex(where: \.isUppercase)!)
+    .lowercased()
+  return "_" + varName
 }
 
 public func functionExtension(
@@ -129,21 +245,73 @@ public func functionExtension(
     }
   }
   var parameterPairs = [String]()
+  var parameterParsedTypes = [Int: SwiftParameterType]()
   for i in 0..<apiDefinition.parameters.count {
     guard i != mainInd, let namedParameter = positionedNamedParameters[i] else { continue }
+    let parsedType = swiftParameterType(name: namedParameter.name, type: namedParameter.type)
+    parameterParsedTypes[i] = parsedType
     if anonymousIndexes.contains(i) {
       parameterPairs.append(
-        "_ \(cleanupFieldName(name: namedParameter.name)): \(swiftParameterType(name: namedParameter.name, type: namedParameter.type))"
+        "_ \(cleanupFieldName(name: namedParameter.name).camelCase()): \(parsedType.swiftType)"
       )
     } else {
       parameterPairs.append(
-        "\(cleanupFieldName(name: namedParameter.name)): \(swiftParameterType(name: namedParameter.name, type: namedParameter.type))"
+        "\(cleanupFieldName(name: namedParameter.name).camelCase()): \(parsedType.swiftType)"
       )
     }
   }
+  let mainParsedType = swiftParameterType(
+    name: apiDefinition.parameters[mainInd].name, type: apiDefinition.parameters[mainInd].type)
   var code = "  @inlinable\n"
   code += "  public func \(funcName)(\(parameterPairs.joined(separator: ", "))) {\n"
-  // code += "    \(apiDefinition)\n"
+  var callingPairs = [String]()
+  for (i, _) in apiDefinition.parameters.enumerated() {
+    guard i != mainInd, let namedParameter = positionedNamedParameters[i] else {
+      switch MjTypes[mainType]! {
+      case .value:
+        if mainParsedType.isPointer {
+          callingPairs.append("&self.\(varName(mainType))")
+        } else {
+          callingPairs.append("self.\(varName(mainType))")
+        }
+      case .ref:
+        precondition(mainParsedType.isPointer)
+        callingPairs.append("self.\(varName(mainType))")
+      case .alias:
+        if mainParsedType.isPointer {
+          callingPairs.append("self")
+        } else {
+          callingPairs.append("&self")
+        }
+      }
+      continue
+    }
+    let parsedType = parameterParsedTypes[i]!
+    let paramName = cleanupFieldName(name: namedParameter.name).camelCase()
+    if case let .plain(typeName, isPointer, _) = parsedType, typeName.hasPrefix("Mj") {
+      switch MjTypes[parsedType.swiftType]! {
+      case .value:
+        if isPointer {
+          callingPairs.append("&\(paramName).\(varName(parsedType.swiftType))")
+        } else {
+          callingPairs.append("\(paramName).\(varName(parsedType.swiftType))")
+        }
+      case .ref:
+        precondition(isPointer)
+        callingPairs.append("\(paramName).\(varName(parsedType.swiftType))")
+      case .alias:
+        if isPointer {
+          callingPairs.append("&\(paramName)")
+        } else {
+          callingPairs.append(paramName)
+        }
+
+      }
+    } else {
+      callingPairs.append(paramName)
+    }
+  }
+  code += "    \(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\n"
   code += "  }\n"
   return (mainType: mainType, sourceCode: code)
 }

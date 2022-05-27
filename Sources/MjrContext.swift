@@ -11,9 +11,4 @@ public final class MjrContext {
   deinit {
     mjr_freeContext(&_context)
   }
-
-  @inlinable
-  public func render(viewport: MjrRect, scene: MjvScene) {
-    mjr_render(viewport, &scene._scene, &_context)
-  }
 }
