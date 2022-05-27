@@ -12,6 +12,56 @@ public struct APIDefinition {
   }
 }
 
+// We have 3 ways to handle Mj* types. These are either value like MjvCamera, itself is a final
+// class / struct, and contains the struct of mjvCamera. Or ref, like MjModel, itself is a final
+// class / struct, and contains the UnsafeMutablePointer to mjModel. The other is the alias like
+// MjrRect, it is the same as mjrRect.
+enum MjInstanceType {
+  case value
+  case ref
+  case alias
+}
+
+enum MjContainerType {
+  case `class`
+  case `struct`
+}
+
+let MjTypes: [String: (instance: MjInstanceType, container: MjContainerType)] = [
+  "MjContact": (instance: .value, container: .struct),
+  "MjData": (instance: .ref, container: .class),
+  "MjLROpt": (instance: .value, container: .struct),
+  "MjModel": (instance: .ref, container: .class),
+  "MjOption": (instance: .value, container: .struct),
+  "MjrContext": (instance: .value, container: .class),
+  "MjrRect": (instance: .alias, container: .struct),
+  "MjSolverStat": (instance: .alias, container: .struct),
+  "MjStatistic": (instance: .alias, container: .struct),
+  "MjTimerStat": (instance: .alias, container: .struct),
+  "MjuiDef": (instance: .value, container: .struct),
+  "MjuiItemEdit": (instance: .ref, container: .struct),
+  "MjuiItemMulti": (instance: .ref, container: .struct),
+  "MjuiItemSingle": (instance: .ref, container: .struct),
+  "MjuiItemSlider": (instance: .ref, container: .struct),
+  "MjuiItem": (instance: .ref, container: .struct),
+  "MjuiSection": (instance: .ref, container: .struct),
+  "MjuiState": (instance: .value, container: .struct),
+  "MjUI": (instance: .ref, container: .class),
+  "MjuiThemeColor": (instance: .value, container: .struct),
+  "MjuiThemeSpacing": (instance: .value, container: .struct),
+  "MjvCamera": (instance: .value, container: .struct),
+  "MjvFigure": (instance: .ref, container: .class),
+  "MjVFS": (instance: .ref, container: .class),
+  "MjvGeom": (instance: .value, container: .struct),
+  "MjvGLCamera": (instance: .value, container: .struct),
+  "MjVisual": (instance: .value, container: .struct),
+  "MjvLight": (instance: .alias, container: .struct),
+  "MjvOption": (instance: .value, container: .struct),
+  "MjvPerturb": (instance: .value, container: .struct),
+  "MjvScene": (instance: .value, container: .class),
+  "MjWarningStat": (instance: .alias, container: .struct),
+]
+
 enum SwiftParameterType {
   case plain(String, Bool, Bool)  // name, isPointer, isConst
   case string
@@ -34,6 +84,19 @@ enum SwiftParameterType {
     case .string:
       return true
     }
+  }
+
+  var isInout: Bool {
+    // Otherwise, if it is a pointer, it needs to be inout.
+    if case let .plain(_, isPointer, _) = self {
+      // If it is const pointer, we don't need this to be inout, just a local copy would be
+      // sufficient.
+      if isConst {
+        return false
+      }
+      return isPointer
+    }
+    return false
   }
 
   var swiftType: String {
@@ -86,51 +149,6 @@ func swiftParameterType(name: String, type: String) -> SwiftParameterType {
     return .array(mainType, isConst)
   }
 }
-
-// We have 3 ways to handle Mj* types. These are either value like MjvCamera, itself is a final
-// class / struct, and contains the struct of mjvCamera. Or ref, like MjModel, itself is a final
-// class / struct, and contains the UnsafeMutablePointer to mjModel. The other is the alias like
-// MjrRect, it is the same as mjrRect.
-enum MjType {
-  case value
-  case ref
-  case alias
-}
-
-let MjTypes: [String: MjType] = [
-  "MjContact": .value,
-  "MjData": .ref,
-  "MjLROpt": .value,
-  "MjModel": .ref,
-  "MjOption": .value,
-  "MjrContext": .value,
-  "MjrRect": .alias,
-  "MjSolverStat": .alias,
-  "MjStatistic": .alias,
-  "MjTimerStat": .alias,
-  "MjuiDef": .value,
-  "MjuiItemEdit": .ref,
-  "MjuiItemMulti": .ref,
-  "MjuiItemSingle": .ref,
-  "MjuiItemSlider": .ref,
-  "MjuiItem": .ref,
-  "MjuiSection": .ref,
-  "MjuiState": .value,
-  "MjUI": .ref,
-  "MjuiThemeColor": .value,
-  "MjuiThemeSpacing": .value,
-  "MjvCamera": .value,
-  "MjvFigure": .ref,
-  "MjVFS": .ref,
-  "MjvGeom": .value,
-  "MjvGLCamera": .value,
-  "MjVisual": .value,
-  "MjvLight": .alias,
-  "MjvOption": .value,
-  "MjvPerturb": .value,
-  "MjvScene": .value,
-  "MjWarningStat": .alias,
-]
 
 func varName(_ name: String) -> String {
   precondition(name.hasPrefix("Mj"))
@@ -252,25 +270,42 @@ public func functionExtension(
     parameterParsedTypes[i] = parsedType
     if anonymousIndexes.contains(i) {
       parameterPairs.append(
-        "_ \(cleanupFieldName(name: namedParameter.name).camelCase()): \(parsedType.swiftType)"
+        "_ \(cleanupFieldName(name: namedParameter.name).camelCase()): \(parsedType.isInout ? "inout ": "")\(parsedType.swiftType)"
       )
     } else {
       parameterPairs.append(
-        "\(cleanupFieldName(name: namedParameter.name).camelCase()): \(parsedType.swiftType)"
+        "\(cleanupFieldName(name: namedParameter.name).camelCase()): \(parsedType.isInout ? "inout ": "")\(parsedType.swiftType)"
       )
     }
   }
   let mainParsedType = swiftParameterType(
     name: apiDefinition.parameters[mainInd].name, type: apiDefinition.parameters[mainInd].type)
   var code = "  @inlinable\n"
-  code += "  public func \(funcName)(\(parameterPairs.joined(separator: ", "))) {\n"
+  let mutatingPrefix: String
+  if let mjType = MjTypes[mainParsedType.swiftType], mjType.container == .struct,
+    mainParsedType.isInout
+  {
+    mutatingPrefix = mjType.instance == .value || mjType.instance == .alias ? " mutating" : ""
+  } else {
+    mutatingPrefix = ""
+  }
+  code +=
+    "  public\(mutatingPrefix) func \(funcName)(\(parameterPairs.joined(separator: ", "))) {\n"
+  var localCopyPairs = [String]()
   var callingPairs = [String]()
   for (i, _) in apiDefinition.parameters.enumerated() {
     guard i != mainInd, let namedParameter = positionedNamedParameters[i] else {
-      switch MjTypes[mainType]! {
+      switch MjTypes[mainType]!.instance {
       case .value:
         if mainParsedType.isPointer {
-          callingPairs.append("&self.\(varName(mainType))")
+          if mainParsedType.isConst {
+            localCopyPairs.append(
+              "var _\(varName(mainParsedType.swiftType)) = self.\(varName(mainParsedType.swiftType))"
+            )
+            callingPairs.append("&_\(varName(mainType))")
+          } else {
+            callingPairs.append("&self.\(varName(mainType))")
+          }
         } else {
           callingPairs.append("self.\(varName(mainType))")
         }
@@ -288,11 +323,18 @@ public func functionExtension(
     }
     let parsedType = parameterParsedTypes[i]!
     let paramName = cleanupFieldName(name: namedParameter.name).camelCase()
-    if case let .plain(typeName, isPointer, _) = parsedType, typeName.hasPrefix("Mj") {
-      switch MjTypes[parsedType.swiftType]! {
+    if case let .plain(typeName, isPointer, isConst) = parsedType, typeName.hasPrefix("Mj") {
+      switch MjTypes[parsedType.swiftType]!.instance {
       case .value:
         if isPointer {
-          callingPairs.append("&\(paramName).\(varName(parsedType.swiftType))")
+          if isConst {  // This is const pointer, we need to make a local copy and then pass the pointer.
+            localCopyPairs.append(
+              "var \(paramName)_\(varName(parsedType.swiftType)) = \(paramName).\(varName(parsedType.swiftType))"
+            )
+            callingPairs.append("&\(paramName)_\(varName(parsedType.swiftType))")
+          } else {
+            callingPairs.append("&\(paramName).\(varName(parsedType.swiftType))")
+          }
         } else {
           callingPairs.append("\(paramName).\(varName(parsedType.swiftType))")
         }
@@ -311,6 +353,7 @@ public func functionExtension(
       callingPairs.append(paramName)
     }
   }
+  code += localCopyPairs.map({ "    \($0)\n" }).joined()
   code += "    \(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\n"
   code += "  }\n"
   return (mainType: mainType, sourceCode: code)
