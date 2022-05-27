@@ -2,8 +2,8 @@ import C_mujoco
 
 extension MjvScene {
   @inlinable
-  public func frustumHeight() {
-    mjv_frustumHeight(self._scene)
+  public func frustumHeight() -> Double {
+    return mjv_frustumHeight(self._scene)
   }
   @inlinable
   public func updateScene(

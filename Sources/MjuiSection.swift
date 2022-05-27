@@ -29,7 +29,7 @@ public struct MjuiItemArray {
   public subscript(index: Int) -> MjuiItem {
     get {
       precondition(index < len)
-      return MjuiItem(object: object, item: _array + index)
+      return MjuiItem(_array + index, object: object)
     }
     set {
       precondition(index < len)

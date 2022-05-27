@@ -16,8 +16,8 @@ extension MjUI {
     mjui_resize(self._ui, context._context)
   }
   @inlinable
-  public func event(state: inout MjuiState, context: MjrContext) {
-    mjui_event(self._ui, &state._state, context._context)
+  public func event(state: inout MjuiState, context: MjrContext) -> MjuiItem {
+    return MjuiItem(mjui_event(self._ui, &state._state, context._context), object: _storage)
   }
   @inlinable
   public func render(state: MjuiState, context: MjrContext) {

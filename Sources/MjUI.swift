@@ -67,6 +67,6 @@ extension MjUI {
   @inlinable
   public var editchanged: MjuiItem? {
     let unsafeMutablePointer: UnsafeMutablePointer<mjuiItem_>? = _ui.pointee.editchanged
-    return unsafeMutablePointer.flatMap { MjuiItem(object: _storage, item: $0) }
+    return unsafeMutablePointer.flatMap { MjuiItem($0, object: _storage) }
   }
 }

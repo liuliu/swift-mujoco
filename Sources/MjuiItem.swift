@@ -7,7 +7,7 @@ public struct MjuiItem {
   @usableFromInline
   var _item: UnsafeMutablePointer<mjuiItem_>
   @usableFromInline
-  init(object: AnyObject, item: UnsafeMutablePointer<mjuiItem_>) {
+  init(_ item: UnsafeMutablePointer<mjuiItem_>, object: AnyObject) {
     self.object = object
     _item = item
   }

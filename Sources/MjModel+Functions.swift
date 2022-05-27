@@ -198,29 +198,29 @@ extension MjModel {
     mj_referenceConstraint(self._model, data._data)
   }
   @inlinable
-  public func addContact(data: inout MjData, contact: MjContact) {
+  public func addContact(data: inout MjData, contact: MjContact) -> Int32 {
     var contact__contact = contact._contact
-    mj_addContact(self._model, data._data, &contact__contact)
+    return mj_addContact(self._model, data._data, &contact__contact)
   }
   @inlinable
-  public func isPyramidal() {
-    mj_isPyramidal(self._model)
+  public func isPyramidal() -> Bool {
+    return (0 != mj_isPyramidal(self._model))
   }
   @inlinable
-  public func isSparse() {
-    mj_isSparse(self._model)
+  public func isSparse() -> Bool {
+    return (0 != mj_isSparse(self._model))
   }
   @inlinable
-  public func isDual() {
-    mj_isDual(self._model)
+  public func isDual() -> Bool {
+    return (0 != mj_isDual(self._model))
   }
   @inlinable
-  public func name2id(type: Int32, name: String) {
-    mj_name2id(self._model, type, name)
+  public func name2id(type: Int32, name: String) -> Int32 {
+    return mj_name2id(self._model, type, name)
   }
   @inlinable
-  public func getTotalmass() {
-    mj_getTotalmass(self._model)
+  public func getTotalmass() -> Double {
+    return mj_getTotalmass(self._model)
   }
   @inlinable
   public func setTotalmass(newmass: Double) {

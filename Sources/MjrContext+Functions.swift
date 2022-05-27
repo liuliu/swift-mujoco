@@ -52,8 +52,8 @@ extension MjrContext {
     mjr_overlay(font, gridpos, viewport, overlay, overlay2, self._context)
   }
   @inlinable
-  public func maxViewport() {
-    mjr_maxViewport(self._context)
+  public func maxViewport() -> MjrRect {
+    return mjr_maxViewport(self._context)
   }
   @inlinable
   public func label(

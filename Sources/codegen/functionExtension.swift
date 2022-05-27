@@ -57,6 +57,10 @@ let MjTypes: [String: MjType] = [
   "MjWarningStat": .alias,
 ]
 
+let MjTypeConversionSuffixPatch: [String: String] = [
+  "MjuiItem": ", object: _storage"
+]
+
 enum SwiftParameterType {
   case plain(String, Bool, Bool)  // name, isPointer, isConst
   case string
@@ -143,6 +147,55 @@ func swiftParameterType(name: String, type: String) -> SwiftParameterType {
   } else {
     return .array(mainType, isConst)
   }
+}
+enum SwiftReturnType {
+  case plain(String, Bool, Bool)  // name, isPointer, isConst
+  case string
+  case void
+
+  var isMjType: Bool {
+    if case .plain(let name, _, _) = self {
+      return name.hasPrefix("Mj")
+    }
+    return false
+  }
+
+  func isBoolReturn(apiName: String) -> Bool {
+    // This is pure C, bool is int, is Int32.
+    guard case let .plain(name, _, _) = self, name == "Int32" else {
+      return false
+    }
+    // If name contains _is, it is a boolean
+    return apiName.contains("_is")
+  }
+}
+
+extension SwiftReturnType: CustomStringConvertible {
+  var description: String {
+    switch self {
+    case let .plain(name, _, _):
+      return name
+    case .string:
+      return "String"
+    case .void:
+      return "Void"
+    }
+  }
+}
+
+func swiftReturnType(_ type: String) -> SwiftReturnType {
+  if type == "void" { return .void }
+  if type == "const char *" || type == "const char*" { return .string }
+  let matched = type.split(separator: " ", maxSplits: 1)
+  let isConst = matched.count > 1 && matched[0] == "const"
+  let nakedType = isConst ? String(matched.last!) : type
+  var mainType = nakedType
+  let isPointer = (mainType.last == "*")
+  if isPointer {
+    mainType = String(mainType.dropLast().trimmingCharacters(in: .whitespaces))
+  }
+  mainType = (SwiftType[mainType] ?? mainType).firstUppercased()
+  return .plain(mainType, isPointer, isConst)
 }
 
 func varName(_ name: String) -> String {
@@ -282,8 +335,19 @@ public func functionExtension(
   } else {
     mutatingPrefix = ""
   }
-  code +=
-    "  public\(mutatingPrefix) func \(funcName)(\(parameterPairs.joined(separator: ", "))) {\n"
+  let parsedReturnType = swiftReturnType(apiDefinition.returnType)
+  let isBoolReturn = parsedReturnType.isBoolReturn(apiName: apiDefinition.name)
+  switch parsedReturnType {
+  case .string:
+    code +=
+      "  public\(mutatingPrefix) func \(funcName)(\(parameterPairs.joined(separator: ", "))) -> String {\n"
+  case .void:
+    code +=
+      "  public\(mutatingPrefix) func \(funcName)(\(parameterPairs.joined(separator: ", "))) {\n"
+  case .plain(let name, _, _):
+    code +=
+      "  public\(mutatingPrefix) func \(funcName)(\(parameterPairs.joined(separator: ", "))) -> \(isBoolReturn ? "Bool" : name) {\n"
+  }
   var localCopyPairs = [String]()
   var callingPairs = [String]()
   for (i, _) in apiDefinition.parameters.enumerated() {
@@ -347,7 +411,24 @@ public func functionExtension(
     }
   }
   code += localCopyPairs.map({ "    \($0)\n" }).joined()
-  code += "    \(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\n"
+  switch parsedReturnType {
+  case .string:
+    code +=
+      "    return String(cString: \(apiDefinition.name)(\(callingPairs.joined(separator: ", "))), encoding: .utf8)!\n"
+  case .void:
+    code += "    \(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\n"
+  case .plain(let name, _, _):
+    if isBoolReturn {
+      code += "    return (0 != \(apiDefinition.name)(\(callingPairs.joined(separator: ", "))))\n"
+    } else {
+      if parsedReturnType.isMjType && MjTypes[name] != .alias {
+        code +=
+          "    return \(name)(\(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\(MjTypeConversionSuffixPatch[name] ?? ""))\n"
+      } else {
+        code += "    return \(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\n"
+      }
+    }
+  }
   code += "  }\n"
   return (mainType: mainType, sourceCode: code)
 }
