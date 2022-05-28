@@ -166,6 +166,26 @@ extension MjModel {
     mj_factorM(self._model, data._data)
   }
   @inlinable
+  public func solveM(
+    data: inout MjData, x: inout MjDoubleMutableBufferPointer, y: MjDoubleBufferPointer, n: Int32
+  ) {
+    x.withUnsafeMutableBufferPointer { x__p in
+      y.withUnsafeBufferPointer { y__p in
+        mj_solveM(self._model, data._data, x__p.baseAddress, y__p.baseAddress, n)
+      }
+    }
+  }
+  @inlinable
+  public func solveM2(
+    data: inout MjData, x: inout MjDoubleMutableBufferPointer, y: MjDoubleBufferPointer, n: Int32
+  ) {
+    x.withUnsafeMutableBufferPointer { x__p in
+      y.withUnsafeBufferPointer { y__p in
+        mj_solveM2(self._model, data._data, x__p.baseAddress, y__p.baseAddress, n)
+      }
+    }
+  }
+  @inlinable
   public func comVel(data: inout MjData) {
     mj_comVel(self._model, data._data)
   }
@@ -176,6 +196,12 @@ extension MjModel {
   @inlinable
   public func subtreeVel(data: inout MjData) {
     mj_subtreeVel(self._model, data._data)
+  }
+  @inlinable
+  public func rne(data: inout MjData, flgAcc: Int32, result: inout MjDoubleMutableBufferPointer) {
+    result.withUnsafeMutableBufferPointer { result__p in
+      mj_rne(self._model, data._data, flgAcc, result__p.baseAddress)
+    }
   }
   @inlinable
   public func rnePostConstraint(data: inout MjData) {
@@ -215,8 +241,148 @@ extension MjModel {
     return (0 != mj_isDual(self._model))
   }
   @inlinable
+  public func mulJacVec(
+    data: inout MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
+  ) {
+    res.withUnsafeMutableBufferPointer { res__p in
+      vec.withUnsafeBufferPointer { vec__p in
+        mj_mulJacVec(self._model, data._data, res__p.baseAddress, vec__p.baseAddress)
+      }
+    }
+  }
+  @inlinable
+  public func mulJacTVec(
+    data: inout MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
+  ) {
+    res.withUnsafeMutableBufferPointer { res__p in
+      vec.withUnsafeBufferPointer { vec__p in
+        mj_mulJacTVec(self._model, data._data, res__p.baseAddress, vec__p.baseAddress)
+      }
+    }
+  }
+  @inlinable
+  public func jacBody(
+    data: MjData, jacp: inout MjDoubleMutableBufferPointer,
+    jacr: inout MjDoubleMutableBufferPointer, body: Int32
+  ) {
+    jacp.withUnsafeMutableBufferPointer { jacp__p in
+      jacr.withUnsafeMutableBufferPointer { jacr__p in
+        mj_jacBody(self._model, data._data, jacp__p.baseAddress, jacr__p.baseAddress, body)
+      }
+    }
+  }
+  @inlinable
+  public func jacBodyCom(
+    data: MjData, jacp: inout MjDoubleMutableBufferPointer,
+    jacr: inout MjDoubleMutableBufferPointer, body: Int32
+  ) {
+    jacp.withUnsafeMutableBufferPointer { jacp__p in
+      jacr.withUnsafeMutableBufferPointer { jacr__p in
+        mj_jacBodyCom(self._model, data._data, jacp__p.baseAddress, jacr__p.baseAddress, body)
+      }
+    }
+  }
+  @inlinable
+  public func jacGeom(
+    data: MjData, jacp: inout MjDoubleMutableBufferPointer,
+    jacr: inout MjDoubleMutableBufferPointer, geom: Int32
+  ) {
+    jacp.withUnsafeMutableBufferPointer { jacp__p in
+      jacr.withUnsafeMutableBufferPointer { jacr__p in
+        mj_jacGeom(self._model, data._data, jacp__p.baseAddress, jacr__p.baseAddress, geom)
+      }
+    }
+  }
+  @inlinable
+  public func jacSite(
+    data: MjData, jacp: inout MjDoubleMutableBufferPointer,
+    jacr: inout MjDoubleMutableBufferPointer, site: Int32
+  ) {
+    jacp.withUnsafeMutableBufferPointer { jacp__p in
+      jacr.withUnsafeMutableBufferPointer { jacr__p in
+        mj_jacSite(self._model, data._data, jacp__p.baseAddress, jacr__p.baseAddress, site)
+      }
+    }
+  }
+  @inlinable
   public func name2id(type: Int32, name: String) -> Int32 {
     return mj_name2id(self._model, type, name)
+  }
+  @inlinable
+  public func fullM(dst: inout MjDoubleMutableBufferPointer, m: MjDoubleBufferPointer) {
+    dst.withUnsafeMutableBufferPointer { dst__p in
+      m.withUnsafeBufferPointer { m__p in
+        mj_fullM(self._model, dst__p.baseAddress, m__p.baseAddress)
+      }
+    }
+  }
+  @inlinable
+  public func mulM(
+    data: MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
+  ) {
+    res.withUnsafeMutableBufferPointer { res__p in
+      vec.withUnsafeBufferPointer { vec__p in
+        mj_mulM(self._model, data._data, res__p.baseAddress, vec__p.baseAddress)
+      }
+    }
+  }
+  @inlinable
+  public func mulM2(
+    data: MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
+  ) {
+    res.withUnsafeMutableBufferPointer { res__p in
+      vec.withUnsafeBufferPointer { vec__p in
+        mj_mulM2(self._model, data._data, res__p.baseAddress, vec__p.baseAddress)
+      }
+    }
+  }
+  @inlinable
+  public func addM(
+    data: inout MjData, dst: inout MjDoubleMutableBufferPointer,
+    rownnz: inout MjInt32MutableBufferPointer, rowadr: inout MjInt32MutableBufferPointer,
+    colind: inout MjInt32MutableBufferPointer
+  ) {
+    dst.withUnsafeMutableBufferPointer { dst__p in
+      rownnz.withUnsafeMutableBufferPointer { rownnz__p in
+        rowadr.withUnsafeMutableBufferPointer { rowadr__p in
+          colind.withUnsafeMutableBufferPointer { colind__p in
+            mj_addM(
+              self._model, data._data, dst__p.baseAddress, rownnz__p.baseAddress,
+              rowadr__p.baseAddress, colind__p.baseAddress)
+          }
+        }
+      }
+    }
+  }
+  @inlinable
+  public func differentiatePos(
+    qvel: inout MjDoubleMutableBufferPointer, dt: Double, qpos1: MjDoubleBufferPointer,
+    qpos2: MjDoubleBufferPointer
+  ) {
+    qvel.withUnsafeMutableBufferPointer { qvel__p in
+      qpos1.withUnsafeBufferPointer { qpos1__p in
+        qpos2.withUnsafeBufferPointer { qpos2__p in
+          mj_differentiatePos(
+            self._model, qvel__p.baseAddress, dt, qpos1__p.baseAddress, qpos2__p.baseAddress)
+        }
+      }
+    }
+  }
+  @inlinable
+  public func integratePos(
+    qpos: inout MjDoubleMutableBufferPointer, qvel: MjDoubleBufferPointer, dt: Double
+  ) {
+    qpos.withUnsafeMutableBufferPointer { qpos__p in
+      qvel.withUnsafeBufferPointer { qvel__p in
+        mj_integratePos(self._model, qpos__p.baseAddress, qvel__p.baseAddress, dt)
+      }
+    }
+  }
+  @inlinable
+  public func normalizeQuat(qpos: inout MjDoubleMutableBufferPointer) {
+    qpos.withUnsafeMutableBufferPointer { qpos__p in
+      mj_normalizeQuat(self._model, qpos__p.baseAddress)
+    }
   }
   @inlinable
   public func getTotalmass() -> Double {

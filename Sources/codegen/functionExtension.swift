@@ -87,23 +87,27 @@ enum SwiftParameterType {
 
   var isInout: Bool {
     // Otherwise, if it is a pointer, it needs to be inout.
-    if case let .plain(_, isPointer, _) = self {
+    switch self {
+    case let .plain(_, isPointer, _):
       // If it is const pointer, we don't need this to be inout, just a local copy would be
       // sufficient.
       if isConst {
         return false
       }
       return isPointer
+    case let .tuple(_, isConst, _), let .array(_, isConst):
+      return !isConst
+    case .string:
+      return false
     }
-    return false
   }
 
   var swiftType: String {
     switch self {
     case let .plain(name, _, _):
       return name
-    case let .tuple(name, isPointer, _), let .array(name, isPointer):
-      return isPointer ? "Mj\(name)MutableBufferPointer" : "Mj\(name)BufferPointer"
+    case let .tuple(name, isConst, _), let .array(name, isConst):
+      return isConst ? "Mj\(name)BufferPointer" : "Mj\(name)MutableBufferPointer"
     case .string:
       return "String"
     }
@@ -337,6 +341,12 @@ public func functionExtension(
   }
   let parsedReturnType = swiftReturnType(apiDefinition.returnType)
   let isBoolReturn = parsedReturnType.isBoolReturn(apiName: apiDefinition.name)
+  let hasReturnValue: Bool
+  if case .void = parsedReturnType {
+    hasReturnValue = false
+  } else {
+    hasReturnValue = true
+  }
   switch parsedReturnType {
   case .string:
     code +=
@@ -350,6 +360,7 @@ public func functionExtension(
   }
   var localCopyPairs = [String]()
   var callingPairs = [String]()
+  var enclosings = 0
   for (i, _) in apiDefinition.parameters.enumerated() {
     guard i != mainInd, let namedParameter = positionedNamedParameters[i] else {
       switch MjTypes[mainType]! {
@@ -386,7 +397,8 @@ public func functionExtension(
         if isPointer {
           if isConst {  // This is const pointer, we need to make a local copy and then pass the pointer.
             localCopyPairs.append(
-              "var \(paramName)_\(varName(parsedType.swiftType)) = \(paramName).\(varName(parsedType.swiftType))"
+              String(repeating: "  ", count: enclosings)
+                + "var \(paramName)_\(varName(parsedType.swiftType)) = \(paramName).\(varName(parsedType.swiftType))"
             )
             callingPairs.append("&\(paramName)_\(varName(parsedType.swiftType))")
           } else {
@@ -406,28 +418,46 @@ public func functionExtension(
         }
 
       }
+    } else if case let .array(_, isConst) = parsedType {
+      if isConst {
+        localCopyPairs.append(
+          String(repeating: "  ", count: enclosings) + (hasReturnValue ? "return " : "")
+            + "\(paramName).withUnsafeBufferPointer { \(paramName)__p in")
+      } else {
+        localCopyPairs.append(
+          String(repeating: "  ", count: enclosings) + (hasReturnValue ? "return " : "")
+            + "\(paramName).withUnsafeMutableBufferPointer { \(paramName)__p in")
+      }
+      enclosings += 1
+      callingPairs.append("\(paramName)__p.baseAddress")
     } else {
-      callingPairs.append(paramName)
+      callingPairs.append("\(paramName)")
     }
   }
   code += localCopyPairs.map({ "    \($0)\n" }).joined()
+  let extraPadding = String(repeating: "  ", count: enclosings)
   switch parsedReturnType {
   case .string:
     code +=
-      "    return String(cString: \(apiDefinition.name)(\(callingPairs.joined(separator: ", "))), encoding: .utf8)!\n"
+      "    \(extraPadding)return String(cString: \(apiDefinition.name)(\(callingPairs.joined(separator: ", "))), encoding: .utf8)!\n"
   case .void:
-    code += "    \(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\n"
+    code += "    \(extraPadding)\(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\n"
   case .plain(let name, _, _):
     if isBoolReturn {
-      code += "    return (0 != \(apiDefinition.name)(\(callingPairs.joined(separator: ", "))))\n"
+      code +=
+        "    \(extraPadding)return (0 != \(apiDefinition.name)(\(callingPairs.joined(separator: ", "))))\n"
     } else {
       if parsedReturnType.isMjType && MjTypes[name] != .alias {
         code +=
-          "    return \(name)(\(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\(MjTypeConversionSuffixPatch[name] ?? ""))\n"
+          "    \(extraPadding)return \(name)(\(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\(MjTypeConversionSuffixPatch[name] ?? ""))\n"
       } else {
-        code += "    return \(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\n"
+        code +=
+          "    \(extraPadding)return \(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\n"
       }
     }
+  }
+  for i in (0..<enclosings).reversed() {
+    code += "    \(String(repeating: "  ", count: i))}\n"
   }
   code += "  }\n"
   return (mainType: mainType, sourceCode: code)
