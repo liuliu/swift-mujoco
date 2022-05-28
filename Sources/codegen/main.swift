@@ -370,7 +370,7 @@ for (mainType, sourceCode) in sourceCodeMapping {
     let lines = sourceCode.components(separatedBy: "\n")
     code += lines.map({ $0.dropFirst().dropFirst() }).joined(separator: "\n")
     try! code.write(
-      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjFunctions.swift"),
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("Mj+Functions.swift"),
       atomically: false, encoding: .utf8)
     continue
   }
