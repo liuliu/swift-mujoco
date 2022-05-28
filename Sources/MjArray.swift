@@ -68,93 +68,84 @@ public struct MjStaticStringArray {
 }
 
 public protocol MjInt32BufferPointer {
-  func withContiguousBufferPointer(_: (UnsafeBufferPointer<Int32>) -> Void)
+  func withUnsafeBufferPointer<R>(_: (UnsafeBufferPointer<Int32>) throws -> R) rethrows -> R
 }
 
 public protocol MjInt32MutableBufferPointer: MjInt32BufferPointer {
-  mutating func withContiguousMutableBufferPointer(_: (UnsafeMutableBufferPointer<Int32>) -> Void)
+  mutating func withUnsafeMutableBufferPointer<R>(
+    _: (inout UnsafeMutableBufferPointer<Int32>) throws -> R
+  ) rethrows -> R
 }
 
 public protocol MjFloatBufferPointer {
-  func withContiguousBufferPointer(_: (UnsafeBufferPointer<Float>) -> Void)
+  func withUnsafeBufferPointer<R>(_: (UnsafeBufferPointer<Float>) throws -> R) rethrows -> R
 }
 
 public protocol MjFloatMutableBufferPointer: MjFloatBufferPointer {
-  mutating func withContiguousMutableBufferPointer(_: (UnsafeMutableBufferPointer<Float>) -> Void)
+  mutating func withUnsafeMutableBufferPointer<R>(
+    _: (inout UnsafeMutableBufferPointer<Float>) throws -> R
+  ) rethrows -> R
 }
 
 public protocol MjDoubleBufferPointer {
-  func withContiguousBufferPointer(_: (UnsafeBufferPointer<Double>) -> Void)
+  func withUnsafeBufferPointer<R>(_: (UnsafeBufferPointer<Double>) throws -> R) rethrows -> R
 }
 
 public protocol MjDoubleMutableBufferPointer: MjDoubleBufferPointer {
-  mutating func withContiguousMutableBufferPointer(_: (UnsafeMutableBufferPointer<Double>) -> Void)
+  mutating func withUnsafeMutableBufferPointer<R>(
+    _: (inout UnsafeMutableBufferPointer<Double>) throws -> R
+  ) rethrows -> R
 }
 
 extension MjArray: MjInt32MutableBufferPointer & MjInt32BufferPointer where Element == Int32 {
-  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Int32>) -> Void) {
-    closure(UnsafeBufferPointer(start: _array, count: count))
+  public func withUnsafeBufferPointer<R>(_ body: (UnsafeBufferPointer<Int32>) throws -> R) rethrows
+    -> R
+  {
+    return try body(UnsafeBufferPointer(start: _array, count: count))
   }
-  public mutating func withContiguousMutableBufferPointer(
-    _ closure: (UnsafeMutableBufferPointer<Int32>) -> Void
-  ) {
-    closure(UnsafeMutableBufferPointer(start: _array, count: count))
+  public mutating func withUnsafeMutableBufferPointer<R>(
+    _ body: (inout UnsafeMutableBufferPointer<Int32>) throws -> R
+  ) rethrows -> R {
+    var ump = UnsafeMutableBufferPointer(start: _array, count: count)
+    return try body(&ump)
   }
 }
 
 extension MjArray: MjFloatMutableBufferPointer & MjFloatBufferPointer where Element == Float {
-  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Float>) -> Void) {
-    closure(UnsafeBufferPointer(start: _array, count: count))
+  public func withUnsafeBufferPointer<R>(_ body: (UnsafeBufferPointer<Float>) throws -> R) rethrows
+    -> R
+  {
+    return try body(UnsafeBufferPointer(start: _array, count: count))
   }
-  public mutating func withContiguousMutableBufferPointer(
-    _ closure: (UnsafeMutableBufferPointer<Float>) -> Void
-  ) {
-    closure(UnsafeMutableBufferPointer(start: _array, count: count))
+  public mutating func withUnsafeMutableBufferPointer<R>(
+    _ body: (inout UnsafeMutableBufferPointer<Float>) throws -> R
+  ) rethrows -> R {
+    var ump = UnsafeMutableBufferPointer(start: _array, count: count)
+    return try body(&ump)
   }
 }
 
 extension MjArray: MjDoubleMutableBufferPointer & MjDoubleBufferPointer where Element == Double {
-  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Double>) -> Void) {
-    closure(UnsafeBufferPointer(start: _array, count: count))
+  public func withUnsafeBufferPointer<R>(_ body: (UnsafeBufferPointer<Double>) throws -> R) rethrows
+    -> R
+  {
+    return try body(UnsafeBufferPointer(start: _array, count: count))
   }
-  public mutating func withContiguousMutableBufferPointer(
-    _ closure: (UnsafeMutableBufferPointer<Double>) -> Void
-  ) {
-    closure(UnsafeMutableBufferPointer(start: _array, count: count))
+  public mutating func withUnsafeMutableBufferPointer<R>(
+    _ body: (inout UnsafeMutableBufferPointer<Double>) throws -> R
+  ) rethrows -> R {
+    var ump = UnsafeMutableBufferPointer(start: _array, count: count)
+    return try body(&ump)
   }
 }
 
 extension Array: MjInt32MutableBufferPointer & MjInt32BufferPointer where Element == Int32 {
-  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Int32>) -> Void) {
-    withUnsafeBufferPointer(closure)
-  }
-  public mutating func withContiguousMutableBufferPointer(
-    _ closure: (UnsafeMutableBufferPointer<Int32>) -> Void
-  ) {
-    withUnsafeMutableBufferPointer { closure($0) }
-  }
 }
 
 extension Array: MjFloatMutableBufferPointer & MjFloatBufferPointer where Element == Float {
-  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Float>) -> Void) {
-    withUnsafeBufferPointer(closure)
-  }
-  public mutating func withContiguousMutableBufferPointer(
-    _ closure: (UnsafeMutableBufferPointer<Float>) -> Void
-  ) {
-    withUnsafeMutableBufferPointer { closure($0) }
-  }
 }
 
 extension Array: MjDoubleMutableBufferPointer & MjDoubleBufferPointer where Element == Double {
-  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Double>) -> Void) {
-    withUnsafeBufferPointer(closure)
-  }
-  public mutating func withContiguousMutableBufferPointer(
-    _ closure: (UnsafeMutableBufferPointer<Double>) -> Void
-  ) {
-    withUnsafeMutableBufferPointer { closure($0) }
-  }
 }
 
 extension MjDoubleBufferPointer {
@@ -187,10 +178,12 @@ public struct MjTuple<Element>: MjDoubleBufferPointer {
     self.element = element
     self.count = count
   }
-  public func withContiguousBufferPointer(_ closure: (UnsafeBufferPointer<Double>) -> Void) {
+  public func withUnsafeBufferPointer<R>(_ body: (UnsafeBufferPointer<Double>) throws -> R) rethrows
+    -> R
+  {
     var local = element
-    withUnsafeMutablePointer(to: &local) {
-      closure(
+    return try withUnsafeMutablePointer(to: &local) {
+      return try body(
         UnsafeBufferPointer(
           start: UnsafeRawPointer($0).assumingMemoryBound(to: Double.self), count: count))
     }
