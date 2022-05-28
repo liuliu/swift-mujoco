@@ -430,6 +430,20 @@ public func functionExtension(
       }
       enclosings += 1
       callingPairs.append("\(paramName)__p.baseAddress")
+    } else if case let .tuple(_, isConst, count) = parsedType {
+      localCopyPairs.append(
+        String(repeating: "  ", count: enclosings) + "precondition(\(paramName).count == \(count))")
+      if isConst {
+        localCopyPairs.append(
+          String(repeating: "  ", count: enclosings) + (hasReturnValue ? "return " : "")
+            + "\(paramName).withUnsafeBufferPointer { \(paramName)__p in")
+      } else {
+        localCopyPairs.append(
+          String(repeating: "  ", count: enclosings) + (hasReturnValue ? "return " : "")
+            + "\(paramName).withUnsafeMutableBufferPointer { \(paramName)__p in")
+      }
+      enclosings += 1
+      callingPairs.append("\(paramName)__p.baseAddress")
     } else {
       callingPairs.append("\(paramName)")
     }

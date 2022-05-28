@@ -224,6 +224,19 @@ extension MjModel {
     mj_referenceConstraint(self._model, data._data)
   }
   @inlinable
+  public func constraintUpdate(
+    data: inout MjData, jar: MjDoubleBufferPointer, cost: inout MjDoubleMutableBufferPointer,
+    flgConeHessian: Int32
+  ) {
+    jar.withUnsafeBufferPointer { jar__p in
+      precondition(cost.count == 1)
+      cost.withUnsafeMutableBufferPointer { cost__p in
+        mj_constraintUpdate(
+          self._model, data._data, jar__p.baseAddress, cost__p.baseAddress, flgConeHessian)
+      }
+    }
+  }
+  @inlinable
   public func addContact(data: inout MjData, contact: MjContact) -> Int32 {
     var contact__contact = contact._contact
     return mj_addContact(self._model, data._data, &contact__contact)
@@ -257,6 +270,22 @@ extension MjModel {
     res.withUnsafeMutableBufferPointer { res__p in
       vec.withUnsafeBufferPointer { vec__p in
         mj_mulJacTVec(self._model, data._data, res__p.baseAddress, vec__p.baseAddress)
+      }
+    }
+  }
+  @inlinable
+  public func jac(
+    data: MjData, jacp: inout MjDoubleMutableBufferPointer,
+    jacr: inout MjDoubleMutableBufferPointer, point: MjDoubleBufferPointer, body: Int32
+  ) {
+    jacp.withUnsafeMutableBufferPointer { jacp__p in
+      jacr.withUnsafeMutableBufferPointer { jacr__p in
+        precondition(point.count == 3)
+        point.withUnsafeBufferPointer { point__p in
+          mj_jac(
+            self._model, data._data, jacp__p.baseAddress, jacr__p.baseAddress, point__p.baseAddress,
+            body)
+        }
       }
     }
   }
@@ -301,6 +330,26 @@ extension MjModel {
     jacp.withUnsafeMutableBufferPointer { jacp__p in
       jacr.withUnsafeMutableBufferPointer { jacr__p in
         mj_jacSite(self._model, data._data, jacp__p.baseAddress, jacr__p.baseAddress, site)
+      }
+    }
+  }
+  @inlinable
+  public func jacPointAxis(
+    data: inout MjData, jacPoint: inout MjDoubleMutableBufferPointer,
+    jacAxis: inout MjDoubleMutableBufferPointer, point: MjDoubleBufferPointer,
+    axis: MjDoubleBufferPointer, body: Int32
+  ) {
+    jacPoint.withUnsafeMutableBufferPointer { jacPoint__p in
+      jacAxis.withUnsafeMutableBufferPointer { jacAxis__p in
+        precondition(point.count == 3)
+        point.withUnsafeBufferPointer { point__p in
+          precondition(axis.count == 3)
+          axis.withUnsafeBufferPointer { axis__p in
+            mj_jacPointAxis(
+              self._model, data._data, jacPoint__p.baseAddress, jacAxis__p.baseAddress,
+              point__p.baseAddress, axis__p.baseAddress, body)
+          }
+        }
       }
     }
   }
@@ -355,6 +404,53 @@ extension MjModel {
     }
   }
   @inlinable
+  public func applyFT(
+    data: inout MjData, force: MjDoubleBufferPointer, torque: MjDoubleBufferPointer,
+    point: MjDoubleBufferPointer, body: Int32, qfrcTarget: inout MjDoubleMutableBufferPointer
+  ) {
+    precondition(force.count == 3)
+    force.withUnsafeBufferPointer { force__p in
+      precondition(torque.count == 3)
+      torque.withUnsafeBufferPointer { torque__p in
+        precondition(point.count == 3)
+        point.withUnsafeBufferPointer { point__p in
+          qfrcTarget.withUnsafeMutableBufferPointer { qfrcTarget__p in
+            mj_applyFT(
+              self._model, data._data, force__p.baseAddress, torque__p.baseAddress,
+              point__p.baseAddress, body, qfrcTarget__p.baseAddress)
+          }
+        }
+      }
+    }
+  }
+  @inlinable
+  public func objectVelocity(
+    data: MjData, objtype: Int32, objid: Int32, res: inout MjDoubleMutableBufferPointer,
+    flgLocal: Int32
+  ) {
+    precondition(res.count == 6)
+    res.withUnsafeMutableBufferPointer { res__p in
+      mj_objectVelocity(self._model, data._data, objtype, objid, res__p.baseAddress, flgLocal)
+    }
+  }
+  @inlinable
+  public func objectAcceleration(
+    data: MjData, objtype: Int32, objid: Int32, res: inout MjDoubleMutableBufferPointer,
+    flgLocal: Int32
+  ) {
+    precondition(res.count == 6)
+    res.withUnsafeMutableBufferPointer { res__p in
+      mj_objectAcceleration(self._model, data._data, objtype, objid, res__p.baseAddress, flgLocal)
+    }
+  }
+  @inlinable
+  public func contactForce(data: MjData, id: Int32, result: inout MjDoubleMutableBufferPointer) {
+    precondition(result.count == 6)
+    result.withUnsafeMutableBufferPointer { result__p in
+      mj_contactForce(self._model, data._data, id, result__p.baseAddress)
+    }
+  }
+  @inlinable
   public func differentiatePos(
     qvel: inout MjDoubleMutableBufferPointer, dt: Double, qpos1: MjDoubleBufferPointer,
     qpos2: MjDoubleBufferPointer
@@ -391,5 +487,50 @@ extension MjModel {
   @inlinable
   public func setTotalmass(newmass: Double) {
     mj_setTotalmass(self._model, newmass)
+  }
+  @inlinable
+  public func ray(
+    data: MjData, pnt: MjDoubleBufferPointer, vec: MjDoubleBufferPointer,
+    geomgroup: MjUInt8BufferPointer, flgStatic: UInt8, bodyexclude: Int32,
+    geomid: inout MjInt32MutableBufferPointer
+  ) -> Double {
+    precondition(pnt.count == 3)
+    return pnt.withUnsafeBufferPointer { pnt__p in
+      precondition(vec.count == 3)
+      return vec.withUnsafeBufferPointer { vec__p in
+        return geomgroup.withUnsafeBufferPointer { geomgroup__p in
+          precondition(geomid.count == 1)
+          return geomid.withUnsafeMutableBufferPointer { geomid__p in
+            return mj_ray(
+              self._model, data._data, pnt__p.baseAddress, vec__p.baseAddress,
+              geomgroup__p.baseAddress, flgStatic, bodyexclude, geomid__p.baseAddress)
+          }
+        }
+      }
+    }
+  }
+  @inlinable
+  public func rayHfield(
+    data: MjData, geomid: Int32, pnt: MjDoubleBufferPointer, vec: MjDoubleBufferPointer
+  ) -> Double {
+    precondition(pnt.count == 3)
+    return pnt.withUnsafeBufferPointer { pnt__p in
+      precondition(vec.count == 3)
+      return vec.withUnsafeBufferPointer { vec__p in
+        return mj_rayHfield(self._model, data._data, geomid, pnt__p.baseAddress, vec__p.baseAddress)
+      }
+    }
+  }
+  @inlinable
+  public func rayMesh(
+    data: MjData, geomid: Int32, pnt: MjDoubleBufferPointer, vec: MjDoubleBufferPointer
+  ) -> Double {
+    precondition(pnt.count == 3)
+    return pnt.withUnsafeBufferPointer { pnt__p in
+      precondition(vec.count == 3)
+      return vec.withUnsafeBufferPointer { vec__p in
+        return mj_rayMesh(self._model, data._data, geomid, pnt__p.baseAddress, vec__p.baseAddress)
+      }
+    }
   }
 }

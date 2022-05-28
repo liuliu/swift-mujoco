@@ -67,7 +67,19 @@ public struct MjStaticStringArray {
   public var count: Int { Int(len) }
 }
 
+public protocol MjUInt8BufferPointer {
+  var count: Int { get }
+  func withUnsafeBufferPointer<R>(_: (UnsafeBufferPointer<UInt8>) throws -> R) rethrows -> R
+}
+
+public protocol MjUInt8MutableBufferPointer: MjUInt8BufferPointer {
+  mutating func withUnsafeMutableBufferPointer<R>(
+    _: (inout UnsafeMutableBufferPointer<UInt8>) throws -> R
+  ) rethrows -> R
+}
+
 public protocol MjInt32BufferPointer {
+  var count: Int { get }
   func withUnsafeBufferPointer<R>(_: (UnsafeBufferPointer<Int32>) throws -> R) rethrows -> R
 }
 
@@ -78,6 +90,7 @@ public protocol MjInt32MutableBufferPointer: MjInt32BufferPointer {
 }
 
 public protocol MjFloatBufferPointer {
+  var count: Int { get }
   func withUnsafeBufferPointer<R>(_: (UnsafeBufferPointer<Float>) throws -> R) rethrows -> R
 }
 
@@ -88,6 +101,7 @@ public protocol MjFloatMutableBufferPointer: MjFloatBufferPointer {
 }
 
 public protocol MjDoubleBufferPointer {
+  var count: Int { get }
   func withUnsafeBufferPointer<R>(_: (UnsafeBufferPointer<Double>) throws -> R) rethrows -> R
 }
 
@@ -95,6 +109,20 @@ public protocol MjDoubleMutableBufferPointer: MjDoubleBufferPointer {
   mutating func withUnsafeMutableBufferPointer<R>(
     _: (inout UnsafeMutableBufferPointer<Double>) throws -> R
   ) rethrows -> R
+}
+
+extension MjArray: MjUInt8MutableBufferPointer & MjUInt8BufferPointer where Element == UInt8 {
+  public func withUnsafeBufferPointer<R>(_ body: (UnsafeBufferPointer<UInt8>) throws -> R) rethrows
+    -> R
+  {
+    return try body(UnsafeBufferPointer(start: _array, count: count))
+  }
+  public mutating func withUnsafeMutableBufferPointer<R>(
+    _ body: (inout UnsafeMutableBufferPointer<UInt8>) throws -> R
+  ) rethrows -> R {
+    var ump = UnsafeMutableBufferPointer(start: _array, count: count)
+    return try body(&ump)
+  }
 }
 
 extension MjArray: MjInt32MutableBufferPointer & MjInt32BufferPointer where Element == Int32 {
@@ -139,6 +167,9 @@ extension MjArray: MjDoubleMutableBufferPointer & MjDoubleBufferPointer where El
   }
 }
 
+extension Array: MjUInt8MutableBufferPointer & MjUInt8BufferPointer where Element == UInt8 {
+}
+
 extension Array: MjInt32MutableBufferPointer & MjInt32BufferPointer where Element == Int32 {
 }
 
@@ -173,7 +204,7 @@ extension MjDoubleBufferPointer {
 
 public struct MjTuple<Element>: MjDoubleBufferPointer {
   private var element: Element
-  private var count: Int
+  public let count: Int
   init(_ element: Element, count: Int) {
     self.element = element
     self.count = count
