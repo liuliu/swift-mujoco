@@ -112,11 +112,13 @@ public protocol MjDoubleMutableBufferPointer: MjDoubleBufferPointer {
 }
 
 extension MjArray: MjUInt8MutableBufferPointer & MjUInt8BufferPointer where Element == UInt8 {
+  @inlinable
   public func withUnsafeBufferPointer<R>(_ body: (UnsafeBufferPointer<UInt8>) throws -> R) rethrows
     -> R
   {
     return try body(UnsafeBufferPointer(start: _array, count: count))
   }
+  @inlinable
   public mutating func withUnsafeMutableBufferPointer<R>(
     _ body: (inout UnsafeMutableBufferPointer<UInt8>) throws -> R
   ) rethrows -> R {
@@ -126,11 +128,13 @@ extension MjArray: MjUInt8MutableBufferPointer & MjUInt8BufferPointer where Elem
 }
 
 extension MjArray: MjInt32MutableBufferPointer & MjInt32BufferPointer where Element == Int32 {
+  @inlinable
   public func withUnsafeBufferPointer<R>(_ body: (UnsafeBufferPointer<Int32>) throws -> R) rethrows
     -> R
   {
     return try body(UnsafeBufferPointer(start: _array, count: count))
   }
+  @inlinable
   public mutating func withUnsafeMutableBufferPointer<R>(
     _ body: (inout UnsafeMutableBufferPointer<Int32>) throws -> R
   ) rethrows -> R {
@@ -140,11 +144,13 @@ extension MjArray: MjInt32MutableBufferPointer & MjInt32BufferPointer where Elem
 }
 
 extension MjArray: MjFloatMutableBufferPointer & MjFloatBufferPointer where Element == Float {
+  @inlinable
   public func withUnsafeBufferPointer<R>(_ body: (UnsafeBufferPointer<Float>) throws -> R) rethrows
     -> R
   {
     return try body(UnsafeBufferPointer(start: _array, count: count))
   }
+  @inlinable
   public mutating func withUnsafeMutableBufferPointer<R>(
     _ body: (inout UnsafeMutableBufferPointer<Float>) throws -> R
   ) rethrows -> R {
@@ -154,11 +160,13 @@ extension MjArray: MjFloatMutableBufferPointer & MjFloatBufferPointer where Elem
 }
 
 extension MjArray: MjDoubleMutableBufferPointer & MjDoubleBufferPointer where Element == Double {
+  @inlinable
   public func withUnsafeBufferPointer<R>(_ body: (UnsafeBufferPointer<Double>) throws -> R) rethrows
     -> R
   {
     return try body(UnsafeBufferPointer(start: _array, count: count))
   }
+  @inlinable
   public mutating func withUnsafeMutableBufferPointer<R>(
     _ body: (inout UnsafeMutableBufferPointer<Double>) throws -> R
   ) rethrows -> R {
@@ -203,12 +211,14 @@ extension MjDoubleBufferPointer {
 }
 
 public struct MjTuple<Element>: MjDoubleBufferPointer {
-  private var element: Element
+  @usableFromInline
+  var element: Element
   public let count: Int
   init(_ element: Element, count: Int) {
     self.element = element
     self.count = count
   }
+  @inlinable
   public func withUnsafeBufferPointer<R>(_ body: (UnsafeBufferPointer<Double>) throws -> R) rethrows
     -> R
   {
