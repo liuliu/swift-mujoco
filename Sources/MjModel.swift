@@ -40,8 +40,8 @@ public struct MjModel {
   }
 
   public init(fromXMLPath filePath: String, vfs: MjVFS? = nil) throws {
-    let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
-    guard let model = mj_loadXML(filePath, vfs?._vfs, errorStr, 1024) else {
+    let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 256)
+    guard let model = mj_loadXML(filePath, vfs?._vfs, errorStr, 256) else {
       let error = MjError.xml(String(cString: errorStr, encoding: .utf8))
       errorStr.deallocate()
       throw error
@@ -52,7 +52,7 @@ public struct MjModel {
 
   public init(fromXML: String, assets: [String: Data]? = nil) throws {
     var xmlString = fromXML
-    let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
+    let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 256)
     let model: UnsafeMutablePointer<mjModel>? = xmlString.withUTF8 { utf8 in
       let vfs = assets.flatMap { MjVFS(assets: $0) } ?? MjVFS()
       // Avoid name duplication.
@@ -63,7 +63,7 @@ public struct MjModel {
       vfs.makeEmptyFile(filename: "\(modelName).xml", filesize: Int32(utf8.count))
       vfs.filedata[Int(vfs.nfile - 1)]?.assumingMemoryBound(to: UInt8.self).assign(
         from: utf8.baseAddress!, count: utf8.count)
-      let model = mj_loadXML("model_.xml", vfs._vfs, errorStr, 1024)
+      let model = mj_loadXML("model_.xml", vfs._vfs, errorStr, 256)
       return model
     }
     guard let model = model else {
@@ -76,6 +76,7 @@ public struct MjModel {
   }
 }
 
+// Name the same, but implemented manually.
 extension MjModel {
   @inlinable
   public func makeData() -> MjData {
@@ -92,14 +93,28 @@ extension MjModel {
   @inlinable
   public func setLengthRange(data: inout MjData, index: Int32, opt: MjLROpt) throws {
     var opt__lropt = opt._lropt
-    let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
-    guard 1 == mj_setLengthRange(self._model, data._data, index, &opt__lropt, errorStr, 1024) else {
+    let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 256)
+    guard 1 == mj_setLengthRange(_model, data._data, index, &opt__lropt, errorStr, 256) else {
       let error = MjError.actuator(String(cString: errorStr, encoding: .utf8))
       errorStr.deallocate()
       throw error
     }
     errorStr.deallocate()
   }
+  @inlinable
+  public func saveLastXML(filename: String) throws {
+    let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 256)
+    guard 1 == mj_saveLastXML(filename, _model, errorStr, 256) else {
+      let error = MjError.xml(String(cString: errorStr, encoding: .utf8))
+      errorStr.deallocate()
+      throw error
+    }
+    errorStr.deallocate()
+  }
+}
+
+// Different name.
+extension MjModel {
   @inlinable
   public func copied() -> MjModel {
     return MjModel(model: mj_copyModel(nil, _model))

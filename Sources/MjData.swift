@@ -137,6 +137,15 @@ public struct MjData {
   }
 }
 
+// Name the same, but implemented manually.
+extension MjData {
+  @inlinable
+  public func stackAlloc(size: Int32) -> MjArray<Double> {
+    return MjArray(array: mj_stackAlloc(self._data, size), object: _storage, len: size)
+  }
+}
+
+// Different name.
 extension MjData {
   @inlinable
   public func copied(model: MjModel) -> MjData {

@@ -253,11 +253,11 @@ let FunctionDeny: Set<String> = Set([
   "mj_saveModel",
   "mj_sizeModel",
   "mj_copyData",
-  // Unimplemented. But better implemented manually.
+  "mj_stackAlloc",
   "mj_saveLastXML",
   "mj_freeLastXML",
   "mj_printSchema",
-  "mj_stackAlloc",
+  // Unimplemented. But better implemented manually.
   // Not going to be implemented.
   "mju_malloc",
   "mju_free",
