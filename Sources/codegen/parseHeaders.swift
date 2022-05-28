@@ -25,7 +25,17 @@ public func parseMuJoCoHeaders(from filePaths: [String]) -> (
         definedConstants[String(matched[1])] = Int(matched[2])!
       } else if line.hasPrefix("MJAPI ") {  // This is API definition.
         let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
-        let matched = trimmed.split(maxSplits: 2, whereSeparator: \.isWhitespace)
+        var matched = trimmed.split(maxSplits: 3, whereSeparator: \.isWhitespace)
+        // Special handle for const.
+        if matched.count == 4 {
+          if matched[1] == "const" {
+            matched[1] = matched[1] + " " + matched[2]
+            matched[2...] = matched[3...]
+          } else {
+            matched[2] = matched[2] + " " + matched[3]
+            matched.removeLast()
+          }
+        }
         guard
           matched.count == 3 && matched[2].hasPrefix("mj")
             && matched[2].range(of: #"[\w\_]+\("#, options: .regularExpression) != nil

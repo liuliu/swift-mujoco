@@ -358,6 +358,10 @@ extension MjModel {
     return mj_name2id(self._model, type, name)
   }
   @inlinable
+  public func id2name(type: Int32, id: Int32) -> String? {
+    return String(cString: mj_id2name(self._model, type, id), encoding: .utf8)
+  }
+  @inlinable
   public func fullM(dst: inout MjDoubleMutableBufferPointer, m: MjDoubleBufferPointer) {
     dst.withUnsafeMutableBufferPointer { dst__p in
       m.withUnsafeBufferPointer { m__p in

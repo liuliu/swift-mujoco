@@ -350,7 +350,7 @@ public func functionExtension(
   switch parsedReturnType {
   case .string:
     code +=
-      "  public\(mutatingPrefix) func \(funcName)(\(parameterPairs.joined(separator: ", "))) -> String {\n"
+      "  public\(mutatingPrefix) func \(funcName)(\(parameterPairs.joined(separator: ", "))) -> String? {\n"
   case .void:
     code +=
       "  public\(mutatingPrefix) func \(funcName)(\(parameterPairs.joined(separator: ", "))) {\n"
@@ -453,7 +453,7 @@ public func functionExtension(
   switch parsedReturnType {
   case .string:
     code +=
-      "    \(extraPadding)return String(cString: \(apiDefinition.name)(\(callingPairs.joined(separator: ", "))), encoding: .utf8)!\n"
+      "    \(extraPadding)return String(cString: \(apiDefinition.name)(\(callingPairs.joined(separator: ", "))), encoding: .utf8)\n"
   case .void:
     code += "    \(extraPadding)\(apiDefinition.name)(\(callingPairs.joined(separator: ", ")))\n"
   case .plain(let name, _, _):
