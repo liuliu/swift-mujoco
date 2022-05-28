@@ -231,8 +231,8 @@ public func functionExtension(
     if nakedType.lowercased().hasPrefix(prefix) {
       mainType = nakedType
       mainInd = i
+      break
     }
-    break
   }
   if let first = apiDefinition.parameters.first {
     let matched = first.type.split(separator: " ", maxSplits: 1)
@@ -252,6 +252,7 @@ public func functionExtension(
   }
   // Handle cases where mainType is not a mj*
   guard mainType.hasPrefix("mj") && !mainType.hasPrefix("mjt") else {
+    print("\(apiDefinition)")
     return (mainType: nil, sourceCode: "")
   }
   // Now we have main type, we can create functions for them.
