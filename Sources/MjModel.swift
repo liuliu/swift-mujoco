@@ -27,6 +27,7 @@ public struct MjModel {
     }
   }
 
+  @usableFromInline
   init(model: UnsafeMutablePointer<mjModel>) {
     _storage = Storage(model: model)
   }
@@ -98,5 +99,25 @@ extension MjModel {
       throw error
     }
     errorStr.deallocate()
+  }
+  @inlinable
+  public func copied() -> MjModel {
+    return MjModel(model: mj_copyModel(nil, _model))
+  }
+  @inlinable
+  public mutating func copy(from src: MjModel) {
+    // Don't need to know the return value, it is the same as the _model.
+    mj_copyModel(_model, src._model)
+  }
+  @inlinable
+  public func write(to filePath: String) {
+    mj_saveModel(_model, filePath, nil, 0)
+  }
+  @inlinable
+  public func toMemoryBuffer() -> UnsafeMutableRawBufferPointer {
+    let buffer = UnsafeMutableRawBufferPointer.allocate(
+      byteCount: Int(mj_sizeModel(_model)), alignment: 4)
+    mj_saveModel(_model, nil, buffer.baseAddress, Int32(buffer.count))
+    return buffer
   }
 }

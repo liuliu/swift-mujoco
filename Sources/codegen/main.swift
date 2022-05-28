@@ -249,11 +249,11 @@ let FunctionDeny: Set<String> = Set([
   "mjr_drawPixels",
   "mj_setLengthRange",
   "mjr_findRect",
-  // Unimplemented. But better implemented manually.
   "mj_copyModel",
   "mj_saveModel",
   "mj_sizeModel",
   "mj_copyData",
+  // Unimplemented. But better implemented manually.
   "mj_saveLastXML",
   "mj_freeLastXML",
   "mj_printSchema",

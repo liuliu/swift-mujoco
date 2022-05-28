@@ -136,3 +136,19 @@ public struct MjData {
     }
   }
 }
+
+extension MjData {
+  @inlinable
+  public func copied(model: MjModel) -> MjData {
+    return MjData(
+      data: mj_copyData(nil, model._model, _data), nq: nq, nv: nv, na: na, nu: nu, nbody: nbody,
+      nmocap: nmocap, nuserdata: nuserdata, nsensordata: nsensordata, njnt: njnt, ngeom: ngeom,
+      nsite: nsite, ncam: ncam, nlight: nlight, ntendon: ntendon, nwrap: nwrap, nM: nM,
+      nconmax: nconmax, njmax: njmax, nD: nD)
+  }
+  @inlinable
+  public mutating func copy(from src: MjData, model: MjModel) {
+    // Don't need to know the return value, it is the same as the _model.
+    mj_copyData(_data, model._model, src._data)
+  }
+}
