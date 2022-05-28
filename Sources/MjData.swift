@@ -46,6 +46,7 @@ public struct MjData {
   @inlinable
   var nD: Int32 { _storage.nD }
 
+  @usableFromInline
   init(
     data: UnsafeMutablePointer<mjData>, nq: Int32, nv: Int32, na: Int32, nu: Int32, nbody: Int32,
     nmocap: Int32, nuserdata: Int32, nsensordata: Int32, njnt: Int32, ngeom: Int32, nsite: Int32,

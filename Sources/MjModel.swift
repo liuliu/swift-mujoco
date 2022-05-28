@@ -1,6 +1,11 @@
 import C_mujoco
 import Foundation
 
+public enum MjError: Error {
+  case xml(String?)
+  case actuator(String?)
+}
+
 public struct MjModel {
 
   @usableFromInline
@@ -33,20 +38,20 @@ public struct MjModel {
     self.init(model: model)
   }
 
-  public init?(fromXMLPath filePath: String, vfs: MjVFS? = nil) {
-    let error = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
-    guard let model = mj_loadXML(filePath, vfs?._vfs, error, 1024) else {
-      Swift.print(error)
-      error.deallocate()
-      return nil
+  public init(fromXMLPath filePath: String, vfs: MjVFS? = nil) throws {
+    let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
+    guard let model = mj_loadXML(filePath, vfs?._vfs, errorStr, 1024) else {
+      let error = MjError.xml(String(cString: errorStr, encoding: .utf8))
+      errorStr.deallocate()
+      throw error
     }
-    error.deallocate()
+    errorStr.deallocate()
     self.init(model: model)
   }
 
-  public init?(fromXML: String, assets: [String: Data]? = nil) {
+  public init(fromXML: String, assets: [String: Data]? = nil) throws {
     var xmlString = fromXML
-    let error = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
+    let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
     let model: UnsafeMutablePointer<mjModel>? = xmlString.withUTF8 { utf8 in
       let vfs = assets.flatMap { MjVFS(assets: $0) } ?? MjVFS()
       // Avoid name duplication.
@@ -57,18 +62,21 @@ public struct MjModel {
       vfs.makeEmptyFile(filename: "\(modelName).xml", filesize: Int32(utf8.count))
       vfs.filedata[Int(vfs.nfile - 1)]?.assumingMemoryBound(to: UInt8.self).assign(
         from: utf8.baseAddress!, count: utf8.count)
-      let model = mj_loadXML("model_.xml", vfs._vfs, error, 1024)
+      let model = mj_loadXML("model_.xml", vfs._vfs, errorStr, 1024)
       return model
     }
     guard let model = model else {
-      Swift.print(error)
-      error.deallocate()
-      return nil
+      let error = MjError.xml(String(cString: errorStr, encoding: .utf8))
+      errorStr.deallocate()
+      throw error
     }
-    error.deallocate()
+    errorStr.deallocate()
     self.init(model: model)
   }
+}
 
+extension MjModel {
+  @inlinable
   public func makeData() -> MjData {
     let data = mj_makeData(_model)!
     return MjData(
@@ -79,5 +87,16 @@ public struct MjModel {
       ncam: _model.pointee.ncam, nlight: _model.pointee.nlight, ntendon: _model.pointee.ntendon,
       nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
       njmax: _model.pointee.njmax, nD: _model.pointee.nD)
+  }
+  @inlinable
+  public func setLengthRange(data: inout MjData, index: Int32, opt: MjLROpt) throws {
+    var opt__lropt = opt._lropt
+    let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
+    guard 1 == mj_setLengthRange(self._model, data._data, index, &opt__lropt, errorStr, 1024) else {
+      let error = MjError.actuator(String(cString: errorStr, encoding: .utf8))
+      errorStr.deallocate()
+      throw error
+    }
+    errorStr.deallocate()
   }
 }

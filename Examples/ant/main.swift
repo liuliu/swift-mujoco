@@ -1,6 +1,6 @@
 import MuJoCo
 
-let model = MjModel(fromXMLPath: "Examples/assets/ant.xml")!
+let model = try! MjModel(fromXMLPath: "Examples/assets/ant.xml")
 var data = model.makeData()
 
 let glContext = GLContext(width: 1280, height: 720, title: "demo")

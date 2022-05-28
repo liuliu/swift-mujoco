@@ -26,3 +26,18 @@ public struct MjrContext {
     _storage = Storage(model: model, fontScale: fontScale)
   }
 }
+
+extension MjrContext {
+  @inlinable
+  public func readPixels(
+    rgb: inout UnsafeMutablePointer<UInt8>, depth: inout UnsafeMutablePointer<Float>,
+    viewport: MjrRect
+  ) {
+    mjr_readPixels(rgb, depth, viewport, self._context)
+  }
+  @inlinable
+  public func drawPixels(rgb: UnsafePointer<UInt8>, depth: UnsafePointer<Float>, viewport: MjrRect)
+  {
+    mjr_drawPixels(rgb, depth, viewport, self._context)
+  }
+}

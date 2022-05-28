@@ -245,12 +245,11 @@ let FunctionDeny: Set<String> = Set([
   "mjr_freeContext",
   "mjui_themeSpacing",
   "mjui_themeColor",
-  // Unimplemented, needs to make these work automated.
   "mjr_readPixels",
   "mjr_drawPixels",
-  // Unimplemented. But better implemented manually.
   "mj_setLengthRange",
   "mjr_findRect",
+  // Unimplemented. But better implemented manually.
   "mj_copyModel",
   "mj_saveModel",
   "mj_sizeModel",
