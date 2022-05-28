@@ -247,19 +247,19 @@ public func functionExtension(
       }
     }
   }
-  guard var mainType = mainType, let mainInd = mainInd else {
-    return (mainType: nil, sourceCode: "")
+  if var unwrappedMainType = mainType {
+    if !(unwrappedMainType.hasPrefix("mj") && !unwrappedMainType.hasPrefix("mjt")) {
+      mainType = nil
+      mainInd = nil
+    } else {
+      // Now we have main type, we can create functions for them.
+      if unwrappedMainType.last == "*" {
+        unwrappedMainType = String(
+          unwrappedMainType.dropLast().trimmingCharacters(in: .whitespaces))
+      }
+      mainType = unwrappedMainType.firstUppercased()
+    }
   }
-  // Handle cases where mainType is not a mj*
-  guard mainType.hasPrefix("mj") && !mainType.hasPrefix("mjt") else {
-    print("\(apiDefinition)")
-    return (mainType: nil, sourceCode: "")
-  }
-  // Now we have main type, we can create functions for them.
-  if mainType.last == "*" {
-    mainType = String(mainType.dropLast().trimmingCharacters(in: .whitespaces))
-  }
-  mainType = mainType.firstUppercased()
   var positionedNamedParameters = [Int: (name: String, type: String)]()
   for (i, parameter) in apiDefinition.parameters.enumerated() {
     guard i != mainInd else { continue }
@@ -331,11 +331,15 @@ public func functionExtension(
       )
     }
   }
-  let mainParsedType = swiftParameterType(
-    name: apiDefinition.parameters[mainInd].name, type: apiDefinition.parameters[mainInd].type)
+  let mainParsedType = mainInd.map {
+    swiftParameterType(
+      name: apiDefinition.parameters[$0].name, type: apiDefinition.parameters[$0].type)
+  }
   var code = "  @inlinable\n"
   let mutatingPrefix: String
-  if let mjType = MjTypes[mainParsedType.swiftType], mainParsedType.isInout {
+  if let mainParsedType = mainParsedType, let mjType = MjTypes[mainParsedType.swiftType],
+    mainParsedType.isInout
+  {
     mutatingPrefix = mjType == .value || mjType == .alias ? " mutating" : ""
   } else {
     mutatingPrefix = ""
@@ -364,6 +368,8 @@ public func functionExtension(
   var enclosings = 0
   for (i, _) in apiDefinition.parameters.enumerated() {
     guard i != mainInd, let namedParameter = positionedNamedParameters[i] else {
+      let mainType = mainType!  // We can unwrapped because mainInd != nil.
+      let mainParsedType = mainParsedType!  // Therefore, we can unwrap mainParsedType too.
       switch MjTypes[mainType]! {
       case .value:
         if mainParsedType.isPointer {

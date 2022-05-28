@@ -351,7 +351,7 @@ let FunctionDeny: Set<String> = Set([
   "mju_sigmoid",
 ])
 
-var sourceCodeMapping: [String: String] = [:]
+var sourceCodeMapping: [String?: String] = [:]
 
 for apiDefinition in apiDefinitions {
   guard !FunctionDeny.contains(apiDefinition.name) else { continue }
@@ -362,11 +362,19 @@ for apiDefinition in apiDefinitions {
       "m": ["model"], "d": ["data"], "con": ["contact", "context"], "scn": ["scene"],
       "key": ["keyframe"],
     ])
-  guard let mainType = mainType else { continue }
   sourceCodeMapping[mainType] = sourceCodeMapping[mainType, default: ""] + sourceCode
 }
 
 for (mainType, sourceCode) in sourceCodeMapping {
+  guard let mainType = mainType else {
+    var code = "import C_mujoco\n\n"
+    let lines = sourceCode.components(separatedBy: "\n")
+    code += lines.map({ $0.dropFirst().dropFirst() }).joined(separator: "\n")
+    try! code.write(
+      to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjFunctions.swift"),
+      atomically: false, encoding: .utf8)
+    continue
+  }
   var code = "import C_mujoco\n\nextension \(mainType) {\n"
   code += sourceCode
   code += "}"
