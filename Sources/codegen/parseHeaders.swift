@@ -17,9 +17,20 @@ public func parseMuJoCoHeaders(from filePaths: [String]) -> (
     var thisAnonymousStruct: AnonymousStruct? = nil
     var thisAnonymousUnion: AnonymousUnion? = nil
     var thisAPIDefinition: APIDefinition? = nil
+    var apiComment: String? = nil
 
     for line in lines {
       // The start of a enum.
+      defer {
+        if !line.hasPrefix("//") {
+          apiComment = nil
+        }
+      }
+      if line.hasPrefix("//") {
+        apiComment =
+          (apiComment ?? "")
+          + line.trimmingCharacters(in: .whitespacesAndNewlines).dropFirst().dropFirst()
+      }
       if let range = line.range(of: #"\s*#define\s+\w+\s+\d+"#, options: .regularExpression) {
         let matched = line[range].split(whereSeparator: \.isWhitespace)
         definedConstants[String(matched[1])] = Int(matched[2])!
@@ -43,7 +54,8 @@ public func parseMuJoCoHeaders(from filePaths: [String]) -> (
         let nameSeparator = matched[2].firstIndex(where: { $0 == "(" })!
         let apiName = matched[2].prefix(upTo: nameSeparator)
         var apiDefinition = APIDefinition(
-          name: String(apiName), returnType: String(matched[1]), parameters: [])
+          name: String(apiName), returnType: String(matched[1]), parameters: [], comment: apiComment
+        )
         // Find parameters up until the closing.
         let restParameters = matched[2].suffix(from: matched[2].index(nameSeparator, offsetBy: 1))
           .prefix(while: { $0 != ")" })

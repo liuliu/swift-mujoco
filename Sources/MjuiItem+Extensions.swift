@@ -1,7 +1,7 @@
 extension MjuiItem {
   @inlinable
-  public var type: MjItem {
-    get { MjItem(rawValue: _item.pointee.type)! }
+  public var type: MjtItem {
+    get { MjtItem(rawValue: _item.pointee.type)! }
     set { _item.pointee.type = newValue.rawValue }
   }
   @inlinable

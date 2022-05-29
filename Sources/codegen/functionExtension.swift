@@ -5,10 +5,14 @@ public struct APIDefinition {
   public var name: String
   public var returnType: String
   public var parameters: [(name: String, type: String)]
-  public init(name: String, returnType: String, parameters: [(name: String, type: String)]) {
+  public var comment: String?
+  public init(
+    name: String, returnType: String, parameters: [(name: String, type: String)], comment: String?
+  ) {
     self.name = name
     self.returnType = returnType
     self.parameters = parameters
+    self.comment = comment
   }
 }
 
@@ -66,6 +70,7 @@ enum SwiftParameterType {
   case string
   case tuple(String, Bool, Int)  // name, isConst, Repeat
   case array(String, Bool)  // name, isConst
+  case `enum`(String)  // name
 
   var isPointer: Bool {
     switch self {
@@ -73,6 +78,8 @@ enum SwiftParameterType {
       return isPointer
     case .array, .tuple, .string:
       return true
+    case .enum:
+      return false
     }
   }
 
@@ -80,7 +87,7 @@ enum SwiftParameterType {
     switch self {
     case .plain(_, _, let isConst), .array(_, let isConst), .tuple(_, let isConst, _):
       return isConst
-    case .string:
+    case .string, .enum:
       return true
     }
   }
@@ -97,14 +104,14 @@ enum SwiftParameterType {
       return isPointer
     case let .tuple(_, isConst, _), let .array(_, isConst):
       return !isConst
-    case .string:
+    case .string, .enum:
       return false
     }
   }
 
   var swiftType: String {
     switch self {
-    case let .plain(name, _, _):
+    case let .plain(name, _, _), let .enum(name):
       return name
     case let .tuple(name, isConst, _), let .array(name, isConst):
       return isConst ? "Mj\(name)BufferPointer" : "Mj\(name)MutableBufferPointer"
@@ -117,7 +124,7 @@ enum SwiftParameterType {
 extension SwiftParameterType: CustomStringConvertible {
   var description: String {
     switch self {
-    case let .plain(name, _, _):
+    case let .plain(name, _, _), let .enum(name):
       return name
     case let .tuple(name, _, count):
       return "(" + [String](repeating: name, count: count).joined(separator: ", ") + ")"
@@ -129,25 +136,48 @@ extension SwiftParameterType: CustomStringConvertible {
   }
 }
 
-func swiftParameterType(name: String, type: String) -> SwiftParameterType {
+func swiftParameterType(name: String, type: String, comment: String?) -> SwiftParameterType {
   if type == "const char *" || type == "const char*" { return .string }
   let matched = type.split(separator: " ", maxSplits: 1)
   let isConst = matched.count > 1 && matched[0] == "const"
   let nakedType = isConst ? String(matched.last!) : type
   var mainType = nakedType
   let isPointer = (mainType.last == "*")
+  var isEnum = false
   if isPointer {
     mainType = String(mainType.dropLast().trimmingCharacters(in: .whitespaces))
+  } else if let comment = comment {
+    // If it is not pointer, we need to explore the possibility this is an enum type.
+    // In MuJoCo, all enum types are int, but they are annotated in comment as "x is mjtY"
+    let parts = comment.split(separator: " ")
+    for (i, part) in parts.enumerated() where i < parts.count - 2 {
+      if part == name && parts[i + 1] == "is" && parts[i + 2].hasPrefix("mjt") {
+        mainType =
+          "Mjt"
+          + String(
+            parts[i + 2].suffix(from: parts[i + 2].index(parts[i + 2].startIndex, offsetBy: 3)))
+        if mainType.hasSuffix(".") || mainType.hasSuffix(";") {
+          mainType = String(mainType.dropLast())
+        }
+        isEnum = true
+        break
+      }
+    }
   }
   mainType = (SwiftType[mainType] ?? mainType).firstUppercased()
   if let range = name.range(of: #"\[\w+\]"#, options: .regularExpression) {
     let matched = name[range].dropFirst().dropLast()
     let count = Int(matched)!
     precondition(!isPointer)  // We cannot handle static array with pointer.
+    precondition(!isEnum)
     return .tuple(mainType, isConst, count)
   }
   if mainType.hasPrefix("Mj") || !isPointer {
-    return .plain(mainType, isPointer, isConst)
+    if isEnum {
+      return .enum(mainType)
+    } else {
+      return .plain(mainType, isPointer, isConst)
+    }
   } else {
     return .array(mainType, isConst)
   }
@@ -319,7 +349,8 @@ public func functionExtension(
   var parameterParsedTypes = [Int: SwiftParameterType]()
   for i in 0..<apiDefinition.parameters.count {
     guard i != mainInd, let namedParameter = positionedNamedParameters[i] else { continue }
-    let parsedType = swiftParameterType(name: namedParameter.name, type: namedParameter.type)
+    let parsedType = swiftParameterType(
+      name: namedParameter.name, type: namedParameter.type, comment: apiDefinition.comment)
     parameterParsedTypes[i] = parsedType
     if anonymousIndexes.contains(i) {
       parameterPairs.append(
@@ -333,7 +364,8 @@ public func functionExtension(
   }
   let mainParsedType = mainInd.map {
     swiftParameterType(
-      name: apiDefinition.parameters[$0].name, type: apiDefinition.parameters[$0].type)
+      name: apiDefinition.parameters[$0].name, type: apiDefinition.parameters[$0].type,
+      comment: apiDefinition.comment)
   }
   var code = "  @inlinable\n"
   let mutatingPrefix: String
@@ -451,6 +483,8 @@ public func functionExtension(
       }
       enclosings += 1
       callingPairs.append("\(paramName)__p.baseAddress")
+    } else if case .enum(_) = parsedType {
+      callingPairs.append("\(paramName).rawValue")
     } else {
       callingPairs.append("\(paramName)")
     }

@@ -8,3 +8,11 @@ swift_binary(
         "//:swift-mujoco",
     ],
 )
+
+swift_binary(
+    name = "simulate",
+    srcs = ["simulate/main.swift"],
+    deps = [
+        "//:swift-mujoco",
+    ],
+)

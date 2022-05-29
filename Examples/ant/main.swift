@@ -17,7 +17,7 @@ glContext.makeCurrent {
       model.step(data: &data)
     }
     let viewport = MjrRect(left: 0, bottom: 0, width: width, height: height)
-    scene.update(model: model, data: data, option: option, perturb: nil, camera: &camera)
+    scene.updateScene(model: model, data: data, option: option, perturb: nil, camera: &camera)
     context.render(viewport: viewport, scene: &scene)
   }
 }

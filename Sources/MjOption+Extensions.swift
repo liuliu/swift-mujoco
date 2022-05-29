@@ -70,28 +70,28 @@ extension MjOption {
     set { _option.o_solimp = newValue }
   }
   @inlinable
-  public var integrator: MjIntegrator {
-    get { MjIntegrator(rawValue: _option.integrator)! }
+  public var integrator: MjtIntegrator {
+    get { MjtIntegrator(rawValue: _option.integrator)! }
     set { _option.integrator = newValue.rawValue }
   }
   @inlinable
-  public var collision: MjCollision {
-    get { MjCollision(rawValue: _option.collision)! }
+  public var collision: MjtCollision {
+    get { MjtCollision(rawValue: _option.collision)! }
     set { _option.collision = newValue.rawValue }
   }
   @inlinable
-  public var cone: MjCone {
-    get { MjCone(rawValue: _option.cone)! }
+  public var cone: MjtCone {
+    get { MjtCone(rawValue: _option.cone)! }
     set { _option.cone = newValue.rawValue }
   }
   @inlinable
-  public var jacobian: MjJacobian {
-    get { MjJacobian(rawValue: _option.jacobian)! }
+  public var jacobian: MjtJacobian {
+    get { MjtJacobian(rawValue: _option.jacobian)! }
     set { _option.jacobian = newValue.rawValue }
   }
   @inlinable
-  public var solver: MjSolver {
-    get { MjSolver(rawValue: _option.solver)! }
+  public var solver: MjtSolver {
+    get { MjtSolver(rawValue: _option.solver)! }
     set { _option.solver = newValue.rawValue }
   }
   @inlinable

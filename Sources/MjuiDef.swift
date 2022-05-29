@@ -6,7 +6,7 @@ public struct MjuiDef {
   init() {
     _def = mjuiDef_()
   }
-  public init(_ type: MjItem, name: String, state: Int32, other: String) {
+  public init(_ type: MjtItem, name: String, state: Int32, other: String) {
     self.init()
     self.type = type
     self.name = name

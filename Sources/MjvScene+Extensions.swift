@@ -133,8 +133,8 @@ extension MjvScene {
     set { _scene.pointee.scale = newValue }
   }
   @inlinable
-  public var stereo: MjStereo {
-    get { MjStereo(rawValue: _scene.pointee.stereo)! }
+  public var stereo: MjtStereo {
+    get { MjtStereo(rawValue: _scene.pointee.stereo)! }
     set { _scene.pointee.stereo = newValue.rawValue }
   }
   @inlinable

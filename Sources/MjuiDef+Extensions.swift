@@ -1,7 +1,7 @@
 extension MjuiDef {
   @inlinable
-  public var type: MjItem {
-    get { MjItem(rawValue: _def.type)! }
+  public var type: MjtItem {
+    get { MjtItem(rawValue: _def.type)! }
     set { _def.type = newValue.rawValue }
   }
   @inlinable

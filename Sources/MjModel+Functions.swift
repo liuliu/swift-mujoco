@@ -22,12 +22,12 @@ extension MjModel {
     mj_inverse(self._model, data._data)
   }
   @inlinable
-  public func forwardSkip(data: inout MjData, skipstage: Int32, skipsensor: Int32) {
-    mj_forwardSkip(self._model, data._data, skipstage, skipsensor)
+  public func forwardSkip(data: inout MjData, skipstage: MjtStage, skipsensor: Int32) {
+    mj_forwardSkip(self._model, data._data, skipstage.rawValue, skipsensor)
   }
   @inlinable
-  public func inverseSkip(data: inout MjData, skipstage: Int32, skipsensor: Int32) {
-    mj_inverseSkip(self._model, data._data, skipstage, skipsensor)
+  public func inverseSkip(data: inout MjData, skipstage: MjtStage, skipsensor: Int32) {
+    mj_inverseSkip(self._model, data._data, skipstage.rawValue, skipsensor)
   }
   @inlinable
   public func reset(data: inout MjData) {
@@ -354,12 +354,12 @@ extension MjModel {
     }
   }
   @inlinable
-  public func name2id(type: Int32, name: String) -> Int32 {
-    return mj_name2id(self._model, type, name)
+  public func name2id(type: MjtObj, name: String) -> Int32 {
+    return mj_name2id(self._model, type.rawValue, name)
   }
   @inlinable
-  public func id2name(type: Int32, id: Int32) -> String? {
-    return String(cString: mj_id2name(self._model, type, id), encoding: .utf8)
+  public func id2name(type: MjtObj, id: Int32) -> String? {
+    return String(cString: mj_id2name(self._model, type.rawValue, id), encoding: .utf8)
   }
   @inlinable
   public func fullM(dst: inout MjDoubleMutableBufferPointer, m: MjDoubleBufferPointer) {

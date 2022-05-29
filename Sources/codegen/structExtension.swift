@@ -135,7 +135,7 @@ func swiftFieldType(
   {
     // This is enum type, and we need to cast.
     var elType = String(comment[range].dropFirst().dropLast())  // Remove mjt and add the rest.
-    elType = "Mj" + elType.suffix(from: elType.index(elType.startIndex, offsetBy: 3))
+    elType = "Mjt" + elType.suffix(from: elType.index(elType.startIndex, offsetBy: 3))
     commentType = elType
   } else {
     commentType = nil

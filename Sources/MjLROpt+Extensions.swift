@@ -1,7 +1,7 @@
 extension MjLROpt {
   @inlinable
-  public var mode: MjLRMode {
-    get { MjLRMode(rawValue: _lropt.mode)! }
+  public var mode: MjtLRMode {
+    get { MjtLRMode(rawValue: _lropt.mode)! }
     set { _lropt.mode = newValue.rawValue }
   }
   @inlinable

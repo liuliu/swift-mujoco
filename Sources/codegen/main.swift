@@ -13,7 +13,7 @@ var wrappedMjEnums = Set<String>()
 var mjtCode = ""
 for thisEnum in enums {
   let swiftName_ =
-    "Mj" + thisEnum.name.suffix(from: thisEnum.name.index(thisEnum.name.startIndex, offsetBy: 3))
+    "Mjt" + thisEnum.name.suffix(from: thisEnum.name.index(thisEnum.name.startIndex, offsetBy: 3))
   let swiftName = swiftName_.prefix(upTo: swiftName_.index(swiftName_.endIndex, offsetBy: -1))
   wrappedMjEnums.insert(String(swiftName))
   mjtCode += enumDecl(thisEnum)
@@ -239,6 +239,7 @@ let FunctionDeny: Set<String> = Set([
   "mjv_defaultFigure",
   "mjv_defaultScene",
   "mjv_makeScene",
+  "mjv_updateScene",
   "mjv_freeScene",
   "mjr_defaultContext",
   "mjr_makeContext",

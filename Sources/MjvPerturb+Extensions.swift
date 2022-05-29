@@ -10,13 +10,13 @@ extension MjvPerturb {
     set { _perturb.skinselect = newValue }
   }
   @inlinable
-  public var active: MjPertBit {
-    get { MjPertBit(rawValue: _perturb.active)! }
+  public var active: MjtPertBit {
+    get { MjtPertBit(rawValue: _perturb.active)! }
     set { _perturb.active = newValue.rawValue }
   }
   @inlinable
-  public var active2: MjPertBit {
-    get { MjPertBit(rawValue: _perturb.active2)! }
+  public var active2: MjtPertBit {
+    get { MjtPertBit(rawValue: _perturb.active2)! }
     set { _perturb.active2 = newValue.rawValue }
   }
   @inlinable

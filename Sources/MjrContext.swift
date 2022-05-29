@@ -12,7 +12,7 @@ public struct MjrContext {
   final class Storage {
     @usableFromInline
     var _context: mjrContext
-    init(model: MjModel, fontScale: MjFontScale) {
+    init(model: MjModel, fontScale: MjtFontScale) {
       _context = mjrContext()
       mjr_defaultContext(&_context)
       mjr_makeContext(model._model, &_context, fontScale.rawValue)
@@ -22,7 +22,7 @@ public struct MjrContext {
     }
   }
 
-  public init(model: MjModel, fontScale: MjFontScale) {
+  public init(model: MjModel, fontScale: MjtFontScale) {
     _storage = Storage(model: model, fontScale: fontScale)
   }
 }

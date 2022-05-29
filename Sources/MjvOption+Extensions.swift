@@ -1,12 +1,12 @@
 extension MjvOption {
   @inlinable
-  public var label: MjLabel {
-    get { MjLabel(rawValue: _option.label)! }
+  public var label: MjtLabel {
+    get { MjtLabel(rawValue: _option.label)! }
     set { _option.label = newValue.rawValue }
   }
   @inlinable
-  public var frame: MjFrame {
-    get { MjFrame(rawValue: _option.frame)! }
+  public var frame: MjtFrame {
+    get { MjtFrame(rawValue: _option.frame)! }
     set { _option.frame = newValue.rawValue }
   }
   @inlinable

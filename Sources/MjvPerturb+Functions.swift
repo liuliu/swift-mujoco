@@ -3,9 +3,10 @@ import C_mujoco
 extension MjvPerturb {
   @inlinable
   public mutating func movePerturb(
-    model: MjModel, data: MjData, action: Int32, reldx: Double, reldy: Double, scene: MjvScene
+    model: MjModel, data: MjData, action: MjtMouse, reldx: Double, reldy: Double, scene: MjvScene
   ) {
-    mjv_movePerturb(model._model, data._data, action, reldx, reldy, scene._scene, &self._perturb)
+    mjv_movePerturb(
+      model._model, data._data, action.rawValue, reldx, reldy, scene._scene, &self._perturb)
   }
   @inlinable
   public mutating func initPerturb(model: MjModel, data: MjData, scene: MjvScene) {

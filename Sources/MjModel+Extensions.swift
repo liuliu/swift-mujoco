@@ -518,16 +518,16 @@ extension MjModel {
     }
   }
   @inlinable
-  public var jntType: MjArray<MjJoint> {
+  public var jntType: MjArray<MjtJoint> {
     get {
-      MjArray<MjJoint>(
+      MjArray<MjtJoint>(
         array: UnsafeMutableRawPointer(_model.pointee.jnt_type).assumingMemoryBound(
-          to: MjJoint.self), object: _storage, len: njnt * 1)
+          to: MjtJoint.self), object: _storage, len: njnt * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjJoint> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtJoint> = UnsafeMutableRawPointer(
         _model.pointee.jnt_type
-      ).assumingMemoryBound(to: MjJoint.self)
+      ).assumingMemoryBound(to: MjtJoint.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(njnt * 1))
     }
@@ -758,16 +758,16 @@ extension MjModel {
     }
   }
   @inlinable
-  public var geomType: MjArray<MjGeom> {
+  public var geomType: MjArray<MjtGeom> {
     get {
-      MjArray<MjGeom>(
+      MjArray<MjtGeom>(
         array: UnsafeMutableRawPointer(_model.pointee.geom_type).assumingMemoryBound(
-          to: MjGeom.self), object: _storage, len: ngeom * 1)
+          to: MjtGeom.self), object: _storage, len: ngeom * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjGeom> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtGeom> = UnsafeMutableRawPointer(
         _model.pointee.geom_type
-      ).assumingMemoryBound(to: MjGeom.self)
+      ).assumingMemoryBound(to: MjtGeom.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(ngeom * 1))
     }
@@ -979,16 +979,16 @@ extension MjModel {
     }
   }
   @inlinable
-  public var siteType: MjArray<MjGeom> {
+  public var siteType: MjArray<MjtGeom> {
     get {
-      MjArray<MjGeom>(
+      MjArray<MjtGeom>(
         array: UnsafeMutableRawPointer(_model.pointee.site_type).assumingMemoryBound(
-          to: MjGeom.self), object: _storage, len: nsite * 1)
+          to: MjtGeom.self), object: _storage, len: nsite * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjGeom> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtGeom> = UnsafeMutableRawPointer(
         _model.pointee.site_type
-      ).assumingMemoryBound(to: MjGeom.self)
+      ).assumingMemoryBound(to: MjtGeom.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nsite * 1))
     }
@@ -1077,16 +1077,16 @@ extension MjModel {
     }
   }
   @inlinable
-  public var camMode: MjArray<MjCamLight> {
+  public var camMode: MjArray<MjtCamLight> {
     get {
-      MjArray<MjCamLight>(
+      MjArray<MjtCamLight>(
         array: UnsafeMutableRawPointer(_model.pointee.cam_mode).assumingMemoryBound(
-          to: MjCamLight.self), object: _storage, len: ncam * 1)
+          to: MjtCamLight.self), object: _storage, len: ncam * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjCamLight> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtCamLight> = UnsafeMutableRawPointer(
         _model.pointee.cam_mode
-      ).assumingMemoryBound(to: MjCamLight.self)
+      ).assumingMemoryBound(to: MjtCamLight.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(ncam * 1))
     }
@@ -1182,16 +1182,16 @@ extension MjModel {
     }
   }
   @inlinable
-  public var lightMode: MjArray<MjCamLight> {
+  public var lightMode: MjArray<MjtCamLight> {
     get {
-      MjArray<MjCamLight>(
+      MjArray<MjtCamLight>(
         array: UnsafeMutableRawPointer(_model.pointee.light_mode).assumingMemoryBound(
-          to: MjCamLight.self), object: _storage, len: nlight * 1)
+          to: MjtCamLight.self), object: _storage, len: nlight * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjCamLight> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtCamLight> = UnsafeMutableRawPointer(
         _model.pointee.light_mode
-      ).assumingMemoryBound(to: MjCamLight.self)
+      ).assumingMemoryBound(to: MjtCamLight.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nlight * 1))
     }
@@ -1695,16 +1695,16 @@ extension MjModel {
     }
   }
   @inlinable
-  public var texType: MjArray<MjTexture> {
+  public var texType: MjArray<MjtTexture> {
     get {
-      MjArray<MjTexture>(
+      MjArray<MjtTexture>(
         array: UnsafeMutableRawPointer(_model.pointee.tex_type).assumingMemoryBound(
-          to: MjTexture.self), object: _storage, len: ntex * 1)
+          to: MjtTexture.self), object: _storage, len: ntex * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjTexture> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtTexture> = UnsafeMutableRawPointer(
         _model.pointee.tex_type
-      ).assumingMemoryBound(to: MjTexture.self)
+      ).assumingMemoryBound(to: MjtTexture.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(ntex * 1))
     }
@@ -1914,16 +1914,16 @@ extension MjModel {
     }
   }
   @inlinable
-  public var eqType: MjArray<MjEq> {
+  public var eqType: MjArray<MjtEq> {
     get {
-      MjArray<MjEq>(
-        array: UnsafeMutableRawPointer(_model.pointee.eq_type).assumingMemoryBound(to: MjEq.self),
+      MjArray<MjtEq>(
+        array: UnsafeMutableRawPointer(_model.pointee.eq_type).assumingMemoryBound(to: MjtEq.self),
         object: _storage, len: neq * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjEq> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtEq> = UnsafeMutableRawPointer(
         _model.pointee.eq_type
-      ).assumingMemoryBound(to: MjEq.self)
+      ).assumingMemoryBound(to: MjtEq.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(neq * 1))
     }
@@ -2190,16 +2190,16 @@ extension MjModel {
     }
   }
   @inlinable
-  public var wrapType: MjArray<MjWrap> {
+  public var wrapType: MjArray<MjtWrap> {
     get {
-      MjArray<MjWrap>(
+      MjArray<MjtWrap>(
         array: UnsafeMutableRawPointer(_model.pointee.wrap_type).assumingMemoryBound(
-          to: MjWrap.self), object: _storage, len: nwrap * 1)
+          to: MjtWrap.self), object: _storage, len: nwrap * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjWrap> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtWrap> = UnsafeMutableRawPointer(
         _model.pointee.wrap_type
-      ).assumingMemoryBound(to: MjWrap.self)
+      ).assumingMemoryBound(to: MjtWrap.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nwrap * 1))
     }
@@ -2223,61 +2223,61 @@ extension MjModel {
     }
   }
   @inlinable
-  public var actuatorTrntype: MjArray<MjTrn> {
+  public var actuatorTrntype: MjArray<MjtTrn> {
     get {
-      MjArray<MjTrn>(
+      MjArray<MjtTrn>(
         array: UnsafeMutableRawPointer(_model.pointee.actuator_trntype).assumingMemoryBound(
-          to: MjTrn.self), object: _storage, len: nu * 1)
+          to: MjtTrn.self), object: _storage, len: nu * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjTrn> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtTrn> = UnsafeMutableRawPointer(
         _model.pointee.actuator_trntype
-      ).assumingMemoryBound(to: MjTrn.self)
+      ).assumingMemoryBound(to: MjtTrn.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * 1))
     }
   }
   @inlinable
-  public var actuatorDyntype: MjArray<MjDyn> {
+  public var actuatorDyntype: MjArray<MjtDyn> {
     get {
-      MjArray<MjDyn>(
+      MjArray<MjtDyn>(
         array: UnsafeMutableRawPointer(_model.pointee.actuator_dyntype).assumingMemoryBound(
-          to: MjDyn.self), object: _storage, len: nu * 1)
+          to: MjtDyn.self), object: _storage, len: nu * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjDyn> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtDyn> = UnsafeMutableRawPointer(
         _model.pointee.actuator_dyntype
-      ).assumingMemoryBound(to: MjDyn.self)
+      ).assumingMemoryBound(to: MjtDyn.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * 1))
     }
   }
   @inlinable
-  public var actuatorGaintype: MjArray<MjGain> {
+  public var actuatorGaintype: MjArray<MjtGain> {
     get {
-      MjArray<MjGain>(
+      MjArray<MjtGain>(
         array: UnsafeMutableRawPointer(_model.pointee.actuator_gaintype).assumingMemoryBound(
-          to: MjGain.self), object: _storage, len: nu * 1)
+          to: MjtGain.self), object: _storage, len: nu * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjGain> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtGain> = UnsafeMutableRawPointer(
         _model.pointee.actuator_gaintype
-      ).assumingMemoryBound(to: MjGain.self)
+      ).assumingMemoryBound(to: MjtGain.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * 1))
     }
   }
   @inlinable
-  public var actuatorBiastype: MjArray<MjBias> {
+  public var actuatorBiastype: MjArray<MjtBias> {
     get {
-      MjArray<MjBias>(
+      MjArray<MjtBias>(
         array: UnsafeMutableRawPointer(_model.pointee.actuator_biastype).assumingMemoryBound(
-          to: MjBias.self), object: _storage, len: nu * 1)
+          to: MjtBias.self), object: _storage, len: nu * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjBias> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtBias> = UnsafeMutableRawPointer(
         _model.pointee.actuator_biastype
-      ).assumingMemoryBound(to: MjBias.self)
+      ).assumingMemoryBound(to: MjtBias.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * 1))
     }
@@ -2455,61 +2455,61 @@ extension MjModel {
     }
   }
   @inlinable
-  public var sensorType: MjArray<MjSensor> {
+  public var sensorType: MjArray<MjtSensor> {
     get {
-      MjArray<MjSensor>(
+      MjArray<MjtSensor>(
         array: UnsafeMutableRawPointer(_model.pointee.sensor_type).assumingMemoryBound(
-          to: MjSensor.self), object: _storage, len: nsensor * 1)
+          to: MjtSensor.self), object: _storage, len: nsensor * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjSensor> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtSensor> = UnsafeMutableRawPointer(
         _model.pointee.sensor_type
-      ).assumingMemoryBound(to: MjSensor.self)
+      ).assumingMemoryBound(to: MjtSensor.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nsensor * 1))
     }
   }
   @inlinable
-  public var sensorDatatype: MjArray<MjDataType> {
+  public var sensorDatatype: MjArray<MjtDataType> {
     get {
-      MjArray<MjDataType>(
+      MjArray<MjtDataType>(
         array: UnsafeMutableRawPointer(_model.pointee.sensor_datatype).assumingMemoryBound(
-          to: MjDataType.self), object: _storage, len: nsensor * 1)
+          to: MjtDataType.self), object: _storage, len: nsensor * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjDataType> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtDataType> = UnsafeMutableRawPointer(
         _model.pointee.sensor_datatype
-      ).assumingMemoryBound(to: MjDataType.self)
+      ).assumingMemoryBound(to: MjtDataType.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nsensor * 1))
     }
   }
   @inlinable
-  public var sensorNeedstage: MjArray<MjStage> {
+  public var sensorNeedstage: MjArray<MjtStage> {
     get {
-      MjArray<MjStage>(
+      MjArray<MjtStage>(
         array: UnsafeMutableRawPointer(_model.pointee.sensor_needstage).assumingMemoryBound(
-          to: MjStage.self), object: _storage, len: nsensor * 1)
+          to: MjtStage.self), object: _storage, len: nsensor * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjStage> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtStage> = UnsafeMutableRawPointer(
         _model.pointee.sensor_needstage
-      ).assumingMemoryBound(to: MjStage.self)
+      ).assumingMemoryBound(to: MjtStage.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nsensor * 1))
     }
   }
   @inlinable
-  public var sensorObjtype: MjArray<MjObj> {
+  public var sensorObjtype: MjArray<MjtObj> {
     get {
-      MjArray<MjObj>(
+      MjArray<MjtObj>(
         array: UnsafeMutableRawPointer(_model.pointee.sensor_objtype).assumingMemoryBound(
-          to: MjObj.self), object: _storage, len: nsensor * 1)
+          to: MjtObj.self), object: _storage, len: nsensor * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjObj> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtObj> = UnsafeMutableRawPointer(
         _model.pointee.sensor_objtype
-      ).assumingMemoryBound(to: MjObj.self)
+      ).assumingMemoryBound(to: MjtObj.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nsensor * 1))
     }
@@ -2524,16 +2524,16 @@ extension MjModel {
     }
   }
   @inlinable
-  public var sensorReftype: MjArray<MjObj> {
+  public var sensorReftype: MjArray<MjtObj> {
     get {
-      MjArray<MjObj>(
+      MjArray<MjtObj>(
         array: UnsafeMutableRawPointer(_model.pointee.sensor_reftype).assumingMemoryBound(
-          to: MjObj.self), object: _storage, len: nsensor * 1)
+          to: MjtObj.self), object: _storage, len: nsensor * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjObj> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtObj> = UnsafeMutableRawPointer(
         _model.pointee.sensor_reftype
-      ).assumingMemoryBound(to: MjObj.self)
+      ).assumingMemoryBound(to: MjtObj.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nsensor * 1))
     }

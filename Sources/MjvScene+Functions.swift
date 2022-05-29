@@ -83,11 +83,11 @@ extension MjvScene {
   }
   @inlinable
   public func move(
-    model: MjModel, action: Int32, reldx: Double, reldy: Double, roomup: MjDoubleBufferPointer
+    model: MjModel, action: MjtMouse, reldx: Double, reldy: Double, roomup: MjDoubleBufferPointer
   ) {
     precondition(roomup.count == 3)
     roomup.withUnsafeBufferPointer { roomup__p in
-      mjv_moveModel(model._model, action, reldx, reldy, roomup__p.baseAddress, self._scene)
+      mjv_moveModel(model._model, action.rawValue, reldx, reldy, roomup__p.baseAddress, self._scene)
     }
   }
   @inlinable
@@ -111,22 +111,13 @@ extension MjvScene {
     }
   }
   @inlinable
-  public func updateScene(
-    model: MjModel, data: inout MjData, opt: MjvOption, pert: MjvPerturb, cam: inout MjvCamera,
-    catmask: Int32
-  ) {
-    var opt__option = opt._option
-    var pert__perturb = pert._perturb
-    mjv_updateScene(
-      model._model, data._data, &opt__option, &pert__perturb, &cam._camera, catmask, self._scene)
-  }
-  @inlinable
   public func addGeoms(
-    model: MjModel, data: inout MjData, opt: MjvOption, pert: MjvPerturb, catmask: Int32
+    model: MjModel, data: inout MjData, opt: MjvOption, pert: MjvPerturb, catmask: MjtCatBit
   ) {
     var opt__option = opt._option
     var pert__perturb = pert._perturb
-    mjv_addGeoms(model._model, data._data, &opt__option, &pert__perturb, catmask, self._scene)
+    mjv_addGeoms(
+      model._model, data._data, &opt__option, &pert__perturb, catmask.rawValue, self._scene)
   }
   @inlinable
   public func makeLights(model: MjModel, data: inout MjData) {

@@ -2,8 +2,8 @@ import C_mujoco
 
 extension MjrContext {
   @inlinable
-  public func changeFont(fontscale: Int32) {
-    mjr_changeFont(fontscale, self._context)
+  public func changeFont(fontscale: MjtFontScale) {
+    mjr_changeFont(fontscale.rawValue, self._context)
   }
   @inlinable
   public func addAux(index: Int32, width: Int32, height: Int32, samples: Int32) {
@@ -26,8 +26,8 @@ extension MjrContext {
     mjr_restoreBuffer(self._context)
   }
   @inlinable
-  public func setBuffer(framebuffer: Int32) {
-    mjr_setBuffer(framebuffer, self._context)
+  public func setBuffer(framebuffer: MjtFramebuffer) {
+    mjr_setBuffer(framebuffer.rawValue, self._context)
   }
   @inlinable
   public func blitBuffer(src: MjrRect, dst: MjrRect, flgColor: Int32, flgDepth: Int32) {
@@ -42,14 +42,14 @@ extension MjrContext {
     mjr_blitAux(index, src, left, bottom, self._context)
   }
   @inlinable
-  public func text(font: Int32, txt: String, x: Float, y: Float, r: Float, g: Float, b: Float) {
-    mjr_text(font, txt, self._context, x, y, r, g, b)
+  public func text(font: MjtFont, txt: String, x: Float, y: Float, r: Float, g: Float, b: Float) {
+    mjr_text(font.rawValue, txt, self._context, x, y, r, g, b)
   }
   @inlinable
   public func overlay(
-    font: Int32, gridpos: Int32, viewport: MjrRect, overlay: String, overlay2: String
+    font: MjtFont, gridpos: MjtGridPos, viewport: MjrRect, overlay: String, overlay2: String
   ) {
-    mjr_overlay(font, gridpos, viewport, overlay, overlay2, self._context)
+    mjr_overlay(font.rawValue, gridpos.rawValue, viewport, overlay, overlay2, self._context)
   }
   @inlinable
   public func maxViewport() -> MjrRect {
@@ -57,10 +57,10 @@ extension MjrContext {
   }
   @inlinable
   public func label(
-    viewport: MjrRect, font: Int32, txt: String, r: Float, g: Float, b: Float, a: Float, rt: Float,
-    gt: Float, bt: Float
+    viewport: MjrRect, font: MjtFont, txt: String, r: Float, g: Float, b: Float, a: Float,
+    rt: Float, gt: Float, bt: Float
   ) {
-    mjr_label(viewport, font, txt, r, g, b, a, rt, gt, bt, self._context)
+    mjr_label(viewport, font.rawValue, txt, r, g, b, a, rt, gt, bt, self._context)
   }
   @inlinable
   public func figure(viewport: MjrRect, fig: inout MjvFigure) {

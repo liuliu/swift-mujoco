@@ -13,7 +13,7 @@ public struct Enum {
 public func enumDecl(_ thisEnum: Enum) -> String {
   precondition(thisEnum.name.hasPrefix("mjt"))
   let swiftName_ =
-    "Mj" + thisEnum.name.suffix(from: thisEnum.name.index(thisEnum.name.startIndex, offsetBy: 3))
+    "Mjt" + thisEnum.name.suffix(from: thisEnum.name.index(thisEnum.name.startIndex, offsetBy: 3))
   let swiftName = swiftName_.prefix(upTo: swiftName_.index(swiftName_.endIndex, offsetBy: -1))
   var code = "public enum \(swiftName): Int32 {\n"
   for (key, value) in thisEnum.keyValues {

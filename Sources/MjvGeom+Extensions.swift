@@ -1,7 +1,7 @@
 extension MjvGeom {
   @inlinable
-  public var type: MjGeom {
-    get { MjGeom(rawValue: _geom.type)! }
+  public var type: MjtGeom {
+    get { MjtGeom(rawValue: _geom.type)! }
     set { _geom.type = newValue.rawValue }
   }
   @inlinable

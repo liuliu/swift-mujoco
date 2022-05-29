@@ -513,16 +513,16 @@ extension MjData {
     }
   }
   @inlinable
-  public var efcType: MjArray<MjConstraint> {
+  public var efcType: MjArray<MjtConstraint> {
     get {
-      MjArray<MjConstraint>(
+      MjArray<MjtConstraint>(
         array: UnsafeMutableRawPointer(_data.pointee.efc_type).assumingMemoryBound(
-          to: MjConstraint.self), object: _storage, len: njmax * 1)
+          to: MjtConstraint.self), object: _storage, len: njmax * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjConstraint> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtConstraint> = UnsafeMutableRawPointer(
         _data.pointee.efc_type
-      ).assumingMemoryBound(to: MjConstraint.self)
+      ).assumingMemoryBound(to: MjtConstraint.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
     }
@@ -915,16 +915,16 @@ extension MjData {
     }
   }
   @inlinable
-  public var efcState: MjArray<MjConstraintState> {
+  public var efcState: MjArray<MjtConstraintState> {
     get {
-      MjArray<MjConstraintState>(
+      MjArray<MjtConstraintState>(
         array: UnsafeMutableRawPointer(_data.pointee.efc_state).assumingMemoryBound(
-          to: MjConstraintState.self), object: _storage, len: njmax * 1)
+          to: MjtConstraintState.self), object: _storage, len: njmax * 1)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjConstraintState> = UnsafeMutableRawPointer(
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtConstraintState> = UnsafeMutableRawPointer(
         _data.pointee.efc_state
-      ).assumingMemoryBound(to: MjConstraintState.self)
+      ).assumingMemoryBound(to: MjtConstraintState.self)
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
     }
