@@ -112,20 +112,20 @@ extension MjvScene {
   }
   @inlinable
   public func addGeoms(
-    model: MjModel, data: inout MjData, opt: MjvOption, pert: MjvPerturb, catmask: MjtCatBit
+    model: MjModel, data: inout MjData, option: MjvOption, perturb: MjvPerturb, catmask: MjtCatBit
   ) {
-    var opt__option = opt._option
-    var pert__perturb = pert._perturb
+    var option__option = option._option
+    var perturb__perturb = perturb._perturb
     mjv_addGeoms(
-      model._model, data._data, &opt__option, &pert__perturb, catmask.rawValue, self._scene)
+      model._model, data._data, &option__option, &perturb__perturb, catmask.rawValue, self._scene)
   }
   @inlinable
   public func makeLights(model: MjModel, data: inout MjData) {
     mjv_makeLights(model._model, data._data, self._scene)
   }
   @inlinable
-  public func updateCamera(model: MjModel, data: inout MjData, cam: inout MjvCamera) {
-    mjv_updateCamera(model._model, data._data, &cam._camera, self._scene)
+  public func updateCamera(model: MjModel, data: inout MjData, camera: inout MjvCamera) {
+    mjv_updateCamera(model._model, data._data, &camera._camera, self._scene)
   }
   @inlinable
   public func updateSkin(model: MjModel, data: inout MjData) {

@@ -28,8 +28,8 @@ public struct MjvScene {
 
   @inlinable
   public func updateScene(
-    model: MjModel, data: MjData, option: MjvOption, perturb: MjvPerturb?, camera: inout MjvCamera,
-    catmask: MjtCatBit = .all
+    model: MjModel, data: inout MjData, option: MjvOption, perturb: MjvPerturb?,
+    camera: inout MjvCamera, catmask: MjtCatBit = .all
   ) {
     var _option = option
     guard var _perturb = perturb else {

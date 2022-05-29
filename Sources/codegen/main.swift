@@ -360,7 +360,7 @@ for apiDefinition in apiDefinitions {
     deny: ["mjrRect"],
     nameMapping: [
       "m": ["model"], "d": ["data"], "con": ["contact", "context"], "scn": ["scene"],
-      "key": ["keyframe"],
+      "key": ["keyframe"], "opt": ["option"], "pert": ["perturb"], "cam": ["camera"],
     ])
   sourceCodeMapping[mainType] = sourceCodeMapping[mainType, default: ""] + sourceCode
 }
