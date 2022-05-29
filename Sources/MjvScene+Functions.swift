@@ -111,6 +111,10 @@ extension MjvScene {
     }
   }
   @inlinable
+  public func makeScene(model: MjModel, maxgeom: Int32) {
+    mjv_makeScene(model._model, self._scene, maxgeom)
+  }
+  @inlinable
   public func addGeoms(
     model: MjModel, data: inout MjData, option: MjvOption, perturb: MjvPerturb, catmask: MjtCatBit
   ) {

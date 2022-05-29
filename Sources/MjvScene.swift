@@ -12,17 +12,17 @@ public struct MjvScene {
   final class Storage {
     @usableFromInline
     var _scene: mjvScene
-    init(model: MjModel, maxgeom: Int32) {
+    init(model: MjModel?, maxgeom: Int32) {
       _scene = mjvScene()
       mjv_defaultScene(&_scene)
-      mjv_makeScene(model._model, &_scene, maxgeom)
+      mjv_makeScene(model?._model, &_scene, maxgeom)
     }
     deinit {
       mjv_freeScene(&_scene)
     }
   }
 
-  public init(model: MjModel, maxgeom: Int32) {
+  public init(model: MjModel?, maxgeom: Int32) {
     _storage = Storage(model: model, maxgeom: maxgeom)
   }
 

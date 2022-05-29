@@ -2,6 +2,10 @@ import C_mujoco
 
 extension MjrContext {
   @inlinable
+  public func makeContext(model: MjModel, fontscale: MjtFontScale) {
+    mjr_makeContext(model._model, self._context, fontscale.rawValue)
+  }
+  @inlinable
   public func changeFont(fontscale: MjtFontScale) {
     mjr_changeFont(fontscale.rawValue, self._context)
   }
