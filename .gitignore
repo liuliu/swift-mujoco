@@ -109,3 +109,6 @@ compile_commands.json
 
 # Ignoring mujoco library.
 mujoco-*/
+
+# Ignore docc
+MuJoCo.docc/
