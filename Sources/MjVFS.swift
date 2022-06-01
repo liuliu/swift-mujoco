@@ -1,7 +1,7 @@
 import C_mujoco
 import Foundation
 
-public final class MjVFS {
+public struct MjVFS {
   @usableFromInline
   let _storage = Storage()
   @inlinable
@@ -38,13 +38,13 @@ public final class MjVFS {
 extension MjVFS {
   @inlinable
   @discardableResult
-  public func addFile(directory: String, filename: String) -> Int32 {
+  public mutating func addFile(directory: String, filename: String) -> Int32 {
     return mj_addFileVFS(_vfs, directory, filename)
   }
 
   @inlinable
   @discardableResult
-  public func makeEmptyFile(filename: String, filesize: Int32) -> Int32 {
+  public mutating func makeEmptyFile(filename: String, filesize: Int32) -> Int32 {
     return mj_makeEmptyFileVFS(_vfs, filename, filesize)
   }
 
@@ -55,28 +55,28 @@ extension MjVFS {
 
   @inlinable
   @discardableResult
-  public func deleteFile(filename: String) -> Int32 {
+  public mutating func deleteFile(filename: String) -> Int32 {
     return mj_deleteFileVFS(_vfs, filename)
   }
 
   @inlinable
   public var filesize: MjArray<Int32> {
     withUnsafeMutablePointer(to: &_vfs.pointee.filesize.0) {
-      MjArray<Int32>(array: $0, object: self, len: mjMAXVFS)
+      MjArray<Int32>(array: $0, object: _storage, len: mjMAXVFS)
     }
   }
 
   @inlinable
   public var filedata: MjArray<UnsafeMutableRawPointer?> {
     withUnsafeMutablePointer(to: &_vfs.pointee.filedata.0) {
-      MjArray<UnsafeMutableRawPointer?>(array: $0, object: self, len: mjMAXVFS)
+      MjArray<UnsafeMutableRawPointer?>(array: $0, object: _storage, len: mjMAXVFS)
     }
   }
 
   @inlinable
   public var filename: MjStaticStringArray {
     withUnsafeMutablePointer(to: &_vfs.pointee.filename.0.0) {
-      MjStaticStringArray(array: $0, object: self, len: mjMAXVFS, strlen: mjMAXVFSNAME)
+      MjStaticStringArray(array: $0, object: _storage, len: mjMAXVFS, strlen: mjMAXVFSNAME)
     }
   }
 

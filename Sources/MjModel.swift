@@ -54,7 +54,7 @@ public struct MjModel {
     var xmlString = fromXML
     let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 256)
     let model: UnsafeMutablePointer<mjModel>? = xmlString.withUTF8 { utf8 in
-      let vfs = assets.flatMap { MjVFS(assets: $0) } ?? MjVFS()
+      var vfs = assets.flatMap { MjVFS(assets: $0) } ?? MjVFS()
       // Avoid name duplication.
       var modelName = "model_"
       while assets?[modelName + ".xml"] != nil {
