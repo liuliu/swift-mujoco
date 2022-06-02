@@ -36,6 +36,9 @@ glContext.makeCurrent {
     MjuiDef(.button, name: "Print data", state: 2, pdata: nil, other: "CD"),
     MjuiDef(.button, name: "Quit", state: 1, pdata: nil, other: "CQ"),
   ])
+  ui0.predicate = { _ in
+    return true
+  }
   ui0.resize(context: context)
   context.addAux(
     index: ui0.auxid, width: ui0.width, height: ui0.maxheight, samples: ui0.spacing.samples)

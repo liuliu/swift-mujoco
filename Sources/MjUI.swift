@@ -16,6 +16,9 @@ public struct MjUI {
       _ui = UnsafeMutablePointer.allocate(capacity: 1)
     }
     deinit {
+      if let userdata = _ui.pointee.userdata {
+        Unmanaged<WrappedPredicate>.fromOpaque(userdata).release()
+      }
       _ui.deallocate()
     }
   }
@@ -92,6 +95,51 @@ extension MjUI {
       mjui_addToSection(
         self._ui, sect,
         $0.baseAddress?.withMemoryRebound(to: mjuiDef.self, capacity: $0.count) { $0 })
+    }
+  }
+
+  @usableFromInline
+  final class WrappedPredicate {
+    @usableFromInline
+    let predicate: (Int32) -> Bool
+    @usableFromInline
+    init(predicate: @escaping (Int32) -> Bool) {
+      self.predicate = predicate
+    }
+  }
+
+  /// callback to set item state programmatically
+  @inlinable
+  public var predicate: ((Int32) -> Bool)? {
+    get {
+      _ui.pointee.userdata.map {
+        Unmanaged<WrappedPredicate>.fromOpaque($0).takeUnretainedValue().predicate
+      }
+    }
+    set {
+      guard let newValue = newValue else {
+        if let userdata = _ui.pointee.userdata {
+          Unmanaged<WrappedPredicate>.fromOpaque(userdata).release()
+        }
+        _ui.pointee.predicate = nil
+        _ui.pointee.userdata = nil
+        return
+      }
+      _ui.pointee.predicate = { cat, userdata in
+        guard let userdata = userdata else { return 1 }
+        return Unmanaged<WrappedPredicate>.fromOpaque(userdata).takeUnretainedValue().predicate(cat)
+          ? 1 : 0
+      }
+      if let userdata = _ui.pointee.userdata {
+        _ui.pointee.userdata = Unmanaged.passRetained(WrappedPredicate(predicate: newValue))
+          .toOpaque()
+        // Release after retained. In case we assign the same block again and again, this will still be correct.
+        Unmanaged<WrappedPredicate>.fromOpaque(userdata).release()
+      } else {  // no userdata, just retain it.
+        _ui.pointee.userdata = Unmanaged.passRetained(WrappedPredicate(predicate: newValue))
+          .toOpaque()
+      }
+
     }
   }
 }
