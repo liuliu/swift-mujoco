@@ -32,6 +32,7 @@ public struct MjModel {
     _storage = Storage(model: model)
   }
 
+  /// Create a MjModel from a binary format.
   public init?(fromBinaryPath filePath: String, vfs: MjVFS? = nil) {
     guard let model = mj_loadModel(filePath, vfs?._vfs) else {
       return nil
@@ -39,6 +40,7 @@ public struct MjModel {
     self.init(model: model)
   }
 
+  /// Create a MjModel from a XML format.
   public init(fromXMLPath filePath: String, vfs: MjVFS? = nil) throws {
     let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 256)
     guard let model = mj_loadXML(filePath, vfs?._vfs, errorStr, 256) else {
@@ -50,6 +52,7 @@ public struct MjModel {
     self.init(model: model)
   }
 
+  /// Create a MjModel from a XML string.
   public init(fromXML: String, assets: [String: Data]? = nil) throws {
     var xmlString = fromXML
     let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 256)

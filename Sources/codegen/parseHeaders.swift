@@ -26,9 +26,9 @@ public func parseMuJoCoHeaders(from filePaths: [String]) -> (
           apiComment = nil
         }
       }
-      if line.hasPrefix("//") {
+      if line.hasPrefix("//") && !line.hasPrefix("//-----") {  // If it is comment and not segment.
         apiComment =
-          (apiComment ?? "")
+          (apiComment ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
           + line.trimmingCharacters(in: .whitespacesAndNewlines).dropFirst().dropFirst()
       }
       if let range = line.range(of: #"\s*#define\s+\w+\s+\d+"#, options: .regularExpression) {

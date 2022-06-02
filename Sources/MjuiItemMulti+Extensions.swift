@@ -1,9 +1,11 @@
 extension MjuiItemMulti {
+  /// number of elements in group
   @inlinable
   public var nelem: Int32 {
     get { _itemmulti.pointee.nelem }
     set { _itemmulti.pointee.nelem = newValue }
   }
+  /// element names
   @inlinable
   public var name: MjStaticStringArray {
     get {

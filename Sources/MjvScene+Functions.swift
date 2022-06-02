@@ -1,6 +1,7 @@
 import C_mujoco
 
 extension MjvScene {
+  ///  Transform pose from room to model space.
   @inlinable
   public func room2model(
     modelpos: inout MjDoubleMutableBufferPointer, modelquat: inout MjDoubleMutableBufferPointer,
@@ -22,6 +23,7 @@ extension MjvScene {
       }
     }
   }
+  ///  Transform pose from model to room space.
   @inlinable
   public func model2room(
     roompos: inout MjDoubleMutableBufferPointer, roomquat: inout MjDoubleMutableBufferPointer,
@@ -43,6 +45,7 @@ extension MjvScene {
       }
     }
   }
+  ///  Get camera info in model space; average left and right OpenGL cameras.
   @inlinable
   public func cameraInModel(
     headpos: inout MjDoubleMutableBufferPointer, forward: inout MjDoubleMutableBufferPointer,
@@ -60,6 +63,7 @@ extension MjvScene {
       }
     }
   }
+  ///  Get camera info in room space; average left and right OpenGL cameras.
   @inlinable
   public func cameraInRoom(
     headpos: inout MjDoubleMutableBufferPointer, forward: inout MjDoubleMutableBufferPointer,
@@ -77,10 +81,12 @@ extension MjvScene {
       }
     }
   }
+  ///  Get frustum height at unit distance from camera; average left and right OpenGL cameras.
   @inlinable
   public func frustumHeight() -> Double {
     return mjv_frustumHeight(self._scene)
   }
+  ///  Move model with mouse; action is mjtMouse.
   @inlinable
   public func move(
     model: MjModel, action: MjtMouse, reldx: Double, reldy: Double, roomup: MjDoubleBufferPointer
@@ -90,6 +96,7 @@ extension MjvScene {
       mjv_moveModel(model._model, action.rawValue, reldx, reldy, roomup__p.baseAddress, self._scene)
     }
   }
+  ///  Select geom or skin with mouse, return bodyid; -1: none selected.
   @inlinable
   public func select(
     model: MjModel, data: MjData, vopt: MjvOption, aspectratio: Double, relx: Double, rely: Double,
@@ -110,10 +117,12 @@ extension MjvScene {
       }
     }
   }
+  ///  Allocate resources in abstract scene.
   @inlinable
   public func makeScene(model: MjModel, maxgeom: Int32) {
     mjv_makeScene(model._model, self._scene, maxgeom)
   }
+  ///  Add geoms from selected categories. catmask is mjtCatBit.
   @inlinable
   public func addGeoms(
     model: MjModel, data: inout MjData, option: MjvOption, perturb: MjvPerturb, catmask: MjtCatBit
@@ -123,14 +132,17 @@ extension MjvScene {
     mjv_addGeoms(
       model._model, data._data, &option__option, &perturb__perturb, catmask.rawValue, self._scene)
   }
+  ///  Make list of lights.
   @inlinable
   public func makeLights(model: MjModel, data: inout MjData) {
     mjv_makeLights(model._model, data._data, self._scene)
   }
+  ///  Update camera.
   @inlinable
   public func updateCamera(model: MjModel, data: inout MjData, camera: inout MjvCamera) {
     mjv_updateCamera(model._model, data._data, &camera._camera, self._scene)
   }
+  ///  Update skins.
   @inlinable
   public func updateSkin(model: MjModel, data: inout MjData) {
     mjv_updateSkin(model._model, data._data, self._scene)

@@ -1,3 +1,4 @@
+import Dispatch
 import MuJoCo
 
 struct Settings {
@@ -12,10 +13,15 @@ struct Settings {
 
 let glContext = GLContext(width: 1280, height: 720, title: "simulate")
 
+// We will run this function off main thread on a default global queue.
+func simulate() {
+}
+
 glContext.makeCurrent {
   var scene = MjvScene(model: nil, maxgeom: 1000)
   // The context need to be initialized after having a GL context.
   let context = MjrContext(model: nil, fontScale: ._100)
+  DispatchQueue.global(qos: .default).async(execute: simulate)
   glContext.runLoop(swapInterval: 1) { width, height in
     let viewport = MjrRect(left: 0, bottom: 0, width: width, height: height)
     rectangle(viewport: viewport, r: 0.2, g: 0.3, b: 0.4, a: 1)

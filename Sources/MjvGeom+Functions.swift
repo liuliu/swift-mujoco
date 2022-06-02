@@ -1,6 +1,7 @@
 import C_mujoco
 
 extension MjvGeom {
+  /// Initialize given geom fields when not NULL, set the rest to their default values. type is mjtGeom.
   @inlinable
   public mutating func initGeom(
     type: MjtGeom, size: MjDoubleBufferPointer, pos: MjDoubleBufferPointer,
@@ -22,6 +23,7 @@ extension MjvGeom {
       }
     }
   }
+  /// Set (type, size, pos, mat) for connector-type geom between given points. Assume that mjv_initGeom was already called to set all other properties. type is mjtGeom.
   @inlinable
   public mutating func makeConnector(
     type: MjtGeom, width: Double, a0: Double, a1: Double, a2: Double, b0: Double, b1: Double,

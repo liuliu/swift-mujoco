@@ -367,7 +367,11 @@ public func functionExtension(
       name: apiDefinition.parameters[$0].name, type: apiDefinition.parameters[$0].type,
       comment: apiDefinition.comment)
   }
-  var code = "  @inlinable\n"
+  var code = ""
+  if let comment = apiDefinition.comment {
+    code += "  /// \(comment)\n"
+  }
+  code += "  @inlinable\n"
   let mutatingPrefix: String
   if let mainParsedType = mainParsedType, let mjType = MjTypes[mainParsedType.swiftType],
     mainParsedType.isInout

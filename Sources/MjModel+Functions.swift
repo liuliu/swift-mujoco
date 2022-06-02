@@ -1,170 +1,212 @@
 import C_mujoco
 
 extension MjModel {
+  ///  Advance simulation, use control callback to obtain external force and control.
   @inlinable
   public func step(data: inout MjData) {
     mj_step(self._model, data._data)
   }
+  ///  Advance simulation in two steps: before external force and control is set by user.
   @inlinable
   public func step1(data: inout MjData) {
     mj_step1(self._model, data._data)
   }
+  ///  Advance simulation in two steps: after external force and control is set by user.
   @inlinable
   public func step2(data: inout MjData) {
     mj_step2(self._model, data._data)
   }
+  ///  Forward dynamics: same as mj_step but do not integrate in time.
   @inlinable
   public func forward(data: inout MjData) {
     mj_forward(self._model, data._data)
   }
+  ///  Inverse dynamics: qacc must be set before calling.
   @inlinable
   public func inverse(data: inout MjData) {
     mj_inverse(self._model, data._data)
   }
+  ///  Forward dynamics with skip; skipstage is mjtStage.
   @inlinable
   public func forwardSkip(data: inout MjData, skipstage: MjtStage, skipsensor: Int32) {
     mj_forwardSkip(self._model, data._data, skipstage.rawValue, skipsensor)
   }
+  ///  Inverse dynamics with skip; skipstage is mjtStage.
   @inlinable
   public func inverseSkip(data: inout MjData, skipstage: MjtStage, skipsensor: Int32) {
     mj_inverseSkip(self._model, data._data, skipstage.rawValue, skipsensor)
   }
+  ///  Reset data to defaults.
   @inlinable
   public func reset(data: inout MjData) {
     mj_resetData(self._model, data._data)
   }
+  ///  Reset data to defaults, fill everything else with debug_value.
   @inlinable
   public func resetDataDebug(data: inout MjData, debugValue: UInt8) {
     mj_resetDataDebug(self._model, data._data, debugValue)
   }
+  ///  Reset data, set fields from specified keyframe.
   @inlinable
   public func reset(data: inout MjData, keyframe: Int32) {
     mj_resetDataKeyframe(self._model, data._data, keyframe)
   }
+  ///  Set constant fields of mjModel, corresponding to qpos0 configuration.
   @inlinable
   public func setConst(data: inout MjData) {
     mj_setConst(self._model, data._data)
   }
+  /// Print mjModel to text file, specifying format. float_format must be a valid printf-style format string for a single float value.
   @inlinable
   public func printFormattedModel(filename: String, floatFormat: String) {
     mj_printFormattedModel(self._model, filename, floatFormat)
   }
+  ///  Print model to text file.
   @inlinable
   public func printModel(filename: String) {
     mj_printModel(self._model, filename)
   }
+  /// Print mjData to text file, specifying format. float_format must be a valid printf-style format string for a single float value
   @inlinable
   public func printFormatted(data: inout MjData, filename: String, floatFormat: String) {
     mj_printFormattedData(self._model, data._data, filename, floatFormat)
   }
+  ///  Print data to text file.
   @inlinable
   public func print(data: inout MjData, filename: String) {
     mj_printData(self._model, data._data, filename)
   }
+  ///  Run position-dependent computations.
   @inlinable
   public func fwdPosition(data: inout MjData) {
     mj_fwdPosition(self._model, data._data)
   }
+  ///  Run velocity-dependent computations.
   @inlinable
   public func fwdVelocity(data: inout MjData) {
     mj_fwdVelocity(self._model, data._data)
   }
+  ///  Compute actuator force qfrc_actuator.
   @inlinable
   public func fwdActuation(data: inout MjData) {
     mj_fwdActuation(self._model, data._data)
   }
+  ///  Add up all non-constraint forces, compute qacc_unc.
   @inlinable
   public func fwdAcceleration(data: inout MjData) {
     mj_fwdAcceleration(self._model, data._data)
   }
+  ///  Run selected constraint solver.
   @inlinable
   public func fwdConstraint(data: inout MjData) {
     mj_fwdConstraint(self._model, data._data)
   }
+  ///  Euler integrator, semi-implicit in velocity.
   @inlinable
   public func Euler(data: inout MjData) {
     mj_Euler(self._model, data._data)
   }
+  ///  Runge-Kutta explicit order-N integrator.
   @inlinable
   public func RungeKutta(data: inout MjData, n: Int32) {
     mj_RungeKutta(self._model, data._data, n)
   }
+  ///  Run position-dependent computations in inverse dynamics.
   @inlinable
   public func invPosition(data: inout MjData) {
     mj_invPosition(self._model, data._data)
   }
+  ///  Run velocity-dependent computations in inverse dynamics.
   @inlinable
   public func invVelocity(data: inout MjData) {
     mj_invVelocity(self._model, data._data)
   }
+  ///  Apply the analytical formula for inverse constraint dynamics.
   @inlinable
   public func invConstraint(data: inout MjData) {
     mj_invConstraint(self._model, data._data)
   }
+  ///  Compare forward and inverse dynamics, save results in fwdinv.
   @inlinable
   public func compareFwdInv(data: inout MjData) {
     mj_compareFwdInv(self._model, data._data)
   }
+  ///  Evaluate position-dependent sensors.
   @inlinable
   public func sensorPos(data: inout MjData) {
     mj_sensorPos(self._model, data._data)
   }
+  ///  Evaluate velocity-dependent sensors.
   @inlinable
   public func sensorVel(data: inout MjData) {
     mj_sensorVel(self._model, data._data)
   }
+  ///  Evaluate acceleration and force-dependent sensors.
   @inlinable
   public func sensorAcc(data: inout MjData) {
     mj_sensorAcc(self._model, data._data)
   }
+  ///  Evaluate position-dependent energy (potential).
   @inlinable
   public func energyPos(data: inout MjData) {
     mj_energyPos(self._model, data._data)
   }
+  ///  Evaluate velocity-dependent energy (kinetic).
   @inlinable
   public func energyVel(data: inout MjData) {
     mj_energyVel(self._model, data._data)
   }
+  ///  Check qpos, reset if any element is too big or nan.
   @inlinable
   public func checkPos(data: inout MjData) {
     mj_checkPos(self._model, data._data)
   }
+  ///  Check qvel, reset if any element is too big or nan.
   @inlinable
   public func checkVel(data: inout MjData) {
     mj_checkVel(self._model, data._data)
   }
+  ///  Check qacc, reset if any element is too big or nan.
   @inlinable
   public func checkAcc(data: inout MjData) {
     mj_checkAcc(self._model, data._data)
   }
+  ///  Run forward kinematics.
   @inlinable
   public func kinematics(data: inout MjData) {
     mj_kinematics(self._model, data._data)
   }
+  ///  Map inertias and motion dofs to global frame centered at CoM.
   @inlinable
   public func comPos(data: inout MjData) {
     mj_comPos(self._model, data._data)
   }
+  ///  Compute camera and light positions and orientations.
   @inlinable
   public func camlight(data: inout MjData) {
     mj_camlight(self._model, data._data)
   }
+  ///  Compute tendon lengths, velocities and moment arms.
   @inlinable
   public func tendon(data: inout MjData) {
     mj_tendon(self._model, data._data)
   }
+  ///  Compute actuator transmission lengths and moments.
   @inlinable
   public func transmission(data: inout MjData) {
     mj_transmission(self._model, data._data)
   }
+  ///  Run composite rigid body inertia algorithm (CRB).
   @inlinable
   public func crb(data: inout MjData) {
     mj_crb(self._model, data._data)
   }
+  ///  Compute sparse L'*D*L factorizaton of inertia matrix.
   @inlinable
   public func factorM(data: inout MjData) {
     mj_factorM(self._model, data._data)
   }
+  ///  Solve linear system M * x = y using factorization:  x = inv(L'*D*L)*y
   @inlinable
   public func solveM(
     data: inout MjData, x: inout MjDoubleMutableBufferPointer, y: MjDoubleBufferPointer, n: Int32
@@ -175,6 +217,7 @@ extension MjModel {
       }
     }
   }
+  ///  Half of linear solve:  x = sqrt(inv(D))*inv(L')*y
   @inlinable
   public func solveM2(
     data: inout MjData, x: inout MjDoubleMutableBufferPointer, y: MjDoubleBufferPointer, n: Int32
@@ -185,44 +228,54 @@ extension MjModel {
       }
     }
   }
+  ///  Compute cvel, cdof_dot.
   @inlinable
   public func comVel(data: inout MjData) {
     mj_comVel(self._model, data._data)
   }
+  ///  Compute qfrc_passive from spring-dampers, viscosity and density.
   @inlinable
   public func passive(data: inout MjData) {
     mj_passive(self._model, data._data)
   }
+  ///  subtree linear velocity and angular momentum
   @inlinable
   public func subtreeVel(data: inout MjData) {
     mj_subtreeVel(self._model, data._data)
   }
+  ///  RNE: compute M(qpos)*qacc + C(qpos,qvel); flg_acc=0 removes inertial term.
   @inlinable
   public func rne(data: inout MjData, flgAcc: Int32, result: inout MjDoubleMutableBufferPointer) {
     result.withUnsafeMutableBufferPointer { result__p in
       mj_rne(self._model, data._data, flgAcc, result__p.baseAddress)
     }
   }
+  ///  RNE with complete data: compute cacc, cfrc_ext, cfrc_int.
   @inlinable
   public func rnePostConstraint(data: inout MjData) {
     mj_rnePostConstraint(self._model, data._data)
   }
+  ///  Run collision detection.
   @inlinable
   public func collision(data: inout MjData) {
     mj_collision(self._model, data._data)
   }
+  ///  Construct constraints.
   @inlinable
   public func makeConstraint(data: inout MjData) {
     mj_makeConstraint(self._model, data._data)
   }
+  ///  Compute inverse constaint inertia efc_AR.
   @inlinable
   public func projectConstraint(data: inout MjData) {
     mj_projectConstraint(self._model, data._data)
   }
+  ///  Compute efc_vel, efc_aref.
   @inlinable
   public func referenceConstraint(data: inout MjData) {
     mj_referenceConstraint(self._model, data._data)
   }
+  /// Compute efc_state, efc_force, qfrc_constraint, and (optionally) cone Hessians. If cost is not NULL, set *cost = s(jar) where jar = Jac*qacc-aref.
   @inlinable
   public func constraintUpdate(
     data: inout MjData, jar: MjDoubleBufferPointer, cost: inout MjDoubleMutableBufferPointer,
@@ -236,23 +289,28 @@ extension MjModel {
       }
     }
   }
+  ///  Add contact to d->contact list; return 0 if success; 1 if buffer full.
   @inlinable
   public func addContact(data: inout MjData, contact: MjContact) -> Int32 {
     var contact__contact = contact._contact
     return mj_addContact(self._model, data._data, &contact__contact)
   }
+  ///  Determine type of friction cone.
   @inlinable
   public func isPyramidal() -> Bool {
     return (0 != mj_isPyramidal(self._model))
   }
+  ///  Determine type of constraint Jacobian.
   @inlinable
   public func isSparse() -> Bool {
     return (0 != mj_isSparse(self._model))
   }
+  ///  Determine type of solver (PGS is dual, CG and Newton are primal).
   @inlinable
   public func isDual() -> Bool {
     return (0 != mj_isDual(self._model))
   }
+  ///  Multiply dense or sparse constraint Jacobian by vector.
   @inlinable
   public func mulJacVec(
     data: inout MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
@@ -263,6 +321,7 @@ extension MjModel {
       }
     }
   }
+  ///  Multiply dense or sparse constraint Jacobian transpose by vector.
   @inlinable
   public func mulJacTVec(
     data: inout MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
@@ -273,6 +332,7 @@ extension MjModel {
       }
     }
   }
+  ///  Compute 3/6-by-nv end-effector Jacobian of global point attached to given body.
   @inlinable
   public func jac(
     data: MjData, jacp: inout MjDoubleMutableBufferPointer,
@@ -289,6 +349,7 @@ extension MjModel {
       }
     }
   }
+  ///  Compute body frame end-effector Jacobian.
   @inlinable
   public func jacBody(
     data: MjData, jacp: inout MjDoubleMutableBufferPointer,
@@ -300,6 +361,7 @@ extension MjModel {
       }
     }
   }
+  ///  Compute body center-of-mass end-effector Jacobian.
   @inlinable
   public func jacBodyCom(
     data: MjData, jacp: inout MjDoubleMutableBufferPointer,
@@ -311,6 +373,7 @@ extension MjModel {
       }
     }
   }
+  ///  Compute geom end-effector Jacobian.
   @inlinable
   public func jacGeom(
     data: MjData, jacp: inout MjDoubleMutableBufferPointer,
@@ -322,6 +385,7 @@ extension MjModel {
       }
     }
   }
+  ///  Compute site end-effector Jacobian.
   @inlinable
   public func jacSite(
     data: MjData, jacp: inout MjDoubleMutableBufferPointer,
@@ -333,6 +397,7 @@ extension MjModel {
       }
     }
   }
+  ///  Compute translation end-effector Jacobian of point, and rotation Jacobian of axis.
   @inlinable
   public func jacPointAxis(
     data: inout MjData, jacPoint: inout MjDoubleMutableBufferPointer,
@@ -353,14 +418,17 @@ extension MjModel {
       }
     }
   }
+  ///  Get id of object with specified name, return -1 if not found; type is mjtObj.
   @inlinable
   public func name2id(type: MjtObj, name: String) -> Int32 {
     return mj_name2id(self._model, type.rawValue, name)
   }
+  ///  Get name of object with specified id, return 0 if invalid type or id; type is mjtObj.
   @inlinable
   public func id2name(type: MjtObj, id: Int32) -> String? {
     return String(cString: mj_id2name(self._model, type.rawValue, id), encoding: .utf8)
   }
+  ///  Convert sparse inertia matrix M into full (i.e. dense) matrix.
   @inlinable
   public func fullM(dst: inout MjDoubleMutableBufferPointer, m: MjDoubleBufferPointer) {
     dst.withUnsafeMutableBufferPointer { dst__p in
@@ -369,6 +437,7 @@ extension MjModel {
       }
     }
   }
+  ///  Multiply vector by inertia matrix.
   @inlinable
   public func mulM(
     data: MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
@@ -379,6 +448,7 @@ extension MjModel {
       }
     }
   }
+  ///  Multiply vector by (inertia matrix)^(1/2).
   @inlinable
   public func mulM2(
     data: MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
@@ -389,6 +459,7 @@ extension MjModel {
       }
     }
   }
+  /// Add inertia matrix to destination matrix. Destination can be sparse uncompressed, or dense when all int* are NULL
   @inlinable
   public func addM(
     data: inout MjData, dst: inout MjDoubleMutableBufferPointer,
@@ -407,6 +478,7 @@ extension MjModel {
       }
     }
   }
+  ///  Apply cartesian force and torque (outside xfrc_applied mechanism).
   @inlinable
   public func applyFT(
     data: inout MjData, force: MjDoubleBufferPointer, torque: MjDoubleBufferPointer,
@@ -427,6 +499,7 @@ extension MjModel {
       }
     }
   }
+  ///  Compute object 6D velocity in object-centered frame, world/local orientation.
   @inlinable
   public func objectVelocity(
     data: MjData, objtype: Int32, objid: Int32, res: inout MjDoubleMutableBufferPointer,
@@ -437,6 +510,7 @@ extension MjModel {
       mj_objectVelocity(self._model, data._data, objtype, objid, res__p.baseAddress, flgLocal)
     }
   }
+  ///  Compute object 6D acceleration in object-centered frame, world/local orientation.
   @inlinable
   public func objectAcceleration(
     data: MjData, objtype: Int32, objid: Int32, res: inout MjDoubleMutableBufferPointer,
@@ -447,6 +521,7 @@ extension MjModel {
       mj_objectAcceleration(self._model, data._data, objtype, objid, res__p.baseAddress, flgLocal)
     }
   }
+  ///  Extract 6D force:torque given contact id, in the contact frame.
   @inlinable
   public func contactForce(data: MjData, id: Int32, result: inout MjDoubleMutableBufferPointer) {
     precondition(result.count == 6)
@@ -454,6 +529,7 @@ extension MjModel {
       mj_contactForce(self._model, data._data, id, result__p.baseAddress)
     }
   }
+  ///  Compute velocity by finite-differencing two positions.
   @inlinable
   public func differentiatePos(
     qvel: inout MjDoubleMutableBufferPointer, dt: Double, qpos1: MjDoubleBufferPointer,
@@ -468,6 +544,7 @@ extension MjModel {
       }
     }
   }
+  ///  Integrate position with given velocity.
   @inlinable
   public func integratePos(
     qpos: inout MjDoubleMutableBufferPointer, qvel: MjDoubleBufferPointer, dt: Double
@@ -478,20 +555,24 @@ extension MjModel {
       }
     }
   }
+  ///  Normalize all quaterions in qpos-type vector.
   @inlinable
   public func normalizeQuat(qpos: inout MjDoubleMutableBufferPointer) {
     qpos.withUnsafeMutableBufferPointer { qpos__p in
       mj_normalizeQuat(self._model, qpos__p.baseAddress)
     }
   }
+  ///  Sum all body masses.
   @inlinable
   public func getTotalmass() -> Double {
     return mj_getTotalmass(self._model)
   }
+  ///  Scale body masses and inertias to achieve specified total mass.
   @inlinable
   public func setTotalmass(newmass: Double) {
     mj_setTotalmass(self._model, newmass)
   }
+  /// Intersect ray (pnt+x*vec, x>=0) with visible geoms, except geoms in bodyexclude. Return distance (x) to nearest surface, or -1 if no intersection and output geomid. geomgroup, flg_static are as in mjvOption; geomgroup==NULL skips group exclusion.
   @inlinable
   public func ray(
     data: MjData, pnt: MjDoubleBufferPointer, vec: MjDoubleBufferPointer,
@@ -513,6 +594,7 @@ extension MjModel {
       }
     }
   }
+  ///  Interect ray with hfield, return nearest distance or -1 if no intersection.
   @inlinable
   public func rayHfield(
     data: MjData, geomid: Int32, pnt: MjDoubleBufferPointer, vec: MjDoubleBufferPointer
@@ -525,6 +607,7 @@ extension MjModel {
       }
     }
   }
+  ///  Interect ray with mesh, return nearest distance or -1 if no intersection.
   @inlinable
   public func rayMesh(
     data: MjData, geomid: Int32, pnt: MjDoubleBufferPointer, vec: MjDoubleBufferPointer

@@ -1,6 +1,7 @@
 import C_mujoco
 
 extension MjvCamera {
+  ///  Move camera with mouse; action is mjtMouse.
   @inlinable
   public mutating func moveCamera(
     model: MjModel, action: MjtMouse, reldx: Double, reldy: Double, scene: MjvScene

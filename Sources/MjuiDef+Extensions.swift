@@ -1,9 +1,11 @@
 extension MjuiDef {
+  /// type (mjtItem); -1: section
   @inlinable
   public var type: MjtItem {
     get { MjtItem(rawValue: _def.type)! }
     set { _def.type = newValue.rawValue }
   }
+  /// name
   @inlinable
   public var name: String {
     get {
@@ -23,11 +25,13 @@ extension MjuiDef {
       }
     }
   }
+  /// state
   @inlinable
   public var state: Int32 {
     get { _def.state }
     set { _def.state = newValue }
   }
+  /// string with type-specific properties
   @inlinable
   public var other: String {
     get {

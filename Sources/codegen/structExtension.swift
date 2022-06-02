@@ -214,6 +214,9 @@ public func structExtension(
     guard let name = name else { continue }  // Handle sum type.
     let fieldName = cleanupFieldName(name: name)
     guard !denySet.contains(fieldName) else { continue }
+    if let comment = comment {
+      code += "  /// \(comment)\n"
+    }
     code += "  @inlinable\n"
     let fieldType = swiftFieldType(
       structName: thisStruct.name, fieldName: name, fieldType: type, comment: comment,

@@ -1,9 +1,11 @@
 extension MjuiItem {
+  /// type (mjtItem)
   @inlinable
   public var type: MjtItem {
     get { MjtItem(rawValue: _item.pointee.type)! }
     set { _item.pointee.type = newValue.rawValue }
   }
+  /// name
   @inlinable
   public var name: String {
     get {
@@ -23,21 +25,25 @@ extension MjuiItem {
       }
     }
   }
+  /// 0: disable, 1: enable, 2+: use predicate
   @inlinable
   public var state: Int32 {
     get { _item.pointee.state }
     set { _item.pointee.state = newValue }
   }
+  /// id of section containing item
   @inlinable
   public var sectionid: Int32 {
     get { _item.pointee.sectionid }
     set { _item.pointee.sectionid = newValue }
   }
+  /// id of item within section
   @inlinable
   public var itemid: Int32 {
     get { _item.pointee.itemid }
     set { _item.pointee.itemid = newValue }
   }
+  /// rectangle occupied by item
   @inlinable
   public var rect: MjrRect {
     get { _item.pointee.rect }

@@ -1,4 +1,5 @@
 extension MjuiSection {
+  /// name
   @inlinable
   public var name: String {
     get {
@@ -18,31 +19,37 @@ extension MjuiSection {
       }
     }
   }
+  /// 0: closed, 1: open
   @inlinable
   public var state: Int32 {
     get { _section.pointee.state }
     set { _section.pointee.state = newValue }
   }
+  /// 0: none, 1: control, 2: shift; 4: alt
   @inlinable
   public var modifier: Int32 {
     get { _section.pointee.modifier }
     set { _section.pointee.modifier = newValue }
   }
+  /// shortcut key; 0: undefined
   @inlinable
   public var shortcut: Int32 {
     get { _section.pointee.shortcut }
     set { _section.pointee.shortcut = newValue }
   }
+  /// number of items in use
   @inlinable
   public var nitem: Int32 {
     get { _section.pointee.nitem }
     set { _section.pointee.nitem = newValue }
   }
+  /// rectangle occupied by title
   @inlinable
   public var rtitle: MjrRect {
     get { _section.pointee.rtitle }
     set { _section.pointee.rtitle = newValue }
   }
+  /// rectangle occupied by content
   @inlinable
   public var rcontent: MjrRect {
     get { _section.pointee.rcontent }

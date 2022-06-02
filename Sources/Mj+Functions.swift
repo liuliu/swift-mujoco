@@ -1,11 +1,13 @@
 import C_mujoco
 
+///  Print matrix to screen.
 @inlinable
 public func print(mat: MjDoubleBufferPointer, nr: Int32, nc: Int32) {
   mat.withUnsafeBufferPointer { mat__p in
     mju_printMat(mat__p.baseAddress, nr, nc)
   }
 }
+///  Print sparse matrix to screen.
 @inlinable
 public func printMatSparse(
   mat: MjDoubleBufferPointer, nr: Int32, rownnz: MjInt32BufferPointer, rowadr: MjInt32BufferPointer,
@@ -23,6 +25,7 @@ public func printMatSparse(
     }
   }
 }
+///  Interect ray with pure geom, return nearest distance or -1 if no intersection.
 @inlinable
 public func rayGeom(
   pos: MjDoubleBufferPointer, mat: MjDoubleBufferPointer, size: MjDoubleBufferPointer,
@@ -47,6 +50,7 @@ public func rayGeom(
     }
   }
 }
+/// Interect ray with skin, return nearest distance or -1 if no intersection, and also output nearest vertex id.
 @inlinable
 public func raySkin(
   nface: Int32, nvert: Int32, face: MjInt32BufferPointer, vert: MjFloatBufferPointer,
@@ -69,6 +73,7 @@ public func raySkin(
     }
   }
 }
+///  Rotate 3D vec in horizontal plane by angle between (0,1) and (forward_x,forward_y).
 @inlinable
 public func alignToCamera(
   res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer,
@@ -85,42 +90,52 @@ public func alignToCamera(
     }
   }
 }
+///  Draw rectangle.
 @inlinable
 public func rectangle(viewport: MjrRect, r: Float, g: Float, b: Float, a: Float) {
   mjr_rectangle(viewport, r, g, b, a)
 }
+///  Main error function; does not return to caller.
 @inlinable
 public func error(msg: String) {
   mju_error(msg)
 }
+///  Error function with int argument; msg is a printf format string.
 @inlinable
 public func error_i(msg: String, i: Int32) {
   mju_error_i(msg, i)
 }
+///  Error function with string argument.
 @inlinable
 public func error_s(msg: String, text: String) {
   mju_error_s(msg, text)
 }
+///  Main warning function; returns to caller.
 @inlinable
 public func warning(msg: String) {
   mju_warning(msg)
 }
+///  Warning function with int argument.
 @inlinable
 public func warning_i(msg: String, i: Int32) {
   mju_warning_i(msg, i)
 }
+///  Warning function with string argument.
 @inlinable
 public func warning_s(msg: String, text: String) {
   mju_warning_s(msg, text)
 }
+///  Write [datetime, type: message] to MUJOCO_LOG.TXT.
 @inlinable
 public func writeLog(type: String, msg: String) {
   mju_writeLog(type, msg)
 }
+///  Convert type id (mjtObj) to type name.
 @inlinable
 public func type2Str(type: Int32) -> String? {
   return String(cString: mju_type2Str(type), encoding: .utf8)
 }
+///  Construct a warning message given the warning type and info.
 @inlinable
 public func warningText(warning: Int32, info: Int32) -> String? {
   return String(cString: mju_warningText(warning, info), encoding: .utf8)

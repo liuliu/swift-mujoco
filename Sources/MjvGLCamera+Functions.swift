@@ -1,6 +1,7 @@
 import C_mujoco
 
 extension MjvGLCamera {
+  ///  Return the average of two OpenGL cameras.
   @inlinable
   public func averageCamera(cam2: MjvGLCamera) -> MjvGLCamera {
     var __glcamera = self._glcamera

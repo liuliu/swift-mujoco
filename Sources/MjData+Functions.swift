@@ -1,6 +1,7 @@
 import C_mujoco
 
 extension MjData {
+  ///  Map from body local to global Cartesian coordinates.
   @inlinable
   public func local2Global(
     xpos: inout MjDoubleMutableBufferPointer, xmat: inout MjDoubleMutableBufferPointer,
@@ -22,6 +23,7 @@ extension MjData {
       }
     }
   }
+  ///  High-level warning function: count warnings in mjData, print only the first.
   @inlinable
   public func warning(_ warning: Int32, info: Int32) {
     mj_warning(self._data, warning, info)
