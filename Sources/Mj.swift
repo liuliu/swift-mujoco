@@ -1,9 +1,11 @@
 import C_mujoco
 
+/// Print internal XML schema as plain text or HTML, with style-padding or &nbsp;.
 @inlinable
 public func printSchema(filename: String, flgHtml: Int32, flgPad: Int32) -> Int32 {
   return mj_printSchema(filename, nil, 0, flgHtml, flgPad)
 }
+/// Print internal XML schema as plain text or HTML, with style-padding or &nbsp;.
 @inlinable
 public func printSchema(flgHtml: Int32, flgPad: Int32) -> String {
   var schemaStr = UnsafeMutablePointer<CChar>.allocate(capacity: 1024)
@@ -18,6 +20,7 @@ public func printSchema(flgHtml: Int32, flgPad: Int32) -> String {
   schemaStr.deallocate()
   return ret
 }
+/// Free last XML model if loaded. Called internally at each load.
 @inlinable
 public func freeLastXML() {
   mj_freeLastXML()

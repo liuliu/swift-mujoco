@@ -32,7 +32,7 @@ public struct MjModel {
     _storage = Storage(model: model)
   }
 
-  /// Create a MjModel from a binary format.
+  /// Load model from binary MJB file.
   public init?(fromBinaryPath filePath: String, vfs: MjVFS? = nil) {
     guard let model = mj_loadModel(filePath, vfs?._vfs) else {
       return nil
@@ -40,7 +40,7 @@ public struct MjModel {
     self.init(model: model)
   }
 
-  /// Create a MjModel from a XML format.
+  /// Parse XML file in MJCF or URDF format, compile it, return low-level model. If vfs is not NULL, look up files in vfs before reading from disk. If error is not NULL, it must have size error_sz.
   public init(fromXMLPath filePath: String, vfs: MjVFS? = nil) throws {
     let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 256)
     guard let model = mj_loadXML(filePath, vfs?._vfs, errorStr, 256) else {
@@ -52,7 +52,7 @@ public struct MjModel {
     self.init(model: model)
   }
 
-  /// Create a MjModel from a XML string.
+  /// Parse XML file in MJCF or URDF format, compile it, return low-level model. If vfs is not NULL, look up files in vfs before reading from disk. If error is not NULL, it must have size error_sz.
   public init(fromXML: String, assets: [String: Data]? = nil) throws {
     var xmlString = fromXML
     let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 256)
@@ -81,6 +81,7 @@ public struct MjModel {
 
 // Name the same, but implemented manually.
 extension MjModel {
+  /// Allocate mjData correponding to given model. If the model buffer is unallocated the initial configuration will not be set.
   @inlinable
   public func makeData() -> MjData {
     let data = mj_makeData(_model)!
@@ -93,6 +94,7 @@ extension MjModel {
       nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
       njmax: _model.pointee.njmax, nD: _model.pointee.nD)
   }
+  /// Set actuator_lengthrange for specified actuator; return 1 if ok, 0 if error.
   @inlinable
   public func setLengthRange(data: inout MjData, index: Int32, opt: MjLROpt) throws {
     var opt__lropt = opt._lropt
@@ -104,6 +106,7 @@ extension MjModel {
     }
     errorStr.deallocate()
   }
+  /// Update XML data structures with info from low-level model, save as MJCF. If error is not NULL, it must have size error_sz.
   @inlinable
   public func saveLastXML(filename: String) throws {
     let errorStr = UnsafeMutablePointer<CChar>.allocate(capacity: 256)
@@ -118,19 +121,23 @@ extension MjModel {
 
 // Different name.
 extension MjModel {
+  /// Copy mjModel, allocate new if dest is NULL.
   @inlinable
   public func copied() -> MjModel {
     return MjModel(model: mj_copyModel(nil, _model))
   }
+  /// Copy mjModel, allocate new if dest is NULL.
   @inlinable
   public mutating func copy(from src: MjModel) {
     // Don't need to know the return value, it is the same as the _model.
     mj_copyModel(_model, src._model)
   }
+  /// Save model to binary MJB file or memory buffer; buffer has precedence when given.
   @inlinable
   public func write(to filePath: String) {
     mj_saveModel(_model, filePath, nil, 0)
   }
+  /// Save model to binary MJB file or memory buffer; buffer has precedence when given.
   @inlinable
   public func toMemoryBuffer() -> UnsafeMutableRawBufferPointer {
     let buffer = UnsafeMutableRawBufferPointer.allocate(

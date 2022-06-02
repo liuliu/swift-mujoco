@@ -244,6 +244,8 @@ let FunctionDeny: Set<String> = Set([
   "mjr_freeContext",
   "mjui_themeSpacing",
   "mjui_themeColor",
+  "mjui_add",
+  "mjui_addToSection",
   "mjr_readPixels",
   "mjr_drawPixels",
   "mj_setLengthRange",
@@ -256,7 +258,6 @@ let FunctionDeny: Set<String> = Set([
   "mj_saveLastXML",
   "mj_freeLastXML",
   "mj_printSchema",
-  // Unimplemented. But better implemented manually.
   // Not going to be implemented.
   "mju_malloc",
   "mju_free",

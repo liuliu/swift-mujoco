@@ -139,6 +139,7 @@ public struct MjData {
 
 // Name the same, but implemented manually.
 extension MjData {
+  /// Allocate array of specified size on mjData stack. Call mju_error on stack overflow.
   @inlinable
   public func stackAlloc(size: Int32) -> MjArray<Double> {
     return MjArray(array: mj_stackAlloc(self._data, size), object: _storage, len: size)
@@ -147,6 +148,7 @@ extension MjData {
 
 // Different name.
 extension MjData {
+  /// Copy mjData. m is only required to contain the size fields from MJMODEL_INTS.
   @inlinable
   public func copied(model: MjModel) -> MjData {
     return MjData(
@@ -155,6 +157,7 @@ extension MjData {
       nsite: nsite, ncam: ncam, nlight: nlight, ntendon: ntendon, nwrap: nwrap, nM: nM,
       nconmax: nconmax, njmax: njmax, nD: nD)
   }
+  /// Copy mjData. m is only required to contain the size fields from MJMODEL_INTS.
   @inlinable
   public mutating func copy(from src: MjData, model: MjModel) {
     // Don't need to know the return value, it is the same as the _model.

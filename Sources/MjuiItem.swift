@@ -14,6 +14,7 @@ public struct MjuiItem {
 }
 
 extension MjuiItem {
+  /// check and button
   @inlinable
   public var single: MjuiItemSingle {
     get {
@@ -26,6 +27,7 @@ extension MjuiItem {
       unsafeMutablePointer.assign(from: newValue._itemsingle, count: 1)
     }
   }
+  /// static, radio and select
   @inlinable
   public var multi: MjuiItemMulti {
     get {
@@ -38,6 +40,7 @@ extension MjuiItem {
       unsafeMutablePointer.assign(from: newValue._itemmulti, count: 1)
     }
   }
+  /// slider
   @inlinable
   public var slider: MjuiItemSlider {
     get {
@@ -50,6 +53,7 @@ extension MjuiItem {
       unsafeMutablePointer.assign(from: newValue._itemslider, count: 1)
     }
   }
+  /// edit
   @inlinable
   public var edit: MjuiItemEdit {
     get {

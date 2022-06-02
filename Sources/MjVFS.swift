@@ -36,29 +36,34 @@ public struct MjVFS {
 }
 
 extension MjVFS {
+  /// Add file to VFS, return 0: success, 1: full, 2: repeated name, -1: failed to load.
   @inlinable
   @discardableResult
   public mutating func addFile(directory: String, filename: String) -> Int32 {
     return mj_addFileVFS(_vfs, directory, filename)
   }
 
+  /// Make empty file in VFS, return 0: success, 1: full, 2: repeated name.
   @inlinable
   @discardableResult
   public mutating func makeEmptyFile(filename: String, filesize: Int32) -> Int32 {
     return mj_makeEmptyFileVFS(_vfs, filename, filesize)
   }
 
+  /// Return file index in VFS, or -1 if not found in VFS.
   @inlinable
   public func findFile(filename: String) -> Int32 {
     return mj_findFileVFS(_vfs, filename)
   }
 
+  /// Delete file from VFS, return 0: success, -1: not found in VFS.
   @inlinable
   @discardableResult
   public mutating func deleteFile(filename: String) -> Int32 {
     return mj_deleteFileVFS(_vfs, filename)
   }
 
+  /// file size in bytes
   @inlinable
   public var filesize: MjArray<Int32> {
     withUnsafeMutablePointer(to: &_vfs.pointee.filesize.0) {
@@ -66,6 +71,7 @@ extension MjVFS {
     }
   }
 
+  /// buffer with file data
   @inlinable
   public var filedata: MjArray<UnsafeMutableRawPointer?> {
     withUnsafeMutablePointer(to: &_vfs.pointee.filedata.0) {
@@ -73,6 +79,7 @@ extension MjVFS {
     }
   }
 
+  /// file name without path
   @inlinable
   public var filename: MjStaticStringArray {
     withUnsafeMutablePointer(to: &_vfs.pointee.filename.0.0) {
@@ -80,6 +87,7 @@ extension MjVFS {
     }
   }
 
+  /// number of files present
   @inlinable
   public var nfile: Int32 {
     _vfs.pointee.nfile

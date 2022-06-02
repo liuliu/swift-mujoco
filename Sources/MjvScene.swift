@@ -26,6 +26,7 @@ public struct MjvScene {
     _storage = Storage(model: model, maxgeom: maxgeom)
   }
 
+  /// Update entire scene given model state. catmask is mjtCatBit.
   @inlinable
   public func updateScene(
     model: MjModel, data: inout MjData, option: MjvOption, perturb: MjvPerturb?,

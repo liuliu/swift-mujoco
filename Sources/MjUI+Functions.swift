@@ -1,18 +1,6 @@
 import C_mujoco
 
 extension MjUI {
-  ///  Add definitions to UI.
-  @inlinable
-  public func add(def: MjuiDef) {
-    var def__def = def._def
-    mjui_add(self._ui, &def__def)
-  }
-  ///  Add definitions to UI section.
-  @inlinable
-  public func addToSection(sect: Int32, def: MjuiDef) {
-    var def__def = def._def
-    mjui_addToSection(self._ui, sect, &def__def)
-  }
   ///  Compute UI sizes.
   @inlinable
   public func resize(context: MjrContext) {

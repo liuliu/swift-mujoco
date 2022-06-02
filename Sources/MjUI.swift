@@ -49,6 +49,7 @@ public struct MjuiSectionArray {
 }
 
 extension MjUI {
+  /// preallocated array of sections
   @inlinable
   public var sect: MjuiSectionArray {
     get {
@@ -64,9 +65,31 @@ extension MjUI {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(_ui.pointee.nsect))
     }
   }
+  ///  pointer to changed edit in last mjui_event
   @inlinable
   public var editchanged: MjuiItem? {
     let unsafeMutablePointer: UnsafeMutablePointer<mjuiItem_>? = _ui.pointee.editchanged
     return unsafeMutablePointer.flatMap { MjuiItem($0, object: _storage) }
+  }
+  ///  Add definitions to UI.
+  @inlinable
+  public func add(defs: [MjuiDef]) {
+    var _defs = defs
+    _defs.append(MjuiDef(.end, name: "", state: 0, pdata: nil, other: ""))
+    _defs.withUnsafeBufferPointer {
+      mjui_add(
+        self._ui, $0.baseAddress?.withMemoryRebound(to: mjuiDef.self, capacity: $0.count) { $0 })
+    }
+  }
+  ///  Add definitions to UI section.
+  @inlinable
+  public func addToSection(sect: Int32, defs: [MjuiDef]) {
+    var _defs = defs
+    _defs.append(MjuiDef(.end, name: "", state: 0, pdata: nil, other: ""))
+    _defs.withUnsafeBufferPointer {
+      mjui_addToSection(
+        self._ui, sect,
+        $0.baseAddress?.withMemoryRebound(to: mjuiDef.self, capacity: $0.count) { $0 })
+    }
   }
 }

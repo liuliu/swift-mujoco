@@ -3,6 +3,7 @@ import C_mujoco
 public typealias MjrRect = mjrRect
 
 extension Array where Element == MjrRect {
+  /// Find first rectangle containing mouse, -1: not found.
   @inlinable
   public func findRect(x: Int32, y: Int32) -> Int32 {
     return withUnsafeBufferPointer {

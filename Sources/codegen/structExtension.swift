@@ -38,7 +38,7 @@ let SwiftType: [String: String] = [
   "mjtNum": "Double",
   "char": "CChar",
   "unsigned char": "UInt8",
-  "void": "UInt8",
+  "void": "Void",
   "float": "Float",
   "double": "Double",
   "mjContact": "MjContact",
@@ -145,6 +145,9 @@ func swiftFieldType(
     if typeName.hasSuffix("*") {
       let elTypeName = typeName.dropLast().trimmingCharacters(in: .whitespaces)
       let elType = commentType ?? SwiftType[elTypeName]!
+      if elType == "Void" {  // This is raw pointer, nothing to see.
+        return .plain("UnsafeMutableRawPointer")
+      }
       return .array(.plain(elType), nil, false)
     } else {
       primitiveType = commentType ?? SwiftType[typeName]!

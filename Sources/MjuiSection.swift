@@ -42,6 +42,7 @@ public struct MjuiItemArray {
 }
 
 extension MjuiSection {
+  /// preallocated array of items
   @inlinable
   public var item: MjuiItemArray {
     get {
