@@ -6,6 +6,8 @@ public struct MjUI {
   @inlinable
   var _ui: UnsafeMutablePointer<mjUI_> { _storage._ui }
 
+  public init() {}
+
   @usableFromInline
   final class Storage {
     @usableFromInline
