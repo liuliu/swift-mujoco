@@ -57,11 +57,12 @@ final class MjuiItemStateStringStorage: MjuiItemStateWrappedStorage {
   }
 }
 
+/// A propertyWrapper that enables light-weight MjuiDef construction.
+///
+/// Usage: @MjuiItemState(.MjtItem, name:, state:, other) var property
+///        and on MjUI.add(defs: [$property]). property itself will auto-updated along.
 @propertyWrapper
 public struct MjuiItemState<T> {
-  // I can use this directly as the backing, but I can also use UnsafeMutablePointer.
-  // Later is better because I can dynamically specialize for T == String case, which is difficult
-  // to do at compile time.
   public var wrappedValue: T {
     get { storage.wrappedValue as! T }
     set { storage.wrappedValue = newValue }
