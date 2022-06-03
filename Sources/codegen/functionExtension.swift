@@ -373,10 +373,8 @@ public func functionExtension(
   }
   code += "  @inlinable\n"
   let mutatingPrefix: String
-  if let mainParsedType = mainParsedType, let mjType = MjTypes[mainParsedType.swiftType],
-    mainParsedType.isInout
-  {
-    mutatingPrefix = mjType == .value || mjType == .alias ? " mutating" : ""
+  if let mainParsedType = mainParsedType, mainParsedType.isInout {
+    mutatingPrefix = " mutating"
   } else {
     mutatingPrefix = ""
   }

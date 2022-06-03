@@ -246,6 +246,7 @@ let FunctionDeny: Set<String> = Set([
   "mjui_themeColor",
   "mjui_add",
   "mjui_addToSection",
+  "mjui_event",
   "mjr_readPixels",
   "mjr_drawPixels",
   "mj_setLengthRange",

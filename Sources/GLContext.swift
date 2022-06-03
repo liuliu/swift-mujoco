@@ -41,59 +41,54 @@ public final class GLContext {
     }
   }
 }
-func uiUpdateState(_ wnd: OpaquePointer) {
-  // extract data from user pointer
-  let userPointer = Unmanaged<GLContext.UserPointer>.fromOpaque(glfwGetWindowUserPointer(wnd))
-    .takeUnretainedValue()
-
+func uiUpdateState(_ wnd: OpaquePointer, uiState: inout MjuiState, buffer2window: Double) {
   // mouse buttons
-  userPointer.uiState.pointee.left =
+  uiState.left =
     (glfwGetMouseButton(wnd, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) ? 1 : 0
-  userPointer.uiState.pointee.right =
+  uiState.right =
     (glfwGetMouseButton(wnd, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) ? 1 : 0
-  userPointer.uiState.pointee.middle =
+  uiState.middle =
     (glfwGetMouseButton(wnd, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) ? 1 : 0
 
   // keyboard modifiers
-  userPointer.uiState.pointee.control =
+  uiState.control =
     (glfwGetKey(wnd, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS
       || glfwGetKey(wnd, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) ? 1 : 0
-  userPointer.uiState.pointee.shift =
+  uiState.shift =
     (glfwGetKey(wnd, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
       || glfwGetKey(wnd, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) ? 1 : 0
-  userPointer.uiState.pointee.alt =
+  uiState.alt =
     (glfwGetKey(wnd, GLFW_KEY_LEFT_ALT) == GLFW_PRESS
       || glfwGetKey(wnd, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS) ? 1 : 0
 
   // swap left and right if Alt
-  if userPointer.uiState.pointee.alt != 0 {
-    let tmp = userPointer.uiState.pointee.left
-    userPointer.uiState.pointee.left = userPointer.uiState.pointee.right
-    userPointer.uiState.pointee.right = tmp
+  if uiState.alt != 0 {
+    let tmp = uiState.left
+    uiState.left = uiState.right
+    uiState.right = tmp
   }
 
   // get mouse position, scale by buffer-to-window ratio
   var x: Double = 0
   var y: Double = 0
   glfwGetCursorPos(wnd, &x, &y)
-  x *= userPointer.buffer2window
-  y *= userPointer.buffer2window
+  x *= buffer2window
+  y *= buffer2window
 
   // invert y to match OpenGL convention
-  y = Double(userPointer.uiState.pointee.rect.0.height) - y
+  y = Double(uiState.rect.0.height) - y
 
   // save
-  userPointer.uiState.pointee.dx = x - userPointer.uiState.pointee.x
-  userPointer.uiState.pointee.dy = y - userPointer.uiState.pointee.y
-  userPointer.uiState.pointee.x = x
-  userPointer.uiState.pointee.y = y
+  uiState.dx = x - uiState.x
+  uiState.dy = y - uiState.y
+  uiState.x = x
+  uiState.y = y
 
   // find mouse rectangle
-  withUnsafePointer(to: &userPointer.uiState.pointee.rect.1) {
-    userPointer.uiState.pointee.mouserect =
-      mjr_findRect(
-        Int32(x.rounded()), Int32(y.rounded()), userPointer.uiState.pointee.nrect - 1, $0) + 1
-  }
+  uiState.mouserect =
+    mjr_findRect(
+      Int32(x.rounded()), Int32(y.rounded()), uiState.nrect - 1,
+      withUnsafePointer(to: &uiState.rect.1) { $0 }) + 1
 }
 
 func uiKeyboard(_ wnd: OpaquePointer?, _ key: Int32, _ scancode: Int32, _ act: Int32, _ mods: Int32)
@@ -107,7 +102,8 @@ func uiKeyboard(_ wnd: OpaquePointer?, _ key: Int32, _ scancode: Int32, _ act: I
     .takeUnretainedValue()
 
   // update state
-  uiUpdateState(wnd)
+  uiUpdateState(
+    wnd, uiState: &userPointer.uiState.pointee, buffer2window: userPointer.buffer2window)
 
   // set key info
   userPointer.uiState.pointee.type = .key
@@ -131,7 +127,8 @@ func uiMouseMove(_ wnd: OpaquePointer?, _ xpos: Double, _ ypos: Double) {
   else { return }
 
   // update state
-  uiUpdateState(wnd)
+  uiUpdateState(
+    wnd, uiState: &userPointer.uiState.pointee, buffer2window: userPointer.buffer2window)
 
   // set move info
   userPointer.uiState.pointee.type = .move
@@ -147,7 +144,8 @@ func uiMouseButton(_ wnd: OpaquePointer?, _ button: Int32, _ act: Int32, _ mods:
     .takeUnretainedValue()
 
   // update state
-  uiUpdateState(wnd)
+  uiUpdateState(
+    wnd, uiState: &userPointer.uiState.pointee, buffer2window: userPointer.buffer2window)
 
   var btn: MjtButton
 
@@ -214,7 +212,8 @@ func uiScroll(_ wnd: OpaquePointer?, _ xoffset: Double, _ yoffset: Double) {
     .takeUnretainedValue()
 
   // update state
-  uiUpdateState(wnd)
+  uiUpdateState(
+    wnd, uiState: &userPointer.uiState.pointee, buffer2window: userPointer.buffer2window)
 
   // set scroll info, scale by buffer-to-window ratio
   userPointer.uiState.pointee.type = .scroll
@@ -225,29 +224,39 @@ func uiScroll(_ wnd: OpaquePointer?, _ xoffset: Double, _ yoffset: Double) {
   userPointer.uiEvent(&userPointer.uiState.pointee)
 }
 
+func uiResizeLayout(
+  _ wnd: OpaquePointer, width: Int32, height: Int32, uiState: inout MjuiState, buffer2window: Double
+) {
+  if let userPointer = glfwGetWindowUserPointer(wnd).map({
+    Unmanaged<GLContext.UserPointer>.fromOpaque($0).takeUnretainedValue()
+  }) {
+    // set layout
+    userPointer.uiLayout(&uiState, width, height)
+  }
+
+  // update state
+  uiUpdateState(wnd, uiState: &uiState, buffer2window: buffer2window)
+
+  // set resize info
+  uiState.type = .resize
+
+  // stop dragging
+  uiState.dragbutton = .none
+  uiState.dragrect = 0
+}
+
 func uiResize(_ wnd: OpaquePointer?, _ width: Int32, _ height: Int32) {
   guard let wnd = wnd else { return }
   // extract data from user pointer
   let userPointer = Unmanaged<GLContext.UserPointer>.fromOpaque(glfwGetWindowUserPointer(wnd))
     .takeUnretainedValue()
 
-  // set layout
-  userPointer.uiLayout(&userPointer.uiState.pointee)
+  uiResizeLayout(
+    wnd, width: width, height: height, uiState: &userPointer.uiState.pointee,
+    buffer2window: userPointer.buffer2window)
 
-  // update state
-  uiUpdateState(wnd)
-
-  // set resize info
-  userPointer.uiState.pointee.type = .resize
-
-  // stop dragging
-  userPointer.uiState.pointee.dragbutton = .none
-  userPointer.uiState.pointee.dragrect = 0
-
-  // application-specific processing (unless called with 0,0 from uiModify)
-  if width != 0 && height != 0 {
-    userPointer.uiEvent(&userPointer.uiState.pointee)
-  }
+  // application-specific processing
+  userPointer.uiEvent(&userPointer.uiState.pointee)
 }
 
 extension GLContext {
@@ -286,11 +295,11 @@ extension GLContext {
   final class UserPointer {
     var uiState: UnsafeMutablePointer<MjuiState>
     var uiEvent: (inout MjuiState) -> Void
-    var uiLayout: (inout MjuiState) -> Void
+    var uiLayout: (inout MjuiState, Int32, Int32) -> Void
     var buffer2window: Double = 0
     init(
       uiState: UnsafeMutablePointer<MjuiState>, uiEvent: @escaping (inout MjuiState) -> Void,
-      uiLayout: @escaping (inout MjuiState) -> Void
+      uiLayout: @escaping (inout MjuiState, Int32, Int32) -> Void
     ) {
       self.uiState = uiState
       self.uiEvent = uiEvent
@@ -299,9 +308,9 @@ extension GLContext {
   }
 
   /// Set internal and user-supplied UI callbacks in GLFW window.
-  public func setCallback(
+  public func setCallbacks(
     uiState: inout MjuiState, uiEvent: @escaping (inout MjuiState) -> Void,
-    uiLayout: @escaping (inout MjuiState) -> Void
+    uiLayout: @escaping (inout MjuiState, Int32, Int32) -> Void
   ) {
     let userPointer = UserPointer(
       uiState: withUnsafeMutablePointer(to: &uiState) { $0 }, uiEvent: uiEvent, uiLayout: uiLayout)
@@ -324,7 +333,7 @@ extension GLContext {
   }
 
   /// Clear UI callbacks in GLFW window.
-  public func clearCallback() {
+  public func clearCallbacks() {
     // clear container
     if let userPointer = glfwGetWindowUserPointer(window) {
       glfwSetWindowUserPointer(window, nil)
@@ -337,5 +346,19 @@ extension GLContext {
     glfwSetMouseButtonCallback(window, nil)
     glfwSetScrollCallback(window, nil)
     glfwSetWindowSizeCallback(window, nil)
+  }
+
+  public func modify(ui: MjUI, uiState: inout MjuiState, context: inout MjrContext) {
+    var widthWin: Int32 = 1
+    var widthBuf: Int32 = 0
+    var height: Int32 = 0
+    glfwGetWindowSize(window, &widthWin, &height)
+    glfwGetFramebufferSize(window, &widthBuf, &height)
+    let buffer2window = Double(widthBuf) / Double(widthWin)
+    context.addAux(
+      index: ui.auxid, width: ui.width, height: ui.maxheight, samples: ui.spacing.samples)
+    uiResizeLayout(
+      window, width: widthBuf, height: height, uiState: &uiState, buffer2window: buffer2window)
+    uiState.update(section: -1, item: -1, ui: ui, context: context)
   }
 }

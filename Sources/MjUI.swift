@@ -142,4 +142,11 @@ extension MjUI {
 
     }
   }
+  ///  Handle UI event, return pointer to changed item, NULL if no change.
+  @inlinable
+  public mutating func event(state: inout MjuiState, context: MjrContext) -> MjuiItem? {
+    return mjui_event(self._ui, &state._state, context._context).map {
+      MjuiItem($0, object: _storage)
+    }
+  }
 }

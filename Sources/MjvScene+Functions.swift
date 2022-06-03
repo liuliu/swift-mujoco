@@ -88,7 +88,7 @@ extension MjvScene {
   }
   ///  Move model with mouse; action is mjtMouse.
   @inlinable
-  public func move(
+  public mutating func move(
     model: MjModel, action: MjtMouse, reldx: Double, reldy: Double, roomup: MjDoubleBufferPointer
   ) {
     precondition(roomup.count == 3)
@@ -119,12 +119,12 @@ extension MjvScene {
   }
   ///  Allocate resources in abstract scene.
   @inlinable
-  public func makeScene(model: MjModel, maxgeom: Int32) {
+  public mutating func makeScene(model: MjModel, maxgeom: Int32) {
     mjv_makeScene(model._model, self._scene, maxgeom)
   }
   ///  Add geoms from selected categories. catmask is mjtCatBit.
   @inlinable
-  public func addGeoms(
+  public mutating func addGeoms(
     model: MjModel, data: inout MjData, option: MjvOption, perturb: MjvPerturb, catmask: MjtCatBit
   ) {
     var option__option = option._option
@@ -134,17 +134,17 @@ extension MjvScene {
   }
   ///  Make list of lights.
   @inlinable
-  public func makeLights(model: MjModel, data: inout MjData) {
+  public mutating func makeLights(model: MjModel, data: inout MjData) {
     mjv_makeLights(model._model, data._data, self._scene)
   }
   ///  Update camera.
   @inlinable
-  public func updateCamera(model: MjModel, data: inout MjData, camera: inout MjvCamera) {
+  public mutating func updateCamera(model: MjModel, data: inout MjData, camera: inout MjvCamera) {
     mjv_updateCamera(model._model, data._data, &camera._camera, self._scene)
   }
   ///  Update skins.
   @inlinable
-  public func updateSkin(model: MjModel, data: inout MjData) {
+  public mutating func updateSkin(model: MjModel, data: inout MjData) {
     mjv_updateSkin(model._model, data._data, self._scene)
   }
 }

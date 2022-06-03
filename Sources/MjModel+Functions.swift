@@ -53,7 +53,7 @@ extension MjModel {
   }
   ///  Set constant fields of mjModel, corresponding to qpos0 configuration.
   @inlinable
-  public func setConst(data: inout MjData) {
+  public mutating func setConst(data: inout MjData) {
     mj_setConst(self._model, data._data)
   }
   /// Print mjModel to text file, specifying format. float_format must be a valid printf-style format string for a single float value.
@@ -569,7 +569,7 @@ extension MjModel {
   }
   ///  Scale body masses and inertias to achieve specified total mass.
   @inlinable
-  public func setTotalmass(newmass: Double) {
+  public mutating func setTotalmass(newmass: Double) {
     mj_setTotalmass(self._model, newmass)
   }
   /// Intersect ray (pnt+x*vec, x>=0) with visible geoms, except geoms in bodyexclude. Return distance (x) to nearest surface, or -1 if no intersection and output geomid. geomgroup, flg_static are as in mjvOption; geomgroup==NULL skips group exclusion.

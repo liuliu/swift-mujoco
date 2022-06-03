@@ -3,17 +3,17 @@ import C_mujoco
 extension MjrContext {
   ///  Allocate resources in custom OpenGL context; fontscale is mjtFontScale.
   @inlinable
-  public func makeContext(model: MjModel, fontscale: MjtFontScale) {
+  public mutating func makeContext(model: MjModel, fontscale: MjtFontScale) {
     mjr_makeContext(model._model, self._context, fontscale.rawValue)
   }
   ///  Change font of existing context; fontscale is mjtFontScale.
   @inlinable
-  public func changeFont(fontscale: MjtFontScale) {
+  public mutating func changeFont(fontscale: MjtFontScale) {
     mjr_changeFont(fontscale.rawValue, self._context)
   }
   ///  Add Aux buffer with given index to context; free previous Aux buffer.
   @inlinable
-  public func addAux(index: Int32, width: Int32, height: Int32, samples: Int32) {
+  public mutating func addAux(index: Int32, width: Int32, height: Int32, samples: Int32) {
     mjr_addAux(index, width, height, samples, self._context)
   }
   ///  Upload texture to GPU, overwriting previous upload if any.
@@ -38,7 +38,7 @@ extension MjrContext {
   }
   /// Set OpenGL framebuffer for rendering: mjFB_WINDOW or mjFB_OFFSCREEN. framebuffer is mjtFramebuffer. If only one buffer is available, set that buffer and ignore framebuffer argument.
   @inlinable
-  public func setBuffer(framebuffer: MjtFramebuffer) {
+  public mutating func setBuffer(framebuffer: MjtFramebuffer) {
     mjr_setBuffer(framebuffer.rawValue, self._context)
   }
   /// Blit from src viewpoint in current framebuffer to dst viewport in other framebuffer. If src, dst have different size and flg_depth==0, color is interpolated with GL_LINEAR.
