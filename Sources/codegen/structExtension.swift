@@ -130,13 +130,22 @@ func swiftFieldType(
 ) -> SwiftFieldType {
   var primitiveType = ""
   let commentType: String?
-  if let comment = comment,
-    let range = comment.range(of: #"\(mjt\w+\)"#, options: .regularExpression)
-  {
-    // This is enum type, and we need to cast.
-    var elType = String(comment[range].dropFirst().dropLast())  // Remove mjt and add the rest.
-    elType = "Mjt" + elType.suffix(from: elType.index(elType.startIndex, offsetBy: 3))
-    commentType = elType
+  if let comment = comment {
+    if let range = comment.range(of: #"\(mjt\w+\)"#, options: .regularExpression) {
+      // This is enum type, and we need to cast.
+      var elType = String(comment[range].dropFirst().dropLast())  // Remove mjt and add the rest.
+      elType = "Mjt" + elType.suffix(from: elType.index(elType.startIndex, offsetBy: 3))
+      commentType = elType
+    } else if let range = comment.range(of: #"\(type\s+mjt\w+\)"#, options: .regularExpression) {
+      let tighterComment = comment[range]
+      var elType = String(
+        tighterComment.suffix(from: tighterComment.index(tighterComment.startIndex, offsetBy: 5))
+          .dropLast().trimmingCharacters(in: .whitespaces))  // Remove mjt and add the rest.
+      elType = "Mjt" + elType.suffix(from: elType.index(elType.startIndex, offsetBy: 3))
+      commentType = elType
+    } else {
+      commentType = nil
+    }
   } else {
     commentType = nil
   }

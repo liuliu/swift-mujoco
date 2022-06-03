@@ -113,7 +113,7 @@ public func parseMuJoCoHeaders(from filePaths: [String]) -> (
             definedConstants[String(parts[0])] = currentEnum.keyValues.count
             continue
           }
-          let kv = trimmed.prefix(while: { $0 != "," }).split(separator: "=")
+          let kv = trimmed.prefix(while: { $0 != "," && $0 != "/" }).split(separator: "=")
           var value: String? = nil
           if kv.count > 1 {
             value = kv[1].prefix(while: { $0 != "/" }).trimmingCharacters(in: .whitespaces)

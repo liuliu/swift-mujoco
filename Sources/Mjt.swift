@@ -48,7 +48,7 @@ public enum MjtJoint: Int32 {
   case free = 0
   case ball
   case slide
-  case hingeRotationAngleRadAroundBodyFixedAxis_1
+  case hinge
 }
 public enum MjtGeom: Int32 {
   case plane = 0
@@ -72,43 +72,43 @@ public enum MjtCamLight: Int32 {
   case track
   case trackcom
   case targetbody
-  case targetbodycomPosFixedInBody
+  case targetbodycom
 }
 public enum MjtTexture: Int32 {
   case _2d = 0
   case cube
-  case skyboxCubeTextureUsedAsSkybox
+  case skybox
 }
 public enum MjtIntegrator: Int32 {
   case euler = 0
   case rk4
-  case implicitImplicitInVelocity
+  case implicit
 }
 public enum MjtCollision: Int32 {
   case all = 0
   case pair
-  case dynamicTestDynamicPairsOnly
+  case `dynamic`
 }
 public enum MjtCone: Int32 {
   case pyramidal = 0
-  case ellipticElliptic
+  case elliptic
 }
 public enum MjtJacobian: Int32 {
   case dense = 0
   case sparse
-  case autoDenseIfNv_60
+  case auto
 }
 public enum MjtSolver: Int32 {
   case pgs = 0
   case cg
-  case newtonNewtonPrimal
+  case newton
 }
 public enum MjtEq: Int32 {
   case connect = 0
   case weld
   case joint
   case tendon
-  case distanceFixTheContactDistanceBetweentTwoGeoms
+  case distance
 }
 public enum MjtWrap: Int32 {
   case none = 0
@@ -116,7 +116,7 @@ public enum MjtWrap: Int32 {
   case pulley
   case site
   case sphere
-  case cylinderWrapAroundInfiniteCylinder
+  case cylinder
 }
 public enum MjtTrn: Int32 {
   case joint = 0
@@ -131,18 +131,18 @@ public enum MjtDyn: Int32 {
   case integrator
   case filter
   case muscle
-  case userUserDefinedDynamicsType
+  case user
 }
 public enum MjtGain: Int32 {
   case fixed = 0
   case muscle
-  case userUserDefinedGainType
+  case user
 }
 public enum MjtBias: Int32 {
   case none = 0
   case affine
   case muscle
-  case userUserDefinedBiasType
+  case user
 }
 public enum MjtObj: Int32 {
   case unknown = 0
@@ -168,7 +168,7 @@ public enum MjtObj: Int32 {
   case numeric
   case text
   case tuple
-  case keyKeyframe
+  case key
 }
 public enum MjtConstraint: Int32 {
   case equality = 0
@@ -178,14 +178,14 @@ public enum MjtConstraint: Int32 {
   case limitTendon
   case contactFrictionless
   case contactPyramidal
-  case contactEllipticFrictionalContact
+  case contactElliptic
 }
 public enum MjtConstraintState: Int32 {
   case satisfied = 0
   case quadratic
   case linearneg
   case linearpos
-  case coneSquaredDistanceToConeCostEllipticContact
+  case cone
 }
 public enum MjtSensor: Int32 {
   case touch = 0
@@ -223,35 +223,35 @@ public enum MjtSensor: Int32 {
   case subtreecom
   case subtreelinvel
   case subtreeangmom
-  case userSensorDataProvidedByMjcbSensorCallback
+  case user
 }
 public enum MjtStage: Int32 {
   case none = 0
   case pos
   case vel
-  case accAccelerationForceDependentComputations
+  case acc
 }
 public enum MjtDataType: Int32 {
   case real = 0
   case positive
   case axis
-  case quaternionUnitQuaternion
+  case quaternion
 }
 public enum MjtLRMode: Int32 {
   case none = 0
   case muscle
   case muscleuser
-  case allProcessAllActuators
+  case all
 }
 public enum MjtGridPos: Int32 {
   case topleft = 0
   case topright
   case bottomleft
-  case bottomrightBottomRight
+  case bottomright
 }
 public enum MjtFramebuffer: Int32 {
   case window = 0
-  case offscreenOffscreenBuffer
+  case offscreen
 }
 public enum MjtFontScale: Int32 {
   case _50 = 50
@@ -264,13 +264,13 @@ public enum MjtFontScale: Int32 {
 public enum MjtFont: Int32 {
   case normal = 0
   case shadow
-  case bigBigFontForUserAlerts
+  case big
 }
 public enum MjtButton: Int32 {
   case none = 0
   case left
   case right
-  case middleMiddleButton
+  case middle
 }
 public enum MjtEvent: Int32 {
   case none = 0
@@ -279,7 +279,7 @@ public enum MjtEvent: Int32 {
   case release
   case scroll
   case key
-  case resizeResize
+  case resize
 }
 public enum MjtItem: Int32 {
   case end = -2
@@ -311,7 +311,7 @@ public enum MjtMouse: Int32 {
   case moveV
   case moveH
   case zoom
-  case selectSelection
+  case select
 }
 public enum MjtPertBit: Int32 {
   case translate = 1
@@ -321,7 +321,7 @@ public enum MjtCamera: Int32 {
   case free = 0
   case tracking
   case fixed
-  case userUserIsResponsibleForSettingOpenglCamera
+  case user
 }
 public enum MjtLabel: Int32 {
   case none = 0
@@ -387,5 +387,5 @@ public enum MjtRndFlag: Int32 {
 public enum MjtStereo: Int32 {
   case none = 0
   case quadbuffered
-  case sidebysideSideBySide
+  case sidebyside
 }

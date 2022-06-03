@@ -19,9 +19,9 @@ extension MjuiState {
   }
   /// (type mjtEvent)
   @inlinable
-  public var type: Int32 {
-    get { _state.type }
-    set { _state.type = newValue }
+  public var type: MjtEvent {
+    get { MjtEvent(rawValue: _state.type)! }
+    set { _state.type = newValue.rawValue }
   }
   /// is left button down
   @inlinable
