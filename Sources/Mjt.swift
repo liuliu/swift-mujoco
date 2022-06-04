@@ -339,11 +339,15 @@ public enum MjtItem: Int32 {
   case edittxt
 }
 /// bitflags for mjvGeom category
-public enum MjtCatBit: Int32 {
-  case `static` = 1
-  case `dynamic` = 2
-  case decor = 4
-  case all = 7
+public struct MjtCatBit: OptionSet {
+  public let rawValue: Int32
+  public init(rawValue: Int32) {
+    self.rawValue = rawValue
+  }
+  public static let `static` = MjtCatBit(rawValue: 1)
+  public static let `dynamic` = MjtCatBit(rawValue: 2)
+  public static let decor = MjtCatBit(rawValue: 4)
+  public static let all = MjtCatBit(rawValue: 7)
 }
 /// mouse interaction mode
 public enum MjtMouse: Int32 {
@@ -356,9 +360,13 @@ public enum MjtMouse: Int32 {
   case select
 }
 /// mouse perturbations
-public enum MjtPertBit: Int32 {
-  case translate = 1
-  case rotate = 2
+public struct MjtPertBit: OptionSet {
+  public let rawValue: Int32
+  public init(rawValue: Int32) {
+    self.rawValue = rawValue
+  }
+  public static let translate = MjtPertBit(rawValue: 1)
+  public static let rotate = MjtPertBit(rawValue: 2)
 }
 /// abstract camera type
 public enum MjtCamera: Int32 {

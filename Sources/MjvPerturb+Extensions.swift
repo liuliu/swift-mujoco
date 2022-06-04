@@ -14,13 +14,13 @@ extension MjvPerturb {
   /// perturbation bitmask (mjtPertBit)
   @inlinable
   public var active: MjtPertBit {
-    get { MjtPertBit(rawValue: _perturb.active)! }
+    get { MjtPertBit(rawValue: _perturb.active) }
     set { _perturb.active = newValue.rawValue }
   }
   /// secondary perturbation bitmask (mjtPertBit)
   @inlinable
   public var active2: MjtPertBit {
-    get { MjtPertBit(rawValue: _perturb.active2)! }
+    get { MjtPertBit(rawValue: _perturb.active2) }
     set { _perturb.active2 = newValue.rawValue }
   }
   /// desired position for selected object

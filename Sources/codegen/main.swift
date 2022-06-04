@@ -14,7 +14,8 @@ var mjtCode = ""
 let optionSets: Set<String> = Set([
   "MjtEnableBit",
   "MjtDisableBit",
-  "",
+  "MjtPertBit",
+  "MjtCatBit",
 ])
 for thisEnum in enums {
   let swiftName_ =

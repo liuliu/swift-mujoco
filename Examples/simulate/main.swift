@@ -105,6 +105,7 @@ let syncmisalign: Double = 0.1  // maximum time mis-alignment before re-sync
 let refreshfactor: Double = 0.7  // fraction of refresh available for simulation
 let vmode = GLContext.videoMode
 var ctrlnoise: [Double]? = nil
+let maxgeom: Int32 = 5_000
 
 func noise(_ std: Double) -> Double {
   let u1 = Double.random(in: 0...1)
@@ -187,10 +188,14 @@ func simulate() async throws {
   }
 }
 
+var camera = MjvCamera()
+let option = MjvOption()
+
+func profilerinit() {
+}
+
 glContext.makeCurrent {
-  var camera = MjvCamera()
-  let option = MjvOption()
-  var scene = MjvScene(model: nil, maxgeom: 1000)
+  var scene = MjvScene(model: nil, maxgeom: maxgeom)
   // The context need to be initialized after having a GL context.
   var context = MjrContext(model: nil, fontScale: ._100)
   Task.detached(operation: simulate)
@@ -259,6 +264,37 @@ glContext.makeCurrent {
         } else if it.sectionid == 2 {
           // Simulation
         }
+        return
+      }
+    }
+    if uiState.type == .key && uiState.key != 0 {
+      switch uiState.key {
+      case Int32(Character(" ").wholeNumberValue!):
+        if let _ = m {
+          settings.run = !settings.run
+          // pert.active = []
+          // uiState.update(section: -1, item: -1, ui: ui0, context: context)
+        }
+      case 262:  // Right
+        break
+      case 266:  // Page up
+        break
+      case Int32(Character("]").wholeNumberValue!):
+        break
+      case Int32(Character("[").wholeNumberValue!):
+        break
+      case 295:  // F6
+        break
+      case 296:  // F7
+        break
+      case 256:  // Escape
+        break
+      case Int32(Character("-").wholeNumberValue!):
+        break
+      case Int32(Character("=").wholeNumberValue!):
+        break
+      default:
+        break
       }
     }
   } uiLayout: { uiState, width, height in
@@ -283,7 +319,7 @@ glContext.makeCurrent {
         m = model
         d = data
         model.forward(data: &data)
-        scene.makeScene(model: model, maxgeom: 1000)
+        scene.makeScene(model: model, maxgeom: maxgeom)
         context.makeContext(model: model, fontscale: ._100)
         ui0.resize(context: context)
         glContext.modify(ui: ui0, uiState: &uiState, context: &context)
@@ -293,7 +329,7 @@ glContext.makeCurrent {
       }
       glContext.pollEvents()
       if let m = m, var d = d {
-        scene.updateScene(model: m, data: &d, option: option, perturb: nil, camera: &camera)
+        scene.updateScene(model: m, data: &d, option: option, perturb: pert, camera: &camera)
       }
     }
     let viewport = MjrRect(left: 0, bottom: 0, width: width, height: height)

@@ -71,7 +71,6 @@ public func optionSet(_ thisEnum: Enum) -> String {
       swiftKey = "`\(swiftKey)`"
     }
     guard let value = value else { fatalError() }
-    precondition(value.contains("<<"))
     code += "  public static let \(swiftKey) = \(swiftName)(rawValue: \(value))\n"
   }
   code += "}\n"
