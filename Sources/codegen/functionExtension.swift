@@ -109,6 +109,15 @@ enum SwiftParameterType {
     }
   }
 
+  var isArrayOrTuple: Bool {
+    switch self {
+    case .array, .tuple:
+      return true
+    case .plain, .string, .enum:
+      return false
+    }
+  }
+
   var swiftType: String {
     switch self {
     case let .plain(name, _, _), let .enum(name):
@@ -346,19 +355,28 @@ public func functionExtension(
     }
   }
   var parameterPairs = [String]()
+  var numberedGenerics = [String]()
   var parameterParsedTypes = [Int: SwiftParameterType]()
   for i in 0..<apiDefinition.parameters.count {
     guard i != mainInd, let namedParameter = positionedNamedParameters[i] else { continue }
     let parsedType = swiftParameterType(
       name: namedParameter.name, type: namedParameter.type, comment: apiDefinition.comment)
     parameterParsedTypes[i] = parsedType
+    // For inout parameters, we need to make this as generics, otherwise the API requires you first cast to the protocol, which could be messed up.
+    let swiftType: String
+    if parsedType.isInout && parsedType.isArrayOrTuple {
+      swiftType = "T\(numberedGenerics.count)"
+      numberedGenerics.append(parsedType.swiftType)
+    } else {
+      swiftType = parsedType.swiftType
+    }
     if anonymousIndexes.contains(i) {
       parameterPairs.append(
-        "_ \(cleanupFieldName(name: namedParameter.name).camelCase()): \(parsedType.isInout ? "inout ": "")\(parsedType.swiftType)"
+        "_ \(cleanupFieldName(name: namedParameter.name).camelCase()): \(parsedType.isInout ? "inout ": "")\(swiftType)"
       )
     } else {
       parameterPairs.append(
-        "\(cleanupFieldName(name: namedParameter.name).camelCase()): \(parsedType.isInout ? "inout ": "")\(parsedType.swiftType)"
+        "\(cleanupFieldName(name: namedParameter.name).camelCase()): \(parsedType.isInout ? "inout ": "")\(swiftType)"
       )
     }
   }
@@ -386,16 +404,19 @@ public func functionExtension(
   } else {
     hasReturnValue = true
   }
+  let genericsList =
+    numberedGenerics.count > 0
+    ? "<\(numberedGenerics.enumerated().map({ "T\($0): \($1)" }).joined(separator: ", "))>" : ""
   switch parsedReturnType {
   case .string:
     code +=
-      "  public\(mutatingPrefix) func \(funcName)(\(parameterPairs.joined(separator: ", "))) -> String? {\n"
+      "  public\(mutatingPrefix) func \(funcName)\(genericsList)(\(parameterPairs.joined(separator: ", "))) -> String? {\n"
   case .void:
     code +=
-      "  public\(mutatingPrefix) func \(funcName)(\(parameterPairs.joined(separator: ", "))) {\n"
+      "  public\(mutatingPrefix) func \(funcName)\(genericsList)(\(parameterPairs.joined(separator: ", "))) {\n"
   case .plain(let name, _, _):
     code +=
-      "  public\(mutatingPrefix) func \(funcName)(\(parameterPairs.joined(separator: ", "))) -> \(isBoolReturn ? "Bool" : name) {\n"
+      "  public\(mutatingPrefix) func \(funcName)\(genericsList)(\(parameterPairs.joined(separator: ", "))) -> \(isBoolReturn ? "Bool" : name) {\n"
   }
   var localCopyPairs = [String]()
   var callingPairs = [String]()

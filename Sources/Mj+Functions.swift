@@ -52,9 +52,9 @@ public func rayGeom(
 }
 /// Interect ray with skin, return nearest distance or -1 if no intersection, and also output nearest vertex id.
 @inlinable
-public func raySkin(
+public func raySkin<T0: MjInt32MutableBufferPointer>(
   nface: Int32, nvert: Int32, face: MjInt32BufferPointer, vert: MjFloatBufferPointer,
-  pnt: MjDoubleBufferPointer, vec: MjDoubleBufferPointer, vertid: inout MjInt32MutableBufferPointer
+  pnt: MjDoubleBufferPointer, vec: MjDoubleBufferPointer, vertid: inout T0
 ) -> Double {
   return face.withUnsafeBufferPointer { face__p in
     return vert.withUnsafeBufferPointer { vert__p in
@@ -75,9 +75,8 @@ public func raySkin(
 }
 ///  Rotate 3D vec in horizontal plane by angle between (0,1) and (forward_x,forward_y).
 @inlinable
-public func alignToCamera(
-  res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer,
-  forward: MjDoubleBufferPointer
+public func alignToCamera<T0: MjDoubleMutableBufferPointer>(
+  res: inout T0, vec: MjDoubleBufferPointer, forward: MjDoubleBufferPointer
 ) {
   precondition(res.count == 3)
   res.withUnsafeMutableBufferPointer { res__p in

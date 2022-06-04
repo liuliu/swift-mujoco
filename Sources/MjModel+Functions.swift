@@ -208,8 +208,8 @@ extension MjModel {
   }
   ///  Solve linear system M * x = y using factorization:  x = inv(L'*D*L)*y
   @inlinable
-  public func solveM(
-    data: inout MjData, x: inout MjDoubleMutableBufferPointer, y: MjDoubleBufferPointer, n: Int32
+  public func solveM<T0: MjDoubleMutableBufferPointer>(
+    data: inout MjData, x: inout T0, y: MjDoubleBufferPointer, n: Int32
   ) {
     x.withUnsafeMutableBufferPointer { x__p in
       y.withUnsafeBufferPointer { y__p in
@@ -219,8 +219,8 @@ extension MjModel {
   }
   ///  Half of linear solve:  x = sqrt(inv(D))*inv(L')*y
   @inlinable
-  public func solveM2(
-    data: inout MjData, x: inout MjDoubleMutableBufferPointer, y: MjDoubleBufferPointer, n: Int32
+  public func solveM2<T0: MjDoubleMutableBufferPointer>(
+    data: inout MjData, x: inout T0, y: MjDoubleBufferPointer, n: Int32
   ) {
     x.withUnsafeMutableBufferPointer { x__p in
       y.withUnsafeBufferPointer { y__p in
@@ -245,7 +245,9 @@ extension MjModel {
   }
   ///  RNE: compute M(qpos)*qacc + C(qpos,qvel); flg_acc=0 removes inertial term.
   @inlinable
-  public func rne(data: inout MjData, flgAcc: Int32, result: inout MjDoubleMutableBufferPointer) {
+  public func rne<T0: MjDoubleMutableBufferPointer>(
+    data: inout MjData, flgAcc: Int32, result: inout T0
+  ) {
     result.withUnsafeMutableBufferPointer { result__p in
       mj_rne(self._model, data._data, flgAcc, result__p.baseAddress)
     }
@@ -277,9 +279,8 @@ extension MjModel {
   }
   /// Compute efc_state, efc_force, qfrc_constraint, and (optionally) cone Hessians. If cost is not NULL, set *cost = s(jar) where jar = Jac*qacc-aref.
   @inlinable
-  public func constraintUpdate(
-    data: inout MjData, jar: MjDoubleBufferPointer, cost: inout MjDoubleMutableBufferPointer,
-    flgConeHessian: Int32
+  public func constraintUpdate<T0: MjDoubleMutableBufferPointer>(
+    data: inout MjData, jar: MjDoubleBufferPointer, cost: inout T0, flgConeHessian: Int32
   ) {
     jar.withUnsafeBufferPointer { jar__p in
       precondition(cost.count == 1)
@@ -312,8 +313,8 @@ extension MjModel {
   }
   ///  Multiply dense or sparse constraint Jacobian by vector.
   @inlinable
-  public func mulJacVec(
-    data: inout MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
+  public func mulJacVec<T0: MjDoubleMutableBufferPointer>(
+    data: inout MjData, res: inout T0, vec: MjDoubleBufferPointer
   ) {
     res.withUnsafeMutableBufferPointer { res__p in
       vec.withUnsafeBufferPointer { vec__p in
@@ -323,8 +324,8 @@ extension MjModel {
   }
   ///  Multiply dense or sparse constraint Jacobian transpose by vector.
   @inlinable
-  public func mulJacTVec(
-    data: inout MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
+  public func mulJacTVec<T0: MjDoubleMutableBufferPointer>(
+    data: inout MjData, res: inout T0, vec: MjDoubleBufferPointer
   ) {
     res.withUnsafeMutableBufferPointer { res__p in
       vec.withUnsafeBufferPointer { vec__p in
@@ -334,9 +335,8 @@ extension MjModel {
   }
   ///  Compute 3/6-by-nv end-effector Jacobian of global point attached to given body.
   @inlinable
-  public func jac(
-    data: MjData, jacp: inout MjDoubleMutableBufferPointer,
-    jacr: inout MjDoubleMutableBufferPointer, point: MjDoubleBufferPointer, body: Int32
+  public func jac<T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer>(
+    data: MjData, jacp: inout T0, jacr: inout T1, point: MjDoubleBufferPointer, body: Int32
   ) {
     jacp.withUnsafeMutableBufferPointer { jacp__p in
       jacr.withUnsafeMutableBufferPointer { jacr__p in
@@ -351,9 +351,8 @@ extension MjModel {
   }
   ///  Compute body frame end-effector Jacobian.
   @inlinable
-  public func jacBody(
-    data: MjData, jacp: inout MjDoubleMutableBufferPointer,
-    jacr: inout MjDoubleMutableBufferPointer, body: Int32
+  public func jacBody<T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer>(
+    data: MjData, jacp: inout T0, jacr: inout T1, body: Int32
   ) {
     jacp.withUnsafeMutableBufferPointer { jacp__p in
       jacr.withUnsafeMutableBufferPointer { jacr__p in
@@ -363,9 +362,8 @@ extension MjModel {
   }
   ///  Compute body center-of-mass end-effector Jacobian.
   @inlinable
-  public func jacBodyCom(
-    data: MjData, jacp: inout MjDoubleMutableBufferPointer,
-    jacr: inout MjDoubleMutableBufferPointer, body: Int32
+  public func jacBodyCom<T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer>(
+    data: MjData, jacp: inout T0, jacr: inout T1, body: Int32
   ) {
     jacp.withUnsafeMutableBufferPointer { jacp__p in
       jacr.withUnsafeMutableBufferPointer { jacr__p in
@@ -375,9 +373,8 @@ extension MjModel {
   }
   ///  Compute geom end-effector Jacobian.
   @inlinable
-  public func jacGeom(
-    data: MjData, jacp: inout MjDoubleMutableBufferPointer,
-    jacr: inout MjDoubleMutableBufferPointer, geom: Int32
+  public func jacGeom<T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer>(
+    data: MjData, jacp: inout T0, jacr: inout T1, geom: Int32
   ) {
     jacp.withUnsafeMutableBufferPointer { jacp__p in
       jacr.withUnsafeMutableBufferPointer { jacr__p in
@@ -387,9 +384,8 @@ extension MjModel {
   }
   ///  Compute site end-effector Jacobian.
   @inlinable
-  public func jacSite(
-    data: MjData, jacp: inout MjDoubleMutableBufferPointer,
-    jacr: inout MjDoubleMutableBufferPointer, site: Int32
+  public func jacSite<T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer>(
+    data: MjData, jacp: inout T0, jacr: inout T1, site: Int32
   ) {
     jacp.withUnsafeMutableBufferPointer { jacp__p in
       jacr.withUnsafeMutableBufferPointer { jacr__p in
@@ -399,9 +395,8 @@ extension MjModel {
   }
   ///  Compute translation end-effector Jacobian of point, and rotation Jacobian of axis.
   @inlinable
-  public func jacPointAxis(
-    data: inout MjData, jacPoint: inout MjDoubleMutableBufferPointer,
-    jacAxis: inout MjDoubleMutableBufferPointer, point: MjDoubleBufferPointer,
+  public func jacPointAxis<T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer>(
+    data: inout MjData, jacPoint: inout T0, jacAxis: inout T1, point: MjDoubleBufferPointer,
     axis: MjDoubleBufferPointer, body: Int32
   ) {
     jacPoint.withUnsafeMutableBufferPointer { jacPoint__p in
@@ -430,7 +425,7 @@ extension MjModel {
   }
   ///  Convert sparse inertia matrix M into full (i.e. dense) matrix.
   @inlinable
-  public func fullM(dst: inout MjDoubleMutableBufferPointer, m: MjDoubleBufferPointer) {
+  public func fullM<T0: MjDoubleMutableBufferPointer>(dst: inout T0, m: MjDoubleBufferPointer) {
     dst.withUnsafeMutableBufferPointer { dst__p in
       m.withUnsafeBufferPointer { m__p in
         mj_fullM(self._model, dst__p.baseAddress, m__p.baseAddress)
@@ -439,8 +434,8 @@ extension MjModel {
   }
   ///  Multiply vector by inertia matrix.
   @inlinable
-  public func mulM(
-    data: MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
+  public func mulM<T0: MjDoubleMutableBufferPointer>(
+    data: MjData, res: inout T0, vec: MjDoubleBufferPointer
   ) {
     res.withUnsafeMutableBufferPointer { res__p in
       vec.withUnsafeBufferPointer { vec__p in
@@ -450,8 +445,8 @@ extension MjModel {
   }
   ///  Multiply vector by (inertia matrix)^(1/2).
   @inlinable
-  public func mulM2(
-    data: MjData, res: inout MjDoubleMutableBufferPointer, vec: MjDoubleBufferPointer
+  public func mulM2<T0: MjDoubleMutableBufferPointer>(
+    data: MjData, res: inout T0, vec: MjDoubleBufferPointer
   ) {
     res.withUnsafeMutableBufferPointer { res__p in
       vec.withUnsafeBufferPointer { vec__p in
@@ -461,11 +456,10 @@ extension MjModel {
   }
   /// Add inertia matrix to destination matrix. Destination can be sparse uncompressed, or dense when all int* are NULL
   @inlinable
-  public func addM(
-    data: inout MjData, dst: inout MjDoubleMutableBufferPointer,
-    rownnz: inout MjInt32MutableBufferPointer, rowadr: inout MjInt32MutableBufferPointer,
-    colind: inout MjInt32MutableBufferPointer
-  ) {
+  public func addM<
+    T0: MjDoubleMutableBufferPointer, T1: MjInt32MutableBufferPointer,
+    T2: MjInt32MutableBufferPointer, T3: MjInt32MutableBufferPointer
+  >(data: inout MjData, dst: inout T0, rownnz: inout T1, rowadr: inout T2, colind: inout T3) {
     dst.withUnsafeMutableBufferPointer { dst__p in
       rownnz.withUnsafeMutableBufferPointer { rownnz__p in
         rowadr.withUnsafeMutableBufferPointer { rowadr__p in
@@ -480,9 +474,9 @@ extension MjModel {
   }
   ///  Apply cartesian force and torque (outside xfrc_applied mechanism).
   @inlinable
-  public func applyFT(
+  public func applyFT<T0: MjDoubleMutableBufferPointer>(
     data: inout MjData, force: MjDoubleBufferPointer, torque: MjDoubleBufferPointer,
-    point: MjDoubleBufferPointer, body: Int32, qfrcTarget: inout MjDoubleMutableBufferPointer
+    point: MjDoubleBufferPointer, body: Int32, qfrcTarget: inout T0
   ) {
     precondition(force.count == 3)
     force.withUnsafeBufferPointer { force__p in
@@ -501,9 +495,8 @@ extension MjModel {
   }
   ///  Compute object 6D velocity in object-centered frame, world/local orientation.
   @inlinable
-  public func objectVelocity(
-    data: MjData, objtype: Int32, objid: Int32, res: inout MjDoubleMutableBufferPointer,
-    flgLocal: Int32
+  public func objectVelocity<T0: MjDoubleMutableBufferPointer>(
+    data: MjData, objtype: Int32, objid: Int32, res: inout T0, flgLocal: Int32
   ) {
     precondition(res.count == 6)
     res.withUnsafeMutableBufferPointer { res__p in
@@ -512,9 +505,8 @@ extension MjModel {
   }
   ///  Compute object 6D acceleration in object-centered frame, world/local orientation.
   @inlinable
-  public func objectAcceleration(
-    data: MjData, objtype: Int32, objid: Int32, res: inout MjDoubleMutableBufferPointer,
-    flgLocal: Int32
+  public func objectAcceleration<T0: MjDoubleMutableBufferPointer>(
+    data: MjData, objtype: Int32, objid: Int32, res: inout T0, flgLocal: Int32
   ) {
     precondition(res.count == 6)
     res.withUnsafeMutableBufferPointer { res__p in
@@ -523,7 +515,9 @@ extension MjModel {
   }
   ///  Extract 6D force:torque given contact id, in the contact frame.
   @inlinable
-  public func contactForce(data: MjData, id: Int32, result: inout MjDoubleMutableBufferPointer) {
+  public func contactForce<T0: MjDoubleMutableBufferPointer>(
+    data: MjData, id: Int32, result: inout T0
+  ) {
     precondition(result.count == 6)
     result.withUnsafeMutableBufferPointer { result__p in
       mj_contactForce(self._model, data._data, id, result__p.baseAddress)
@@ -531,9 +525,8 @@ extension MjModel {
   }
   ///  Compute velocity by finite-differencing two positions.
   @inlinable
-  public func differentiatePos(
-    qvel: inout MjDoubleMutableBufferPointer, dt: Double, qpos1: MjDoubleBufferPointer,
-    qpos2: MjDoubleBufferPointer
+  public func differentiatePos<T0: MjDoubleMutableBufferPointer>(
+    qvel: inout T0, dt: Double, qpos1: MjDoubleBufferPointer, qpos2: MjDoubleBufferPointer
   ) {
     qvel.withUnsafeMutableBufferPointer { qvel__p in
       qpos1.withUnsafeBufferPointer { qpos1__p in
@@ -546,8 +539,8 @@ extension MjModel {
   }
   ///  Integrate position with given velocity.
   @inlinable
-  public func integratePos(
-    qpos: inout MjDoubleMutableBufferPointer, qvel: MjDoubleBufferPointer, dt: Double
+  public func integratePos<T0: MjDoubleMutableBufferPointer>(
+    qpos: inout T0, qvel: MjDoubleBufferPointer, dt: Double
   ) {
     qpos.withUnsafeMutableBufferPointer { qpos__p in
       qvel.withUnsafeBufferPointer { qvel__p in
@@ -557,7 +550,7 @@ extension MjModel {
   }
   ///  Normalize all quaterions in qpos-type vector.
   @inlinable
-  public func normalizeQuat(qpos: inout MjDoubleMutableBufferPointer) {
+  public func normalizeQuat<T0: MjDoubleMutableBufferPointer>(qpos: inout T0) {
     qpos.withUnsafeMutableBufferPointer { qpos__p in
       mj_normalizeQuat(self._model, qpos__p.baseAddress)
     }
@@ -574,10 +567,9 @@ extension MjModel {
   }
   /// Intersect ray (pnt+x*vec, x>=0) with visible geoms, except geoms in bodyexclude. Return distance (x) to nearest surface, or -1 if no intersection and output geomid. geomgroup, flg_static are as in mjvOption; geomgroup==NULL skips group exclusion.
   @inlinable
-  public func ray(
+  public func ray<T0: MjInt32MutableBufferPointer>(
     data: MjData, pnt: MjDoubleBufferPointer, vec: MjDoubleBufferPointer,
-    geomgroup: MjUInt8BufferPointer, flgStatic: UInt8, bodyexclude: Int32,
-    geomid: inout MjInt32MutableBufferPointer
+    geomgroup: MjUInt8BufferPointer, flgStatic: UInt8, bodyexclude: Int32, geomid: inout T0
   ) -> Double {
     precondition(pnt.count == 3)
     return pnt.withUnsafeBufferPointer { pnt__p in

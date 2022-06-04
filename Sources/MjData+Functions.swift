@@ -3,9 +3,11 @@ import C_mujoco
 extension MjData {
   ///  Map from body local to global Cartesian coordinates.
   @inlinable
-  public mutating func local2Global(
-    xpos: inout MjDoubleMutableBufferPointer, xmat: inout MjDoubleMutableBufferPointer,
-    pos: MjDoubleBufferPointer, quat: MjDoubleBufferPointer, body: Int32, sameframe: UInt8
+  public mutating func local2Global<
+    T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer
+  >(
+    xpos: inout T0, xmat: inout T1, pos: MjDoubleBufferPointer, quat: MjDoubleBufferPointer,
+    body: Int32, sameframe: UInt8
   ) {
     precondition(xpos.count == 3)
     xpos.withUnsafeMutableBufferPointer { xpos__p in

@@ -3,9 +3,9 @@ import C_mujoco
 extension MjvScene {
   ///  Transform pose from room to model space.
   @inlinable
-  public func room2model(
-    modelpos: inout MjDoubleMutableBufferPointer, modelquat: inout MjDoubleMutableBufferPointer,
-    roompos: MjDoubleBufferPointer, roomquat: MjDoubleBufferPointer
+  public func room2model<T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer>(
+    modelpos: inout T0, modelquat: inout T1, roompos: MjDoubleBufferPointer,
+    roomquat: MjDoubleBufferPointer
   ) {
     precondition(modelpos.count == 3)
     modelpos.withUnsafeMutableBufferPointer { modelpos__p in
@@ -25,9 +25,9 @@ extension MjvScene {
   }
   ///  Transform pose from model to room space.
   @inlinable
-  public func model2room(
-    roompos: inout MjDoubleMutableBufferPointer, roomquat: inout MjDoubleMutableBufferPointer,
-    modelpos: MjDoubleBufferPointer, modelquat: MjDoubleBufferPointer
+  public func model2room<T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer>(
+    roompos: inout T0, roomquat: inout T1, modelpos: MjDoubleBufferPointer,
+    modelquat: MjDoubleBufferPointer
   ) {
     precondition(roompos.count == 3)
     roompos.withUnsafeMutableBufferPointer { roompos__p in
@@ -47,10 +47,10 @@ extension MjvScene {
   }
   ///  Get camera info in model space; average left and right OpenGL cameras.
   @inlinable
-  public func cameraInModel(
-    headpos: inout MjDoubleMutableBufferPointer, forward: inout MjDoubleMutableBufferPointer,
-    up: inout MjDoubleMutableBufferPointer
-  ) {
+  public func cameraInModel<
+    T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer,
+    T2: MjDoubleMutableBufferPointer
+  >(headpos: inout T0, forward: inout T1, up: inout T2) {
     precondition(headpos.count == 3)
     headpos.withUnsafeMutableBufferPointer { headpos__p in
       precondition(forward.count == 3)
@@ -65,10 +65,10 @@ extension MjvScene {
   }
   ///  Get camera info in room space; average left and right OpenGL cameras.
   @inlinable
-  public func cameraInRoom(
-    headpos: inout MjDoubleMutableBufferPointer, forward: inout MjDoubleMutableBufferPointer,
-    up: inout MjDoubleMutableBufferPointer
-  ) {
+  public func cameraInRoom<
+    T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer,
+    T2: MjDoubleMutableBufferPointer
+  >(headpos: inout T0, forward: inout T1, up: inout T2) {
     precondition(headpos.count == 3)
     headpos.withUnsafeMutableBufferPointer { headpos__p in
       precondition(forward.count == 3)
@@ -103,8 +103,7 @@ extension MjvScene {
     T2: MjInt32MutableBufferPointer
   >(
     model: MjModel, data: MjData, vopt: MjvOption, aspectratio: Double, relx: Double, rely: Double,
-    selpnt: inout T0, geomid: inout T1,
-    skinid: inout T2
+    selpnt: inout T0, geomid: inout T1, skinid: inout T2
   ) -> Int32 {
     var vopt__option = vopt._option
     precondition(selpnt.count == 3)
