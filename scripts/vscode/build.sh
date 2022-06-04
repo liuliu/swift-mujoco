@@ -9,6 +9,7 @@ else
 fi
 
 bazel run //scripts/compdb:compdb -- ${WORKSPACE}
-bazel build --compilation_mode=dbg //:swift-mujoco
+TARGETS=`bazel query "kind(swift_binary,//...)"`
+bazel build --compilation_mode=dbg ${TARGETS}
 mkdir -p ${WORKSPACE}/.index/store && mkdir -p ${WORKSPACE}/.index/db
 find ${WORKSPACE}/bazel-out/k8-dbg/bin -name "*.indexstore" | xargs -I {} rsync -a {}/v5 ${WORKSPACE}/.index/store
