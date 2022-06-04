@@ -25,27 +25,35 @@ public enum MjtTimer: Int32 {
   case posProject
 }
 /// disable default feature bitflags
-public enum MjtDisableBit: Int32 {
-  case constraint = 1
-  case equality = 2
-  case frictionloss = 4
-  case limit = 8
-  case contact = 16
-  case passive = 32
-  case gravity = 64
-  case clampctrl = 128
-  case warmstart = 256
-  case filterparent = 512
-  case actuation = 1024
-  case refsafe = 2048
+public struct MjtDisableBit: OptionSet {
+  public let rawValue: Int32
+  public init(rawValue: Int32) {
+    self.rawValue = rawValue
+  }
+  public static let constraint = MjtDisableBit(rawValue: 1 << 0)
+  public static let equality = MjtDisableBit(rawValue: 1 << 1)
+  public static let frictionloss = MjtDisableBit(rawValue: 1 << 2)
+  public static let limit = MjtDisableBit(rawValue: 1 << 3)
+  public static let contact = MjtDisableBit(rawValue: 1 << 4)
+  public static let passive = MjtDisableBit(rawValue: 1 << 5)
+  public static let gravity = MjtDisableBit(rawValue: 1 << 6)
+  public static let clampctrl = MjtDisableBit(rawValue: 1 << 7)
+  public static let warmstart = MjtDisableBit(rawValue: 1 << 8)
+  public static let filterparent = MjtDisableBit(rawValue: 1 << 9)
+  public static let actuation = MjtDisableBit(rawValue: 1 << 10)
+  public static let refsafe = MjtDisableBit(rawValue: 1 << 11)
 }
 /// enable optional feature bitflags
-public enum MjtEnableBit: Int32 {
-  case override = 1
-  case energy = 2
-  case fwdinv = 4
-  case sensornoise = 8
-  case multiccd = 16
+public struct MjtEnableBit: OptionSet {
+  public let rawValue: Int32
+  public init(rawValue: Int32) {
+    self.rawValue = rawValue
+  }
+  public static let override = MjtEnableBit(rawValue: 1 << 0)
+  public static let energy = MjtEnableBit(rawValue: 1 << 1)
+  public static let fwdinv = MjtEnableBit(rawValue: 1 << 2)
+  public static let sensornoise = MjtEnableBit(rawValue: 1 << 3)
+  public static let multiccd = MjtEnableBit(rawValue: 1 << 4)
 }
 /// type of degree of freedom
 public enum MjtJoint: Int32 {

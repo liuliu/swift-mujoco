@@ -45,3 +45,35 @@ public func enumDecl(_ thisEnum: Enum) -> String {
   code += "}\n"
   return code
 }
+
+public func optionSet(_ thisEnum: Enum) -> String {
+  precondition(thisEnum.name.hasPrefix("mjt"))
+  let swiftName_ =
+    "Mjt" + thisEnum.name.suffix(from: thisEnum.name.index(thisEnum.name.startIndex, offsetBy: 3))
+  let swiftName = swiftName_.prefix(upTo: swiftName_.index(swiftName_.endIndex, offsetBy: -1))
+  var code = ""
+  if let comment = thisEnum.comment {
+    code += "/// \(comment)\n"
+  }
+  code += "public struct \(swiftName): OptionSet {\n"
+  code += "  public let rawValue: Int32\n"
+  code += "  public init(rawValue: Int32) {\n"
+  code += "    self.rawValue = rawValue\n"
+  code += "  }\n"
+  for (key, value) in thisEnum.keyValues {
+    var swiftKey = key.split(separator: "_", maxSplits: 1)[1].lowercased().camelCase()
+    // If it starts with integer, prefix _.
+    if !swiftKey.prefix(while: \.isNumber).isEmpty {
+      swiftKey = "_" + swiftKey
+    }
+    // If it is keyword, warp with ``.
+    if ["static", "enum", "dynamic", "func"].contains(swiftKey) {
+      swiftKey = "`\(swiftKey)`"
+    }
+    guard let value = value else { fatalError() }
+    precondition(value.contains("<<"))
+    code += "  public static let \(swiftKey) = \(swiftName)(rawValue: \(value))\n"
+  }
+  code += "}\n"
+  return code
+}

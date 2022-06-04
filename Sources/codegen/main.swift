@@ -11,12 +11,21 @@ let (enums, structs, definedConstants, apiDefinitions) = parseMuJoCoHeaders(
 
 var wrappedMjEnums = Set<String>()
 var mjtCode = ""
+let optionSets: Set<String> = Set([
+  "MjtEnableBit",
+  "MjtDisableBit",
+  "",
+])
 for thisEnum in enums {
   let swiftName_ =
     "Mjt" + thisEnum.name.suffix(from: thisEnum.name.index(thisEnum.name.startIndex, offsetBy: 3))
   let swiftName = swiftName_.prefix(upTo: swiftName_.index(swiftName_.endIndex, offsetBy: -1))
   wrappedMjEnums.insert(String(swiftName))
-  mjtCode += enumDecl(thisEnum)
+  if optionSets.contains(String(swiftName)) {
+    mjtCode += optionSet(thisEnum)
+  } else {
+    mjtCode += enumDecl(thisEnum)
+  }
 }
 try! mjtCode.write(
   to: URL(fileURLWithPath: WorkDir).appendingPathComponent("Mjt.swift"), atomically: false,
