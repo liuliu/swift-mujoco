@@ -114,6 +114,8 @@ public func parseMuJoCoHeaders(from filePaths: [String]) -> (
           guard !trimmed.hasPrefix("mjN") else {
             let parts = trimmed.split(whereSeparator: \.isWhitespace)
             definedConstants[String(parts[0])] = currentEnum.keyValues.count
+            // If it contains count, this is iterable, we will additionally annotate this with CaseIterable
+            thisEnum?.iterable = true
             continue
           }
           let kv = trimmed.prefix(while: { $0 != "," && $0 != "/" }).split(separator: "=")

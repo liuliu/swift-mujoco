@@ -6,6 +6,7 @@ struct Settings {
   var exitrequest = false
   var slowdown: Int32 = 1
   var speedchanged = false
+  var camera: Int32 = 0
   // option section of UI
   @MjuiDefState(.select, name: "Spacing", state: 1, other: "Tight\nWide")
   var spacing: Int32 = 0
@@ -47,6 +48,24 @@ struct Settings {
   var index: Int32 = 0
   var loadrequest: Int32 = 0
 }
+
+enum UI0Section: Int32 {
+  // left ui
+  case file = 0
+  case option
+  case simulation
+  case watch
+  case physics
+  case rendering
+  case group
+}
+
+enum UI1Section: Int32 {
+  // right ui
+  case joint = 0
+  case control
+}
+
 // help strings
 let helpContent = """
   Space
@@ -106,6 +125,7 @@ let refreshfactor: Double = 0.7  // fraction of refresh available for simulation
 let vmode = GLContext.videoMode
 var ctrlnoise: [Double]? = nil
 let maxgeom: Int32 = 5_000
+let maxSlowdown: Int32 = 128  // maximum slow-down quotient
 
 func noise(_ std: Double) -> Double {
   let u1 = Double.random(in: 0...1)
@@ -189,7 +209,7 @@ func simulate() async throws {
 }
 
 var camera = MjvCamera()
-let option = MjvOption()
+var vopt = MjvOption()
 
 func profilerinit() {
 }
@@ -257,11 +277,11 @@ glContext.makeCurrent {
     {
       let it = ui0.event(state: &uiState, context: context)
       if let it = it {
-        if it.sectionid == 0 {
+        if it.sectionid == UI0Section.file.rawValue {
           // File
-        } else if it.sectionid == 1 {
+        } else if it.sectionid == UI0Section.option.rawValue {
           // Option
-        } else if it.sectionid == 2 {
+        } else if it.sectionid == UI0Section.simulation.rawValue {
           // Simulation
         }
         return
@@ -270,29 +290,72 @@ glContext.makeCurrent {
     if uiState.type == .key && uiState.key != 0 {
       switch uiState.key {
       case Int32(Character(" ").wholeNumberValue!):
-        if let _ = m {
-          settings.run = !settings.run
-          // pert.active = []
-          // uiState.update(section: -1, item: -1, ui: ui0, context: context)
-        }
+        guard m != nil else { break }
+        settings.run = !settings.run
+        pert.active = []
+        uiState.update(section: -1, item: -1, ui: ui0, context: context)
       case 262:  // Right
-        break
+        guard let m = m, var d = d, !settings.run else { break }
+        // cleartimers()
+        m.step(data: &d)
+      // profilerupdate()
+      // sensorupdate()
+      // updatesettings()
       case 266:  // Page up
-        break
+        guard let m = m, pert.select > 0 else { break }
+        pert.select = m.bodyParentid[Int(pert.select)]
+        pert.skinselect = -1
+
+        // stop perturbation if world reached
+        if pert.select <= 0 {
+          pert.active = []
+        }
       case Int32(Character("]").wholeNumberValue!):
-        break
+        guard let m = m, m.ncam > 0 else { break }
+        camera.type = .fixed
+        // settings.camera = {0 or 1} are reserved for the free and tracking cameras
+        if settings.camera < 2 || settings.camera == 2 + m.ncam - 1 {
+          settings.camera = 2
+        } else {
+          settings.camera += 1
+        }
+        camera.fixedcamid = settings.camera - 2
+        uiState.update(section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
       case Int32(Character("[").wholeNumberValue!):
-        break
+        guard let m = m, m.ncam > 0 else { break }
+        camera.type = .fixed
+        // settings.camera = {0 or 1} are reserved for the free and tracking cameras
+        if settings.camera <= 2 {
+          settings.camera = 2 + m.ncam - 1
+        } else {
+          settings.camera -= 1
+        }
+        camera.fixedcamid = settings.camera - 2
+        uiState.update(section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
       case 295:  // F6
+        guard m != nil else { break }
+        // vopt.frame = (vopt.frame + 1) % mjNFRAME;
+        uiState.update(section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
         break
       case 296:  // F7
+        guard m != nil else { break }
+        // vopt.label = (vopt.label + 1) % mjNLABEL;
+        uiState.update(section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
         break
       case 256:  // Escape
-        break
+        camera.type = .free
+        settings.camera = 0
+        uiState.update(section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
       case Int32(Character("-").wholeNumberValue!):
-        break
+        if settings.slowdown < maxSlowdown && uiState.shift == 0 {
+          settings.slowdown *= 2
+          settings.speedchanged = true
+        }
       case Int32(Character("=").wholeNumberValue!):
-        break
+        if settings.slowdown > 1 && uiState.shift == 0 {
+          settings.slowdown /= 2
+          settings.speedchanged = true
+        }
       default:
         break
       }
@@ -329,7 +392,7 @@ glContext.makeCurrent {
       }
       glContext.pollEvents()
       if let m = m, var d = d {
-        scene.updateScene(model: m, data: &d, option: option, perturb: pert, camera: &camera)
+        scene.updateScene(model: m, data: &d, option: vopt, perturb: pert, camera: &camera)
       }
     }
     let viewport = MjrRect(left: 0, bottom: 0, width: width, height: height)

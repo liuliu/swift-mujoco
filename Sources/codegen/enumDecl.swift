@@ -5,6 +5,7 @@ public struct Enum {
   public var name: String
   public var comment: String?
   public var keyValues: [(key: String, value: String?)]
+  public var iterable: Bool = false
   public init(name: String, comment: String?, keyValues: [(key: String, value: String?)]) {
     self.name = name
     self.comment = comment
@@ -21,7 +22,7 @@ public func enumDecl(_ thisEnum: Enum) -> String {
   if let comment = thisEnum.comment {
     code += "/// \(comment)\n"
   }
-  code += "public enum \(swiftName): Int32 {\n"
+  code += "public enum \(swiftName): Int32\(thisEnum.iterable ? ", CaseIterable" : "") {\n"
   for (key, value) in thisEnum.keyValues {
     var swiftKey = key.split(separator: "_", maxSplits: 1)[1].lowercased().camelCase()
     // If it starts with integer, prefix _.

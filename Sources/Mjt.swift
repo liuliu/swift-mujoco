@@ -1,5 +1,5 @@
 /// warning types
-public enum MjtWarning: Int32 {
+public enum MjtWarning: Int32, CaseIterable {
   case inertia = 0
   case contactfull
   case cnstrfull
@@ -9,7 +9,7 @@ public enum MjtWarning: Int32 {
   case badqacc
   case badctrl
 }
-public enum MjtTimer: Int32 {
+public enum MjtTimer: Int32, CaseIterable {
   case step = 0
   case forward
   case inverse
@@ -63,7 +63,7 @@ public enum MjtJoint: Int32 {
   case hinge
 }
 /// type of geometric shape
-public enum MjtGeom: Int32 {
+public enum MjtGeom: Int32, CaseIterable {
   case plane = 0
   case hfield
   case sphere
@@ -321,7 +321,7 @@ public enum MjtEvent: Int32 {
   case resize
 }
 /// UI item type
-public enum MjtItem: Int32 {
+public enum MjtItem: Int32, CaseIterable {
   case end = -2
   case section = -1
   case separator = 0
@@ -376,7 +376,7 @@ public enum MjtCamera: Int32 {
   case user
 }
 /// object labeling
-public enum MjtLabel: Int32 {
+public enum MjtLabel: Int32, CaseIterable {
   case none = 0
   case body
   case joint
@@ -393,7 +393,7 @@ public enum MjtLabel: Int32 {
   case contactforce
 }
 /// frame visualization
-public enum MjtFrame: Int32 {
+public enum MjtFrame: Int32, CaseIterable {
   case none = 0
   case body
   case geom
@@ -404,7 +404,7 @@ public enum MjtFrame: Int32 {
   case world
 }
 /// flags enabling model element visualization
-public enum MjtVisFlag: Int32 {
+public enum MjtVisFlag: Int32, CaseIterable {
   case convexhull = 0
   case texture
   case joint
@@ -429,7 +429,7 @@ public enum MjtVisFlag: Int32 {
   case skin
 }
 /// flags enabling rendering effects
-public enum MjtRndFlag: Int32 {
+public enum MjtRndFlag: Int32, CaseIterable {
   case shadow = 0
   case wireframe
   case reflection
