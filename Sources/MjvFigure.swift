@@ -24,3 +24,26 @@ public struct MjvFigure {
     }
   }
 }
+
+extension MjvFigure {
+  /// line data (x,y)
+  @inlinable
+  public var linedata: Mj2DArray<(x: Float, y: Float)> {
+    get {
+      Mj2DArray<(x: Float, y: Float)>(
+        array: withUnsafeMutablePointer(
+          to: &_figure.pointee.linedata.0.0,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: (x: Float, y: Float).self) }),
+        object: _storage,
+        len: (mjMAXLINE, mjMAXLINEPNT))
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<(x: Float, y: Float)> =
+        withUnsafeMutablePointer(
+          to: &_figure.pointee.linedata.0.0,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: (x: Float, y: Float).self) })
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(mjMAXLINE * mjMAXLINEPNT))
+    }
+  }
+}

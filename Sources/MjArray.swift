@@ -30,6 +30,33 @@ public struct MjArray<Element> {
   public var count: Int { Int(len) }
 }
 
+public struct Mj2DArray<Element> {
+  private var object: AnyObject  // Make sure the array is valid.
+  @usableFromInline
+  var len: (Int32, Int32)
+  @usableFromInline
+  var _array: UnsafeMutablePointer<Element>
+  @usableFromInline
+  init(array: UnsafeMutablePointer<Element>, object: AnyObject, len: (Int32, Int32)) {
+    _array = array
+    self.object = object
+    self.len = len
+  }
+  @inlinable
+  public subscript(x: Int, y: Int) -> Element {
+    get {
+      precondition(x < len.0 && y < len.1)
+      return _array[x * Int(len.1) + y]
+    }
+    set {
+      precondition(x < len.0 && y < len.1)
+      _array[x * Int(len.1) + y] = newValue
+    }
+  }
+  @inlinable
+  public var count: (Int, Int) { (Int(len.0), Int(len.1)) }
+}
+
 extension MjArray where Element == Double {
   /// Zero out the array.
   @inlinable
