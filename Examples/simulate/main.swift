@@ -411,53 +411,62 @@ glContext.makeCurrent {
         var selpnt: [Double] = [0, 0, 0]
         var selgeom: [Int32] = [-1]
         var selskin: [Int32] = [-1]
-        scene.select(
+        let selbody = scene.select(
           model: m, data: d, vopt: vopt, aspectratio: Double(r.width) / Double(r.height),
           relx: (uiState.x - Double(r.left)) / Double(r.width),
           rely: (uiState.y - Double(r.bottom)) / Double(r.height), selpnt: &selpnt,
           geomid: &selgeom, skinid: &selskin)
 
-        /*
         // set lookat point, start tracking is requested
-        if (selmode==2 || selmode==3) {
+        if selmode == 2 || selmode == 3 {
           // copy selpnt if anything clicked
-          if (selbody>=0) {
-            mju_copy3(cam.lookat, selpnt);
+          if selbody >= 0 {
+            camera.lookat.0 = selpnt[0]
+            camera.lookat.1 = selpnt[1]
+            camera.lookat.2 = selpnt[2]
           }
 
           // switch to tracking camera if dynamic body clicked
-          if (selmode==3 && selbody>0) {
+          if selmode == 3 && selbody > 0 {
             // mujoco camera
-            cam.type = mjCAMERA_TRACKING;
-            cam.trackbodyid = selbody;
-            cam.fixedcamid = -1;
+            camera.type = .tracking
+            camera.trackbodyid = selbody
+            camera.fixedcamid = -1
 
             // UI camera
-            settings.camera = 1;
-            mjui_update(SECT_RENDERING, -1, &ui0, &uistate, &con);
+            settings.camera = 1
+            uiState.update(
+              section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
           }
-        }
-
-        // set body selection
-        else {
-          if (selbody>=0) {
+        } else {
+          // set body selection
+          if selbody >= 0 {
             // record selection
-            pert.select = selbody;
-            pert.skinselect = selskin;
+            pert.select = selbody
+            pert.skinselect = selskin[0]
 
             // compute localpos
-            mjtNum tmp[3];
-            mju_sub3(tmp, selpnt, d->xpos+3*pert.select);
-            mju_mulMatTVec(pert.localpos, d->xmat+9*pert.select, tmp, 3, 3);
+            var tmp: (Double, Double, Double) = (0, 0, 0)
+            tmp.0 = selpnt[0] - d.xpos[3 * Int(pert.select)]
+            tmp.1 = selpnt[1] - d.xpos[3 * Int(pert.select) + 1]
+            tmp.2 = selpnt[2] - d.xpos[3 * Int(pert.select) + 2]
+            pert.localpos.0 =
+              d.xmat[9 * Int(pert.select)] * tmp.0 + d.xmat[9 * Int(pert.select) + 3] * tmp.1
+              + d.xmat[9 * Int(pert.select) + 6] * tmp.2
+            pert.localpos.1 =
+              d.xmat[9 * Int(pert.select) + 1] * tmp.0 + d.xmat[9 * Int(pert.select) + 4] * tmp.1
+              + d.xmat[9 * Int(pert.select) + 7] * tmp.2
+            pert.localpos.2 =
+              d.xmat[9 * Int(pert.select) + 2] * tmp.0 + d.xmat[9 * Int(pert.select) + 5] * tmp.1
+              + d.xmat[9 * Int(pert.select) + 8] * tmp.2
           } else {
-            pert.select = 0;
-            pert.skinselect = -1;
+            pert.select = 0
+            pert.skinselect = -1
           }
         }
 
         // stop perturbation on select
-        pert.active = 0;
-        */
+        pert.active = []
       }
       return
     }
