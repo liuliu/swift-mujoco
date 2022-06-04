@@ -225,6 +225,11 @@ glContext.makeCurrent {
   ui0.color = MjuiThemeColor(settings.color)
   ui0.rectid = 1
   ui0.auxid = 0
+  var ui1 = MjUI()
+  ui1.spacing = MjuiThemeSpacing(settings.spacing)
+  ui1.color = MjuiThemeColor(settings.color)
+  ui1.rectid = 2
+  ui1.auxid = 1
   var uiState = MjuiState()
   ui0.add(defs: [
     MjuiDef(.section, name: "File", state: 1, pdata: nil, other: "AF"),
@@ -268,9 +273,19 @@ glContext.makeCurrent {
     settings.$index,
     MjuiDef(.static, name: "Value", state: 2, pdata: nil, other: " "),
   ])
-  ui0.predicate = { _ in
-    return true
+  ui0.predicate = { category in
+    switch category {
+    case 2:  // require model
+      return m != nil
+    case 3:  // require model and nkey
+      return (m?.nkey ?? 0) != 0
+    case 4:  // require model and paused
+      return m != nil && !settings.run
+    default:
+      return true
+    }
   }
+  ui1.predicate = ui0.predicate
   settings.font = glContext.fontScale / 50 - 1
   glContext.setCallbacks(uiState: &uiState) { uiState in
     if uiState.dragrect == ui0.rectid || (uiState.dragrect == 0 && uiState.mouserect == ui0.rectid)
@@ -514,11 +529,11 @@ glContext.makeCurrent {
     // rect 1: UI 0
     uiState.rect.1.left = 0
     uiState.rect.1.bottom = 0
-    uiState.rect.1.width = ui0.width
+    uiState.rect.1.width = settings.ui0 ? ui0.width : 0
     uiState.rect.1.height = height
 
     // rect 2: UI 1
-    uiState.rect.2.width = 0  // settings.ui1 ? ui1.width : 0
+    uiState.rect.2.width = settings.ui1 ? ui1.width : 0
     uiState.rect.2.left = max(0, width - uiState.rect.2.width)
     uiState.rect.2.bottom = 0
     uiState.rect.2.height = height
@@ -531,7 +546,7 @@ glContext.makeCurrent {
   }
   ui0.resize(context: context)
   glContext.modify(ui: ui0, uiState: &uiState, context: &context)
-  glContext.runLoop(swapInterval: 1) { width, height in
+  glContext.runLoop(swapInterval: 1) { _, _ in
     mtx.sync {
       if settings.loadrequest == 1, let filename = filename {
         let model = try! MjModel(fromXMLPath: filename)
@@ -553,11 +568,14 @@ glContext.makeCurrent {
         scene.updateScene(model: m, data: &d, option: vopt, perturb: pert, camera: &camera)
       }
     }
-    let viewport = MjrRect(left: 0, bottom: 0, width: width, height: height)
+    let viewport = uiState.rect.3
     rectangle(viewport: viewport, r: 0.2, g: 0.3, b: 0.4, a: 1)
     context.render(viewport: viewport, scene: &scene)
     if settings.ui0 {
       ui0.render(state: uiState, context: context)
+    }
+    if settings.ui1 {
+      ui1.render(state: uiState, context: context)
     }
     if settings.help {
       context.overlay(

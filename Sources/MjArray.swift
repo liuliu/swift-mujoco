@@ -28,6 +28,14 @@ public struct MjArray<Element> {
   }
   @inlinable
   public var count: Int { Int(len) }
+  @inlinable
+  public static func + (lhs: Self, rhs: Int) -> UnsafeMutablePointer<Element> {
+    return lhs._array + rhs
+  }
+  @inlinable
+  public static func + (lhs: Int, rhs: Self) -> UnsafeMutablePointer<Element> {
+    return lhs + rhs._array
+  }
 }
 
 public struct Mj2DArray<Element> {
