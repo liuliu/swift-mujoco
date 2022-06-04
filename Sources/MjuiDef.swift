@@ -1,5 +1,8 @@
 import C_mujoco
 
+/// table passed to mjui_add()
+///
+/// This structure defines one entry in the definition table used for simplified UI construction.
 public struct MjuiDef {
   @usableFromInline
   var _def: mjuiDef_

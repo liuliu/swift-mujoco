@@ -1,5 +1,6 @@
 import C_mujoco
 
+/// This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.
 public struct MjData {
 
   @usableFromInline

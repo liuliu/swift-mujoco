@@ -1,5 +1,6 @@
 import C_mujoco
 
+/// edit-related
 public struct MjuiItemEdit {
   @usableFromInline
   var object: AnyObject

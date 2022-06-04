@@ -1,5 +1,8 @@
 import C_mujoco
 
+/// UI section
+///
+/// This structure defines one section of the UI.
 public struct MjuiSection {
   @usableFromInline
   var object: AnyObject

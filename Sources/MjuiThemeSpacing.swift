@@ -1,5 +1,8 @@
 import C_mujoco
 
+/// UI visualization theme spacing
+///
+/// This structure defines the spacing of UI items in the theme.
 public struct MjuiThemeSpacing {
   @usableFromInline
   var _themespacing: mjuiThemeSpacing_

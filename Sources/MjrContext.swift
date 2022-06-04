@@ -1,5 +1,8 @@
 import C_mujoco
 
+/// custom OpenGL context
+///
+/// This structure contains the custom OpenGL rendering context, with the ids of all OpenGL resources uploaded to the GPU.
 public struct MjrContext {
   @usableFromInline
   let _storage: Storage

@@ -6,6 +6,7 @@ public enum MjError: Error {
   case actuator(String?)
 }
 
+/// This is the main data structure holding the MuJoCo model. It is treated as constant by the simulator.
 public struct MjModel {
 
   @usableFromInline

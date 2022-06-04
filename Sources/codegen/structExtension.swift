@@ -23,9 +23,13 @@ public enum FieldType {
 
 public struct Struct {
   public var name: String
+  public var comment: String?
   public var fields: [(name: String?, type: FieldType, comment: String?)]
-  public init(name: String, fields: [(name: String?, type: FieldType, comment: String?)]) {
+  public init(
+    name: String, comment: String?, fields: [(name: String?, type: FieldType, comment: String?)]
+  ) {
     self.name = name
+    self.comment = comment
     self.fields = fields
   }
 }

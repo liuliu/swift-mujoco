@@ -1,5 +1,8 @@
 import C_mujoco
 
+/// entire UI
+///
+/// This structure defines the entire UI.
 public struct MjUI {
   @usableFromInline
   let _storage = Storage()

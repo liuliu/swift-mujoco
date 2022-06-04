@@ -1,5 +1,6 @@
 import C_mujoco
 
+/// slider-related
 public struct MjuiItemSlider {
   @usableFromInline
   var object: AnyObject

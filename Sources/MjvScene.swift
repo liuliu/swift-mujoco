@@ -1,5 +1,8 @@
 import C_mujoco
 
+/// abstract scene passed to OpenGL renderer
+///
+/// This structure contains everything needed to render the 3D scene in OpenGL.
 public struct MjvScene {
   @usableFromInline
   let _storage: Storage

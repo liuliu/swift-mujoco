@@ -1,5 +1,8 @@
 import C_mujoco
 
+/// abstract camera
+///
+/// This is the data structure describing one abstract camera.
 public struct MjvCamera {
   @usableFromInline
   var _camera: mjvCamera

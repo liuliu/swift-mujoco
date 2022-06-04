@@ -1,6 +1,9 @@
 import C_mujoco
 import Foundation
 
+/// virtual file system for loading from memory
+///
+/// This is the data structure with the virtual file system. It can only be constructed programmatically, and does not have an analog in MJCF.
 public struct MjVFS {
   @usableFromInline
   let _storage = Storage()

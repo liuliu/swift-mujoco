@@ -1,5 +1,6 @@
 import C_mujoco
 
+/// check and button-related
 public struct MjuiItemSingle {
   @usableFromInline
   var object: AnyObject

@@ -1,6 +1,8 @@
 import C_mujoco
 
-// I am pretty certain this cannot be created manually, hence, it is a struct.
+/// UI item
+///
+/// This structure defines one UI item.
 public struct MjuiItem {
   @usableFromInline
   var object: AnyObject

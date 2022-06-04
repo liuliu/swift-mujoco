@@ -1,5 +1,8 @@
 import C_mujoco
 
+/// OpenGL rectangle
+///
+/// This structure specifies a rectangle.
 public typealias MjrRect = mjrRect
 
 extension Array where Element == MjrRect {

@@ -1,5 +1,6 @@
 import C_mujoco
 
+/// options for mj_setLengthRange()
 public struct MjLROpt {
   @usableFromInline
   var _lropt: mjLROpt

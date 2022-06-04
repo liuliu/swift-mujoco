@@ -1,5 +1,6 @@
 import C_mujoco
 
+/// static, radio and select-related
 public struct MjuiItemMulti {
   @usableFromInline
   var object: AnyObject

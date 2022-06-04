@@ -63,9 +63,9 @@ new_git_repository(
 new_git_repository(
     name = "mujoco",
     build_file = "mujoco.BUILD",
-    commit = "01e232446dcfd24a273b21c71867d6b4021f5796",
+    commit = "d7ae7f54338a8ea02c34f4a969722182481eb72b",
     remote = "https://github.com/deepmind/mujoco.git",
-    shallow_since = "1653328031 -0700",
+    shallow_since = "1654010825 -0700",
 )
 
 # Other helper functions

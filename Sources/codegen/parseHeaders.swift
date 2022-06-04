@@ -96,7 +96,10 @@ public func parseMuJoCoHeaders(from filePaths: [String]) -> (
         of: #"\s*typedef\s+enum\s+(\w)+\s+\{"#, options: .regularExpression)
       {
         let matched = line[range].split(whereSeparator: \.isWhitespace)
-        thisEnum = Enum(name: String(matched[2]), keyValues: [])
+        let comment = line.components(separatedBy: "//").dropFirst().joined(separator: "//")
+          .trimmingCharacters(in: .whitespacesAndNewlines)
+        thisEnum = Enum(
+          name: String(matched[2]), comment: comment.isEmpty ? nil : comment, keyValues: [])
       } else if let currentEnum = thisEnum {
         if line.range(of: #"\s*\}"#, options: .regularExpression) != nil {
           // Close up a enum.
@@ -125,7 +128,10 @@ public func parseMuJoCoHeaders(from filePaths: [String]) -> (
       {
         // The start of a struct.
         let matched = line[range].split(whereSeparator: \.isWhitespace)
-        thisStruct = Struct(name: String(matched[1]), fields: [])
+        let comment = line.components(separatedBy: "//").dropFirst().joined(separator: "//")
+          .trimmingCharacters(in: .whitespacesAndNewlines)
+        thisStruct = Struct(
+          name: String(matched[1]), comment: comment.isEmpty ? nil : comment, fields: [])
       } else if let currentStruct = thisStruct {
         // The end of a struct.
         if line.range(of: #"\s*\}"#, options: .regularExpression) != nil {

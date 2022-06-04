@@ -1,5 +1,8 @@
 import C_mujoco
 
+/// UI visualization theme color
+///
+/// This structure defines the colors of UI items in the theme.
 public struct MjuiThemeColor {
   @usableFromInline
   var _themecolor: mjuiThemeColor_
