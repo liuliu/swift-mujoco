@@ -104,7 +104,8 @@ for thisStruct in structs {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
       optionSets: optionSets,
-      suffix: ".pointee", deny: ["warning", "timer", "solver", "buffer", "stack"],
+      suffix: ".pointee", deny: ["buffer", "stack"],
+      staticArrayAsDynamic: ["warning", "timer", "solver"],
       boundingObject: "_storage")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjData+Extensions.swift"),

@@ -35,6 +35,56 @@ extension MjData {
     get { _data.pointee.maxuse_efc }
     set { _data.pointee.maxuse_efc = newValue }
   }
+  /// warning statistics
+  @inlinable
+  public var warning: MjArray<MjWarningStat> {
+    get {
+      MjArray<MjWarningStat>(
+        array: UnsafeMutableRawPointer(
+          withUnsafeMutablePointer(to: &_data.pointee.warning.0, { $0 })
+        ).assumingMemoryBound(to: MjWarningStat.self), object: _storage, len: 8)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<MjWarningStat> = UnsafeMutableRawPointer(
+        withUnsafeMutablePointer(to: &_data.pointee.warning.0, { $0 })
+      ).assumingMemoryBound(to: MjWarningStat.self)
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(8))
+    }
+  }
+  /// timer statistics
+  @inlinable
+  public var timer: MjArray<MjTimerStat> {
+    get {
+      MjArray<MjTimerStat>(
+        array: UnsafeMutableRawPointer(withUnsafeMutablePointer(to: &_data.pointee.timer.0, { $0 }))
+          .assumingMemoryBound(to: MjTimerStat.self), object: _storage, len: 13)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<MjTimerStat> = UnsafeMutableRawPointer(
+        withUnsafeMutablePointer(to: &_data.pointee.timer.0, { $0 })
+      ).assumingMemoryBound(to: MjTimerStat.self)
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(13))
+    }
+  }
+  /// solver statistics per iteration
+  @inlinable
+  public var solver: MjArray<MjSolverStat> {
+    get {
+      MjArray<MjSolverStat>(
+        array: UnsafeMutableRawPointer(
+          withUnsafeMutablePointer(to: &_data.pointee.solver.0, { $0 })
+        ).assumingMemoryBound(to: MjSolverStat.self), object: _storage, len: 1000)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<MjSolverStat> = UnsafeMutableRawPointer(
+        withUnsafeMutablePointer(to: &_data.pointee.solver.0, { $0 })
+      ).assumingMemoryBound(to: MjSolverStat.self)
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(1000))
+    }
+  }
   /// number of solver iterations
   @inlinable
   public var solverIter: Int32 {
