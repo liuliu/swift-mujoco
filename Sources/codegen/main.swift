@@ -37,19 +37,22 @@ for thisStruct in structs {
   if thisStruct.name == "mjContact_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       excludingCamelCaseForProperties: ["H"])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjContact+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjLROpt_" {
     let code = structExtension(
-      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums)
+      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets)
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjLROpt+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjOption_" {
     let code = structExtension(
-      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums)
+      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets)
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjOption+Extensions.swift"),
       atomically: false, encoding: .utf8)
@@ -57,43 +60,50 @@ for thisStruct in structs {
     let code =
       "import C_mujoco\n"
       + structExtension(
-        thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums)
+        thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+        optionSets: optionSets)
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjVisual+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjvCamera_" {
     let code = structExtension(
-      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums)
+      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets)
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvCamera+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjvGLCamera_" {
     let code = structExtension(
-      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums)
+      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets)
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvGLCamera+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjvGeom_" {
     let code = structExtension(
-      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums)
+      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets)
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvGeom+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjvOption_" {
     let code = structExtension(
-      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums)
+      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets)
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvOption+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjvPerturb_" {
     let code = structExtension(
-      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums)
+      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets)
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjvPerturb+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjData_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee", deny: ["warning", "timer", "solver", "buffer", "stack"],
       boundingObject: "_storage")
     try! code.write(
@@ -103,6 +113,7 @@ for thisStruct in structs {
     var code = "import C_mujoco\n"
     code += structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee", deny: ["buffer"],
       propertiesMapping: [
         "nuser_jnt": "nuserJnt", "nuser_geom": "nuserGeom", "nuser_site": "nuserSite",
@@ -115,6 +126,7 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjvScene_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee",
       staticArrayAsDynamic: ["lights"], boundingObject: "_storage")
     try! code.write(
@@ -123,6 +135,7 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjvFigure_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee",
       deny: ["linedata"], staticArrayAsDynamic: ["linergb", "range", "linename", "linepnt"],
       boundingObject: "_storage")
@@ -132,6 +145,7 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjrContext_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee",
       staticArrayAsDynamic: [
         "auxWidth", "auxHeight", "auxSamples", "auxFBO", "auxFBO_r", "auxColor", "auxColor_r",
@@ -146,25 +160,29 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjuiState_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       deny: ["userdata"])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiState+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiThemeSpacing_" {
     let code = structExtension(
-      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums)
+      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets)
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiThemeSpacing+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiThemeColor_" {
     let code = structExtension(
-      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums)
+      thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets)
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiThemeColor+Extensions.swift"),
       atomically: false, encoding: .utf8)
   } else if thisStruct.name == "mjuiItemSingle_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee", boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemSingle+Extensions.swift"),
@@ -172,6 +190,7 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjuiItemMulti_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee", staticArrayAsDynamic: ["name"], boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemMulti+Extensions.swift"),
@@ -179,6 +198,7 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjuiItemSlider_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee", boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemSlider+Extensions.swift"),
@@ -186,6 +206,7 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjuiItemEdit_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee", staticArrayAsDynamic: ["range"], boundingObject: "object")
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItemEdit+Extensions.swift"),
@@ -193,6 +214,7 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjuiItem_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee", deny: ["*pdata", "single", "multi", "slider", "edit"],
       boundingObject: "object")
     try! code.write(
@@ -201,6 +223,7 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjuiSection_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee", deny: ["item"])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiSection+Extensions.swift"),
@@ -208,6 +231,7 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjUI_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       suffix: ".pointee", deny: ["predicate", "userdata", "editchanged", "sect"],
       boundingObject: "_storage")
     try! code.write(
@@ -216,6 +240,7 @@ for thisStruct in structs {
   } else if thisStruct.name == "mjuiDef_" {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
+      optionSets: optionSets,
       deny: ["pdata"])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiDef+Extensions.swift"),

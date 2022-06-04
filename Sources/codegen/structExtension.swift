@@ -212,7 +212,7 @@ func cleanupFieldName(name: String) -> String {
 
 public func structExtension(
   _ thisStruct: Struct, definedConstants: [String: Int], wrappedMjEnums: Set<String>,
-  prefix: String = "",
+  optionSets: Set<String>, prefix: String = "",
   suffix: String = "", deny: [String] = [], propertiesMapping: [String: String] = [:],
   staticArrayAsDynamic: [String] = [], excludingCamelCaseForProperties: [String] = [],
   boundingObject: String = "self"
@@ -315,13 +315,15 @@ public func structExtension(
         code += "    }\n"
       }
     } else if wrappedMjEnums.contains(fieldType.primitive) {
+      let isOptionSet = optionSets.contains(fieldType.primitive)
       if case let .plain(primitiveType) = fieldType {
-        code += "    get { \(primitiveType)(rawValue: _\(varName)\(suffix).\(fieldName))! }\n"
+        code +=
+          "    get { \(primitiveType)(rawValue: _\(varName)\(suffix).\(fieldName))\(isOptionSet ? "" : "!") }\n"
         code +=
           "    set { _\(varName)\(suffix).\(fieldName) = newValue.rawValue }\n"
       } else if case let .tuple(primitiveType, count) = fieldType {
         code +=
-          "    get { (\((0..<count).map({ "\(primitiveType)(rawValue: _\(varName)\(suffix).\(fieldName).\($0))!" }).joined(separator: ", "))) }\n"
+          "    get { (\((0..<count).map({ "\(primitiveType)(rawValue: _\(varName)\(suffix).\(fieldName).\($0))\(isOptionSet ? "" : "!")" }).joined(separator: ", "))) }\n"
         code += "    set {\n"
         for i in 0..<count {
           code += "      _\(varName)\(suffix).\(fieldName).\(i) = newValue.\(i).rawValue\n"

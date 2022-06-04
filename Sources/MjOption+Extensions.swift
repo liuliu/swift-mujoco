@@ -131,16 +131,16 @@ extension MjOption {
     get { _option.mpr_iterations }
     set { _option.mpr_iterations = newValue }
   }
-  /// bit flags for disabling standard features
+  /// bit flags for disabling standard features (mjtDisableBit)
   @inlinable
-  public var disableflags: Int32 {
-    get { _option.disableflags }
-    set { _option.disableflags = newValue }
+  public var disableflags: MjtDisableBit {
+    get { MjtDisableBit(rawValue: _option.disableflags) }
+    set { _option.disableflags = newValue.rawValue }
   }
-  /// bit flags for enabling optional features
+  /// bit flags for enabling optional features (mjtEnableBit)
   @inlinable
-  public var enableflags: Int32 {
-    get { _option.enableflags }
-    set { _option.enableflags = newValue }
+  public var enableflags: MjtEnableBit {
+    get { MjtEnableBit(rawValue: _option.enableflags) }
+    set { _option.enableflags = newValue.rawValue }
   }
 }
