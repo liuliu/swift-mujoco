@@ -98,10 +98,13 @@ extension MjvScene {
   }
   ///  Select geom or skin with mouse, return bodyid; -1: none selected.
   @inlinable
-  public func select(
+  public func select<
+    T0: MjDoubleMutableBufferPointer, T1: MjInt32MutableBufferPointer,
+    T2: MjInt32MutableBufferPointer
+  >(
     model: MjModel, data: MjData, vopt: MjvOption, aspectratio: Double, relx: Double, rely: Double,
-    selpnt: inout MjDoubleMutableBufferPointer, geomid: inout MjInt32MutableBufferPointer,
-    skinid: inout MjInt32MutableBufferPointer
+    selpnt: inout T0, geomid: inout T1,
+    skinid: inout T2
   ) -> Int32 {
     var vopt__option = vopt._option
     precondition(selpnt.count == 3)

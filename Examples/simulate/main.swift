@@ -126,6 +126,7 @@ let vmode = GLContext.videoMode
 var ctrlnoise: [Double]? = nil
 let maxgeom: Int32 = 5_000
 let maxSlowdown: Int32 = 128  // maximum slow-down quotient
+let zoomIncrement: Double = 0.02  // ratio of single click-wheel zoom increment to vertical extent
 
 func noise(_ std: Double) -> Double {
   let u1 = Double.random(in: 0...1)
@@ -289,7 +290,7 @@ glContext.makeCurrent {
     }
     if uiState.type == .key && uiState.key != 0 {
       switch uiState.key {
-      case Int32(Character(" ").wholeNumberValue!):
+      case Int32(Character(" ").asciiValue!):
         guard m != nil else { break }
         settings.run = !settings.run
         pert.active = []
@@ -310,7 +311,7 @@ glContext.makeCurrent {
         if pert.select <= 0 {
           pert.active = []
         }
-      case Int32(Character("]").wholeNumberValue!):
+      case Int32(Character("]").asciiValue!):
         guard let m = m, m.ncam > 0 else { break }
         camera.type = .fixed
         // settings.camera = {0 or 1} are reserved for the free and tracking cameras
@@ -321,7 +322,7 @@ glContext.makeCurrent {
         }
         camera.fixedcamid = settings.camera - 2
         uiState.update(section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
-      case Int32(Character("[").wholeNumberValue!):
+      case Int32(Character("[").asciiValue!):
         guard let m = m, m.ncam > 0 else { break }
         camera.type = .fixed
         // settings.camera = {0 or 1} are reserved for the free and tracking cameras
@@ -334,24 +335,30 @@ glContext.makeCurrent {
         uiState.update(section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
       case 295:  // F6
         guard m != nil else { break }
-        // vopt.frame = (vopt.frame + 1) % mjNFRAME;
+        let next = MjtFrame.allCases.index(after: MjtFrame.allCases.firstIndex(of: vopt.frame)!)
+        vopt.frame =
+          MjtFrame.allCases[
+            next == MjtFrame.allCases.endIndex ? MjtFrame.allCases.startIndex : next]
         uiState.update(section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
         break
       case 296:  // F7
         guard m != nil else { break }
-        // vopt.label = (vopt.label + 1) % mjNLABEL;
+        let next = MjtLabel.allCases.index(after: MjtLabel.allCases.firstIndex(of: vopt.label)!)
+        vopt.label =
+          MjtLabel.allCases[
+            next == MjtLabel.allCases.endIndex ? MjtLabel.allCases.startIndex : next]
         uiState.update(section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
         break
       case 256:  // Escape
         camera.type = .free
         settings.camera = 0
         uiState.update(section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
-      case Int32(Character("-").wholeNumberValue!):
+      case Int32(Character("-").asciiValue!):
         if settings.slowdown < maxSlowdown && uiState.shift == 0 {
           settings.slowdown *= 2
           settings.speedchanged = true
         }
-      case Int32(Character("=").wholeNumberValue!):
+      case Int32(Character("=").asciiValue!):
         if settings.slowdown > 1 && uiState.shift == 0 {
           settings.slowdown /= 2
           settings.speedchanged = true
@@ -359,17 +366,159 @@ glContext.makeCurrent {
       default:
         break
       }
+      return
+    }
+    // 3D scroll
+    if uiState.type == .scroll && uiState.mouserect == 3, let m = m {
+      // emulate vertical mouse motion = 2% of window height
+      camera.moveCamera(
+        model: m, action: .zoom, reldx: 0, reldy: -zoomIncrement * uiState.sy, scene: scene)
+      return
+    }
+    // 3D press
+    if uiState.type == .press && uiState.mouserect == 3, let m = m, let d = d {
+      // set perturbation
+      var newperturb: MjtPertBit = []
+      if uiState.control != 0 && pert.select > 0 {
+        // right: translate;  left: rotate
+        if uiState.right != 0 {
+          newperturb = [.translate]
+        } else if uiState.left != 0 {
+          newperturb = [.rotate]
+        }
+
+        // perturbation onset: reset reference
+        if !newperturb.isEmpty && pert.active.isEmpty {
+          pert.initPerturb(model: m, data: d, scene: scene)
+        }
+      }
+      pert.active = newperturb
+
+      // handle double-click
+      if uiState.doubleclick != 0 {
+        // determine selection mode
+        let selmode: Int32
+        if uiState.button == .left {
+          selmode = 1
+        } else if uiState.control != 0 {
+          selmode = 3
+        } else {
+          selmode = 2
+        }
+
+        // find geom and 3D click point, get corresponding body
+        let r = uiState.rect.3
+        var selpnt: [Double] = [0, 0, 0]
+        var selgeom: [Int32] = [-1]
+        var selskin: [Int32] = [-1]
+        scene.select(
+          model: m, data: d, vopt: vopt, aspectratio: Double(r.width) / Double(r.height),
+          relx: (uiState.x - Double(r.left)) / Double(r.width),
+          rely: (uiState.y - Double(r.bottom)) / Double(r.height), selpnt: &selpnt,
+          geomid: &selgeom, skinid: &selskin)
+
+        /*
+        // set lookat point, start tracking is requested
+        if (selmode==2 || selmode==3) {
+          // copy selpnt if anything clicked
+          if (selbody>=0) {
+            mju_copy3(cam.lookat, selpnt);
+          }
+
+          // switch to tracking camera if dynamic body clicked
+          if (selmode==3 && selbody>0) {
+            // mujoco camera
+            cam.type = mjCAMERA_TRACKING;
+            cam.trackbodyid = selbody;
+            cam.fixedcamid = -1;
+
+            // UI camera
+            settings.camera = 1;
+            mjui_update(SECT_RENDERING, -1, &ui0, &uistate, &con);
+          }
+        }
+
+        // set body selection
+        else {
+          if (selbody>=0) {
+            // record selection
+            pert.select = selbody;
+            pert.skinselect = selskin;
+
+            // compute localpos
+            mjtNum tmp[3];
+            mju_sub3(tmp, selpnt, d->xpos+3*pert.select);
+            mju_mulMatTVec(pert.localpos, d->xmat+9*pert.select, tmp, 3, 3);
+          } else {
+            pert.select = 0;
+            pert.skinselect = -1;
+          }
+        }
+
+        // stop perturbation on select
+        pert.active = 0;
+        */
+      }
+      return
+    }
+
+    // 3D release
+    if uiState.type == .release && uiState.dragrect == 3 && m != nil {
+      // stop perturbation
+      pert.active = []
+      return
+    }
+
+    // 3D move
+    if uiState.type == .move && uiState.dragrect == 3, let m = m, let d = d {
+      // determine action based on mouse button
+      var action: MjtMouse
+      if uiState.right != 0 {
+        action = uiState.shift != 0 ? .moveH : .moveV
+      } else if uiState.left != 0 {
+        action = uiState.shift != 0 ? .rotateH : .rotateV
+      } else {
+        action = .zoom
+      }
+
+      // move perturb or camera
+      let r = uiState.rect.3
+      if !pert.active.isEmpty {
+        pert.movePerturb(
+          model: m, data: d, action: action, reldx: uiState.dx / Double(r.height),
+          reldy: -uiState.dy / Double(r.height), scene: scene)
+      } else {
+        camera.moveCamera(
+          model: m, action: action, reldx: uiState.dx / Double(r.height),
+          reldy: -uiState.dy / Double(r.height), scene: scene)
+      }
+      return
     }
   } uiLayout: { uiState, width, height in
-    uiState.nrect = 2
+    // set number of rectangles
+    uiState.nrect = 4
+    // rect 0: entire framebuffer
     uiState.rect.0.left = 0
     uiState.rect.0.bottom = 0
     uiState.rect.0.width = width
     uiState.rect.0.height = height
+    // rect 1: UI 0
     uiState.rect.1.left = 0
     uiState.rect.1.bottom = 0
     uiState.rect.1.width = ui0.width
     uiState.rect.1.height = height
+
+    // rect 2: UI 1
+    uiState.rect.2.width = 0  // settings.ui1 ? ui1.width : 0
+    uiState.rect.2.left = max(0, width - uiState.rect.2.width)
+    uiState.rect.2.bottom = 0
+    uiState.rect.2.height = height
+
+    // rect 3: 3D plot (everything else is an overlay)
+    uiState.rect.3.left = uiState.rect.1.width
+    uiState.rect.3.width = max(0, width - uiState.rect.1.width - uiState.rect.2.width)
+    uiState.rect.3.bottom = 0
+    uiState.rect.3.height = height
   }
   ui0.resize(context: context)
   glContext.modify(ui: ui0, uiState: &uiState, context: &context)
