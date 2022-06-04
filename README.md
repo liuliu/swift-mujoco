@@ -10,17 +10,72 @@ Up until now, I only dipped a bit into DRL with https://github.com/liuliu/s4nnc/
 
 If we can run MuJoCo from Swift, we can avoid the trip into Python entirely and simply use `DispatchQueue.concurrentPerform` for environment runs.
 
-## Plan
+## Automatic Interface Generation
 
-Current version was able to load `ant.xml` model and render under Linux (see `Examples/ant/main.swift`). It gives me some ideas about how to make this as ergonomic, while maintaining close mapping between Swift and C.
+### Struct
 
-After the bootstrap period, I am going to write a simple parser for MuJoCo header such that additional accessors and functions can be generated from the source directly. There are a few rules:
+A mixed strategy was used for MuJoCo interface generation. MuJoCo's API heavily leans towards exposed public C structs. MuJoCo for Swift has to expose these C structs. Wrappers for these C structs are manually created with following principles:
 
- * Anything that has associated resources to free has to be a `final class` to enable automatic resource management;
- * Anything else will be `struct`;
- * Use `typealias` sparsely but surely to avoid meaningless translation for simple data structures;
- * C functions are associated with the first parameter object;
- * Most of the functions, accessors and setters are marked as `@inlinable` to make the usage as barebone as possible;
- * Enforce boundary checks using MuJoCo header comments provided information.
+ * If possible, simply `typealias` to its C struct;
+ * If not, refer a `public struct` with C struct interior, keeping the memory layout exactly the same (can better expose certain properties, more on that later);
+ * If there are associated heap data, typically, with `mj_deleteXXX` methods. These are `public struct` with a `final class Storage` interior to track lifetime.
 
-Currently, MuJoCo for Swift is built with Bazel. I plan to support Swift Package Manager after more work has done (this is unlike [s4nnc](https://github.com/liuliu/s4nnc), for which I have no plan to support SPM).
+Which out of the three implemented was tracked in `Sources/codegen/functionExtension.swift`.
+
+MuJoCo's C headers are parsed and used to generate `enum`, properties on structs and functions on structs. These are `Mjt.swift`, `XX+Extensions.swift` and `XX+Functions.swift` files.
+
+They can be reproduced with:
+
+```
+bazel run Sources:codegen -- ~/workspace/swift-mujoco/Sources/ ~/workspace/mujoco/include/mujoco/*.h
+```
+
+Extra care was taken to make sure comments are properly parsed and added to these extensions. <https://liuliu.github.io/swift-mujoco/documentation/mujoco> is the documentation generated based on these comments.
+
+`MjArray<T>` is the array type that exposes static or dynamic arrays within a C struct. It retains the underlying storage to make sure the access is safe. All accessors are generated for public C structs from MuJoCo.
+
+### Enum
+
+`enum` are parsed and generated. Because there is no type annotation, we do our best to infer which int type are enums from comment. `MjtEnableBit` and `MjtDisableBit` are special handled to be `OptionSet`.
+
+### Functions
+
+C functions are not scoped to a particular object. We have to infer these. First, we try to infer which group of APIs it belongs to with the prefix: `mj_` matches `mjXX` structs, `mjv_` matches `mjvXX` structs. We prefer the first parameter, otherwise the last parameter (as it is often used as write to). If no suitable object to be found, it is a free function.
+
+The interface generation process also treats `const` annotation seriously. Without `const`, these methods are annotated with `mutating`. If the parameter is a pointer without `const`, it is annotated with `inout`.
+
+Not all functions are automatically generated, some of these are manually implemented because:
+
+ * The C API can be better reflected with corresponding Swift API, for example, `mj_loadXML` can be better translated with `throws` for errors;
+ * Some parameters can be nil, but during automatic interface generation, we assumed all parameters to be non-nil.
+
+### MjUI
+
+Whenever possible, we lean towards automatic interface generation. That's why certain APIs even looks weird, we keep it that way. `MjUI` has many quirks that at odds with this philosophy. In particular, `MjuiDef` automatically associated the UI control with the underlying storage `pdata`. Because `pdata` is a pointer, it has no regards to the underlying storage lifetime. A property wrapper `MjuiDefState` is introduced to solve this issue. Although users are still responsible to make sure the underlying storage lifetime longer than `MjUI` itself, you don't need to deal with raw `pdata`.
+
+### String
+
+MuJoCo leans heavily on static allocated strings. To make interaction easier, these are exposed as ordinary Swift strings. The back-and-forth copying can be expensive.
+
+### GLContext
+
+A `GLContext` object is introduced to delegate GLFW interactions. Functionalities from `uitools.cc` in `./sample/` of MuJoCo were added to make interactions with `MjUI` easier.
+
+## Road to 0.1
+
+Although most APIs and struct properties now translated, there are some minor issues we need to solve before v0.1:
+
+ * The lifetime management of associated storage for both `MjuiState` and `MjuiDef.pdata` is unsatisfactory. It may as well be the best solution I have so far, but could be something I spend time to think more about;
+ * `MjvFigure` hasn't tested;
+ * Not all functionalities from `simulate.cc` ported over to `Examples/simulate/main.swift`.
+
+## Examples
+
+Both `Examples/simulate` and `Examples/ant` should provide good starting point to learn about this port. To run:
+
+```
+bazel run Examples:ant
+bazel run Examples:simulate -- ~/workspace/swift-mujoco/Examples/assets/ant.xml
+```
+
+Visit documentation at: <https://liuliu.github.io/swift-mujoco/documentation/mujoco>. These should be regularly updated.
