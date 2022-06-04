@@ -1,3 +1,5 @@
+import C_mujoco
+
 // The difference of this v.s. using UnsafeMutableBufferPointer is that MjArray will hold a
 // reference to the owner of that piece of memory, therefore, making sure the access is safe even
 // though underlying it is backed by UnsafeMutablePointer.
@@ -26,6 +28,14 @@ public struct MjArray<Element> {
   }
   @inlinable
   public var count: Int { Int(len) }
+}
+
+extension MjArray where Element == Double {
+  /// Zero out the array.
+  @inlinable
+  public func zero() {
+    mju_zero(_array, len)
+  }
 }
 
 public struct MjStaticStringArray {

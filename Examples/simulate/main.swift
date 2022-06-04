@@ -1,65 +1,202 @@
-import Dispatch
+import Foundation
 import MuJoCo
+import Numerics
 
 struct Settings {
-  var exitrequest: Int32 = 0
+  var exitrequest = false
+  var slowdown: Int32 = 1
+  var speedchanged = false
   // option section of UI
-  @MjuiItemState(.select, name: "Spacing", state: 1, other: "Tight\nWide")
+  @MjuiDefState(.select, name: "Spacing", state: 1, other: "Tight\nWide")
   var spacing: Int32 = 0
-  @MjuiItemState(.select, name: "Color", state: 1, other: "Default\nOrange\nWhite\nBlack")
+  @MjuiDefState(.select, name: "Color", state: 1, other: "Default\nOrange\nWhite\nBlack")
   var color: Int32 = 0
-  @MjuiItemState(.select, name: "Font", state: 1, other: "50 %\n100 %\n150 %\n200 %\n250 %\n300%")
+  @MjuiDefState(.select, name: "Font", state: 1, other: "50 %\n100 %\n150 %\n200 %\n250 %\n300%")
   var font: Int32 = 0
-  @MjuiItemState(.checkint, name: "Left UI (Tab)", state: 1, other: " #258")
-  var ui0: Int32 = 1
-  @MjuiItemState(.checkint, name: "Right UI", state: 1, other: "S#258")
-  var ui1: Int32 = 1
-  @MjuiItemState(.checkint, name: "Help", state: 2, other: " #290")
-  var help: Int32 = 0
-  @MjuiItemState(.checkint, name: "Info", state: 2, other: " #291")
-  var info: Int32 = 0
-  @MjuiItemState(.checkint, name: "Profiler", state: 2, other: " #292")
-  var profiler: Int32 = 0
-  @MjuiItemState(.checkint, name: "Sensor", state: 2, other: " #293")
-  var sensor: Int32 = 0
-  @MjuiItemState(.checkint, name: "Fullscreen", state: 1, other: " #294")
-  var fullscreen: Int32 = 0
-  @MjuiItemState(.checkint, name: "Vertical Sync", state: 1, other: "")
+  @MjuiDefState(.checkint, name: "Left UI (Tab)", state: 1, other: " #258")
+  var ui0 = true
+  @MjuiDefState(.checkint, name: "Right UI", state: 1, other: "S#258")
+  var ui1 = true
+  @MjuiDefState(.checkint, name: "Help", state: 2, other: " #290")
+  var help = false
+  @MjuiDefState(.checkint, name: "Info", state: 2, other: " #291")
+  var info = false
+  @MjuiDefState(.checkint, name: "Profiler", state: 2, other: " #292")
+  var profiler = false
+  @MjuiDefState(.checkint, name: "Sensor", state: 2, other: " #293")
+  var sensor = false
+  @MjuiDefState(.checkint, name: "Fullscreen", state: 1, other: " #294")
+  var fullscreen = false
+  @MjuiDefState(.checkint, name: "Vertical Sync", state: 1, other: "")
   var vsync: Int32 = 1
-  @MjuiItemState(.checkint, name: "Busy Wait", state: 1, other: "")
-  var busywait: Int32 = 0
+  @MjuiDefState(.checkint, name: "Busy Wait", state: 1, other: "")
+  var busywait = false
   // simulation section of UI
-  @MjuiItemState(.radio, name: "", state: 2, other: "Pause\nRun")
-  var run: Int32 = 1
-  @MjuiItemState(.sliderint, name: "Key", state: 3, other: "0 0")
+  @MjuiDefState(.radio, name: "", state: 2, other: "Pause\nRun")
+  var run = true
+  @MjuiDefState(.sliderint, name: "Key", state: 3, other: "0 0")
   var key: Int32 = 0
-  @MjuiItemState(.slidernum, name: "Noise scale", state: 2, other: "0 2")
+  @MjuiDefState(.slidernum, name: "Noise scale", state: 2, other: "0 2")
   var ctrlnoisestd: Double = 0
-  @MjuiItemState(.slidernum, name: "Noise rate", state: 2, other: "0 2")
+  @MjuiDefState(.slidernum, name: "Noise rate", state: 2, other: "0 2")
   var ctrlnoiserate: Double = 0
   // watch section of UI
-  @MjuiItemState(.edittxt, name: "Field", state: 2, other: "qpos")
+  @MjuiDefState(.edittxt, name: "Field", state: 2, other: "qpos")
   var field: String = "qpos"
-  @MjuiItemState(.editint, name: "Index", state: 2, other: "1")
+  @MjuiDefState(.editint, name: "Index", state: 2, other: "1")
   var index: Int32 = 0
   var loadrequest: Int32 = 0
 }
+// help strings
+let helpContent = """
+  Space
+  +  -
+  Right arrow
+  [  ]
+  Esc
+  Double-click
+  Page Up
+  Right double-click
+  Ctrl Right double-click
+  Scroll, middle drag
+  Left drag
+  [Shift] right drag
+  Ctrl [Shift] drag
+  Ctrl [Shift] right drag
+  F1
+  F2
+  F3
+  F4
+  F5
+  UI right hold
+  UI title double-click
+  """
+let helpTitle = """
+  Play / Pause
+  Speed up / down
+  Step
+  Cycle cameras
+  Free camera
+  Select
+  Select parent
+  Center
+  Tracking camera
+  Zoom
+  View rotate
+  View translate
+  Object rotate
+  Object translate
+  Help
+  Info
+  Profiler
+  Sensors
+  Full screen
+  Show UI shortcuts
+  Expand/collapse all
+  """
 
 let glContext = GLContext(width: 1280, height: 720, title: "simulate")
+let mtx = DispatchQueue(label: "mtx")
+var m: MjModel? = nil
+var d: MjData? = nil
+var pert = MjvPerturb()
+var settings = Settings()
+let syncmisalign: Double = 0.1  // maximum time mis-alignment before re-sync
+let refreshfactor: Double = 0.7  // fraction of refresh available for simulation
+let vmode = GLContext.videoMode
+var ctrlnoise: [Double]? = nil
+
+func noise(_ std: Double) -> Double {
+  let u1 = Double.random(in: 0...1)
+  let u2 = Double.random(in: 0...1)
+  let mag = std * (-2.0 * .log(u1)).squareRoot()
+  return mag * .cos(.pi * 2 * u2)
+}
+
+var filename: String? = nil
+if CommandLine.arguments.count > 1 {
+  filename = CommandLine.arguments[1]
+  settings.loadrequest = 2
+}
 
 // We will run this function off main thread on a default global queue.
-func simulate() {
+@Sendable
+func simulate() async throws {
+  final class Timer {
+    var simsync: Double = 0
+    var cpusync: Double = 0
+  }
+  let timer = Timer()
+  while !settings.exitrequest {
+    if settings.run && settings.busywait {
+      await Task.yield()
+    } else {
+      try await Task.sleep(nanoseconds: 1_000_000)
+    }
+    mtx.sync {
+      guard let m = m, var d = d else { return }
+      if settings.run {
+        let tmstart = GLContext.time
+        if settings.ctrlnoisestd > 0 {
+          let rate = exp(-m.opt.timestep / settings.ctrlnoiserate)
+          let scale = settings.ctrlnoisestd * (1 - rate * rate).squareRoot()
+          let prevctrlnoise = ctrlnoise
+          for i in 0..<Int(m.nu) {
+            ctrlnoise?[i] = rate * (prevctrlnoise?[i] ?? 0) + scale * noise(1)
+            d.ctrl[i] = ctrlnoise?[i] ?? 0
+          }
+        }
+        let offset = abs(
+          (d.time * Double(settings.slowdown) - timer.simsync) - (tmstart - timer.cpusync))
+        // Out of sync.
+        if d.time * Double(settings.slowdown) < timer.simsync || tmstart < timer.cpusync
+          || timer.cpusync == 0 || offset > syncmisalign * Double(settings.slowdown)
+          || settings.speedchanged
+        {
+          timer.cpusync = tmstart
+          timer.simsync = d.time * Double(settings.slowdown)
+          settings.speedchanged = false
+          d.xfrcApplied.zero()
+          pert.applyPerturbPose(model: m, data: &d, flgPaused: 0)
+          pert.applyPerturbForce(model: m, data: &d)
+          m.step(data: &d)
+        } else {
+          // In sync.
+          // step while simtime lags behind cputime, and within safefactor
+          while d.time * Double(settings.slowdown) - timer.simsync < GLContext.time - timer.cpusync
+            && GLContext.time - tmstart < refreshfactor / Double(vmode.refreshRate)
+          {
+            // clear old perturbations, apply new
+            d.xfrcApplied.zero()
+            pert.applyPerturbPose(model: m, data: &d, flgPaused: 0)
+            pert.applyPerturbForce(model: m, data: &d)
+            let prevtm = d.time * Double(settings.slowdown)
+            m.step(data: &d)
+
+            // break on reset
+            if d.time * Double(settings.slowdown) < prevtm {
+              break
+            }
+          }
+        }
+      } else {
+        pert.applyPerturbPose(model: m, data: &d, flgPaused: 1)
+        m.forward(data: &d)
+      }
+    }
+  }
 }
 
 glContext.makeCurrent {
-  var settings = Settings()
+  var camera = MjvCamera()
+  let option = MjvOption()
   var scene = MjvScene(model: nil, maxgeom: 1000)
   // The context need to be initialized after having a GL context.
   var context = MjrContext(model: nil, fontScale: ._100)
-  DispatchQueue.global(qos: .default).async(execute: simulate)
+  Task.detached(operation: simulate)
   var ui0 = MjUI()
-  ui0.spacing = MjuiThemeSpacing(0)
-  ui0.color = MjuiThemeColor(0)
+  ui0.spacing = MjuiThemeSpacing(settings.spacing)
+  ui0.color = MjuiThemeColor(settings.color)
   ui0.rectid = 1
   ui0.auxid = 0
   var uiState = MjuiState()
@@ -108,12 +245,21 @@ glContext.makeCurrent {
   ui0.predicate = { _ in
     return true
   }
-  settings.font = glContext.fontScale
+  settings.font = glContext.fontScale / 50 - 1
   glContext.setCallbacks(uiState: &uiState) { uiState in
     if uiState.dragrect == ui0.rectid || (uiState.dragrect == 0 && uiState.mouserect == ui0.rectid)
       || uiState.type == .key
     {
       let it = ui0.event(state: &uiState, context: context)
+      if let it = it {
+        if it.sectionid == 0 {
+          // File
+        } else if it.sectionid == 1 {
+          // Option
+        } else if it.sectionid == 2 {
+          // Simulation
+        }
+      }
     }
   } uiLayout: { uiState, width, height in
     uiState.nrect = 2
@@ -129,13 +275,41 @@ glContext.makeCurrent {
   ui0.resize(context: context)
   glContext.modify(ui: ui0, uiState: &uiState, context: &context)
   glContext.runLoop(swapInterval: 1) { width, height in
+    mtx.sync {
+      if settings.loadrequest == 1, let filename = filename {
+        let model = try! MjModel(fromXMLPath: filename)
+        var data = model.makeData()
+        ctrlnoise = Array(repeating: 0, count: Int(model.nu))
+        m = model
+        d = data
+        model.forward(data: &data)
+        scene.makeScene(model: model, maxgeom: 1000)
+        context.makeContext(model: model, fontscale: ._100)
+        ui0.resize(context: context)
+        glContext.modify(ui: ui0, uiState: &uiState, context: &context)
+        settings.loadrequest = 0
+      } else if settings.loadrequest > 1 {
+        settings.loadrequest = 1
+      }
+      glContext.pollEvents()
+      if let m = m, var d = d {
+        scene.updateScene(model: m, data: &d, option: option, perturb: nil, camera: &camera)
+      }
+    }
     let viewport = MjrRect(left: 0, bottom: 0, width: width, height: height)
     rectangle(viewport: viewport, r: 0.2, g: 0.3, b: 0.4, a: 1)
-    ui0.render(state: uiState, context: context)
+    context.render(viewport: viewport, scene: &scene)
+    if settings.ui0 {
+      ui0.render(state: uiState, context: context)
+    }
+    if settings.help {
+      context.overlay(
+        font: .normal, gridpos: .topleft, viewport: viewport, overlay: helpTitle,
+        overlay2: helpContent)
+    }
     context.overlay(
       font: .normal, gridpos: .bottomleft, viewport: viewport,
       overlay: "Drag-and-drop model file here", overlay2: "")
-    context.render(viewport: viewport, scene: &scene)
   }
   glContext.clearCallbacks()
 }

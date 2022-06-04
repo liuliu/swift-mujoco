@@ -68,6 +68,16 @@ new_git_repository(
     shallow_since = "1653328031 -0700",
 )
 
+# Other helper functions
+
+new_git_repository(
+    name = "SwiftNumerics",
+    build_file = "swift-numerics.BUILD",
+    commit = "4a2cbc186b1f8cbbc1ace12cef43d65784b2559e",
+    remote = "https://github.com/apple/swift-numerics.git",
+    shallow_since = "1605460976 -0500",
+)
+
 # Swift formatter.
 
 new_git_repository(

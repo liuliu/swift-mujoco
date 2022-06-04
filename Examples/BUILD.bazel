@@ -14,5 +14,6 @@ swift_binary(
     srcs = ["simulate/main.swift"],
     deps = [
         "//:swift-mujoco",
+        "@SwiftNumerics//:Numerics",
     ],
 )

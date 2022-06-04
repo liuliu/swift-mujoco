@@ -1,11 +1,11 @@
 import C_mujoco
 
-protocol MjuiItemStateWrappedStorage {
+protocol MjuiDefStateWrappedStorage {
   var wrappedValue: Any { get set }
   var pdata: UnsafeMutableRawPointer { get }
 }
 
-final class MjuiItemStateStorage<U>: MjuiItemStateWrappedStorage {
+final class MjuiDefStateStorage<U>: MjuiDefStateWrappedStorage {
   var wrappedValue: Any {
     get { _wrappedValue }
     set { _wrappedValue = newValue as! U }
@@ -19,7 +19,21 @@ final class MjuiItemStateStorage<U>: MjuiItemStateWrappedStorage {
   }
 }
 
-final class MjuiItemStateStringStorage: MjuiItemStateWrappedStorage {
+final class MjuiDefStateBoolStorage: MjuiDefStateWrappedStorage {
+  var wrappedValue: Any {
+    get { _wrappedValue != 0 ? true : false }
+    set { _wrappedValue = (newValue as! Bool) ? 1 : 0 }
+  }
+  var pdata: UnsafeMutableRawPointer {
+    withUnsafeMutablePointer(to: &_wrappedValue) { UnsafeMutableRawPointer($0) }
+  }
+  private var _wrappedValue: Int32
+  init(wrappedValue: Bool) {
+    _wrappedValue = wrappedValue ? 1 : 0
+  }
+}
+
+final class MjuiDefStateStringStorage: MjuiDefStateWrappedStorage {
   var wrappedValue: Any {
     get { _wrappedValue }
     set { _wrappedValue = newValue as! String }
@@ -59,10 +73,10 @@ final class MjuiItemStateStringStorage: MjuiItemStateWrappedStorage {
 
 /// A propertyWrapper that enables light-weight MjuiDef construction.
 ///
-/// Usage: @MjuiItemState(.MjtItem, name:, state:, other) var property
+/// Usage: @MjuiDefState(.MjtItem, name:, state:, other) var property
 ///        and on MjUI.add(defs: [$property]). property itself will auto-updated along.
 @propertyWrapper
-public struct MjuiItemState<T> {
+public struct MjuiDefState<T> {
   public var wrappedValue: T {
     get { storage.wrappedValue as! T }
     set { storage.wrappedValue = newValue }
@@ -70,16 +84,18 @@ public struct MjuiItemState<T> {
   public var projectedValue: MjuiDef {
     MjuiDef(type, name: name, state: state, pdata: storage.pdata, other: other)
   }
-  private var storage: MjuiItemStateWrappedStorage
+  private var storage: MjuiDefStateWrappedStorage
   private let type: MjtItem
   private let name: String
   private let state: Int32
   private let other: String
   public init(wrappedValue: T, _ type: MjtItem, name: String, state: Int32, other: String) {
     if T.self == String.self {
-      storage = MjuiItemStateStringStorage(wrappedValue: wrappedValue as! String)
+      storage = MjuiDefStateStringStorage(wrappedValue: wrappedValue as! String)
+    } else if T.self == Bool.self {
+      storage = MjuiDefStateBoolStorage(wrappedValue: wrappedValue as! Bool)
     } else {
-      storage = MjuiItemStateStorage(wrappedValue: wrappedValue)
+      storage = MjuiDefStateStorage(wrappedValue: wrappedValue)
     }
     self.type = type
     self.name = name

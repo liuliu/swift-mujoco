@@ -11,6 +11,12 @@ public final class GLContext {
     }
   }
   let window: OpaquePointer
+  private var pollEventsTriggered: Bool = false
+  public var swapInterval: Int32 = 0 {
+    didSet {
+      glfwSwapInterval(swapInterval)
+    }
+  }
 
   public init(width: Int, height: Int, title: String) {
     Factory.factory.sink()  // Make sure we init glfw.
@@ -21,26 +27,49 @@ public final class GLContext {
     glfwDestroyWindow(window)
   }
 
+  /// glfwGetTime.
+  public static var time: Double {
+    glfwGetTime()
+  }
+
+  /// glfwGetVideoMode
+  public static var videoMode: GLFWvidmode {
+    glfwGetVideoMode(glfwGetPrimaryMonitor()).pointee
+  }
+
+  /// Make the window the current one to display and receive events.
   public func makeCurrent<Result>(_ closure: () throws -> Result) rethrows -> Result {
     glfwMakeContextCurrent(window)
     let result = try closure()
     return result
   }
 
+  /// Establish the event run loop for GL window.
   public func runLoop(
     swapInterval: Int32, _ closure: (_ width: Int32, _ height: Int32) throws -> Void
   ) rethrows {
-    glfwSwapInterval(swapInterval)
+    self.swapInterval = swapInterval
     while glfwWindowShouldClose(window) == 0 {
       var width: Int32 = 0
       var height: Int32 = 0
+      pollEventsTriggered = false
       glfwGetFramebufferSize(window, &width, &height)
       try closure(width, height)
       glfwSwapBuffers(window)
-      glfwPollEvents()
+      if !pollEventsTriggered {
+        glfwPollEvents()
+      }
     }
   }
+
+  /// Manually poll events for the run loop. It will be polled at the end of the run loop if no
+  /// manual polling.
+  public func pollEvents() {
+    glfwPollEvents()
+    pollEventsTriggered = true
+  }
 }
+
 func uiUpdateState(_ wnd: OpaquePointer, uiState: inout MjuiState, buffer2window: Double) {
   // mouse buttons
   uiState.left =
@@ -348,6 +377,7 @@ extension GLContext {
     glfwSetWindowSizeCallback(window, nil)
   }
 
+  /// Propagate that the uiState has new updates.
   public func modify(ui: MjUI, uiState: inout MjuiState, context: inout MjrContext) {
     var widthWin: Int32 = 1
     var widthBuf: Int32 = 0
