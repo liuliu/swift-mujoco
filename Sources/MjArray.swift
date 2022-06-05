@@ -1,10 +1,21 @@
 import C_mujoco
 
+@usableFromInline
+final class Wrapped<T> {
+  @usableFromInline
+  var value: T
+  @usableFromInline
+  init(_ value: T) {
+    self.value = value
+  }
+}
+
 // The difference of this v.s. using UnsafeMutableBufferPointer is that MjArray will hold a
 // reference to the owner of that piece of memory, therefore, making sure the access is safe even
 // though underlying it is backed by UnsafeMutablePointer.
 public struct MjArray<Element> {
-  private var object: AnyObject  // Make sure the array is valid.
+  @usableFromInline
+  var object: AnyObject  // Make sure the array is valid.
   @usableFromInline
   var len: Int32
   @usableFromInline
@@ -14,6 +25,14 @@ public struct MjArray<Element> {
     _array = array
     self.object = object
     self.len = len
+  }
+  @inlinable
+  public init(_ array: [Element]) {
+    precondition(array.count > 0)
+    let wrapped = Wrapped(array)
+    object = wrapped
+    _array = wrapped.value.withUnsafeMutableBufferPointer { $0.baseAddress! }
+    len = Int32(array.count)
   }
   @inlinable
   public subscript(index: Int) -> Element {
@@ -27,6 +46,71 @@ public struct MjArray<Element> {
     }
   }
   @inlinable
+  public subscript(bounds: Range<Int>) -> Self {
+    get {
+      precondition(bounds.lowerBound >= 0 && bounds.lowerBound < Int(len))
+      precondition(bounds.upperBound >= 0 && bounds.upperBound <= Int(len))
+      precondition(bounds.lowerBound < bounds.upperBound)
+      return Self(
+        array: _array + bounds.lowerBound, object: object,
+        len: Int32(bounds.upperBound - bounds.lowerBound))
+    }
+    set {
+      precondition(bounds.lowerBound >= 0 && bounds.lowerBound < Int(len))
+      precondition(bounds.upperBound >= 0 && bounds.upperBound <= Int(len))
+      precondition(bounds.lowerBound < bounds.upperBound)
+      precondition(bounds.upperBound - bounds.lowerBound == Int(newValue.len))
+      (_array + bounds.lowerBound).assign(
+        from: newValue._array, count: bounds.upperBound - bounds.lowerBound)
+    }
+  }
+  @inlinable
+  public subscript(bounds: ClosedRange<Int>) -> Self {
+    get {
+      return self[bounds.lowerBound..<(bounds.upperBound + 1)]
+    }
+    set {
+      self[bounds.lowerBound..<(bounds.upperBound + 1)] = newValue
+    }
+  }
+  @inlinable
+  public subscript(bounds: PartialRangeUpTo<Int>) -> Self {
+    get {
+      return self[0..<bounds.upperBound]
+    }
+    set {
+      self[0..<bounds.upperBound] = newValue
+    }
+  }
+  @inlinable
+  public subscript(bounds: PartialRangeThrough<Int>) -> Self {
+    get {
+      return self[0..<(bounds.upperBound + 1)]
+    }
+    set {
+      self[0..<(bounds.upperBound + 1)] = newValue
+    }
+  }
+  @inlinable
+  public subscript(bounds: PartialRangeFrom<Int>) -> Self {
+    get {
+      return self[bounds.lowerBound..<Int(len)]
+    }
+    set {
+      self[bounds.lowerBound..<Int(len)] = newValue
+    }
+  }
+  @inlinable
+  public subscript(x: (UnboundedRange_) -> Void) -> Self {
+    get {
+      return self
+    }
+    set {
+      precondition(len == newValue.len)
+      _array.assign(from: newValue._array, count: Int(len))
+    }
+  }
+  @inlinable
   public var count: Int { Int(len) }
   @inlinable
   public static func + (lhs: Self, rhs: Int) -> UnsafeMutablePointer<Element> {
@@ -35,6 +119,13 @@ public struct MjArray<Element> {
   @inlinable
   public static func + (lhs: Int, rhs: Self) -> UnsafeMutablePointer<Element> {
     return lhs + rhs._array
+  }
+}
+
+extension MjArray: ExpressibleByArrayLiteral {
+  @inlinable
+  public init(arrayLiteral elements: Element...) {
+    self.init(elements)
   }
 }
 
