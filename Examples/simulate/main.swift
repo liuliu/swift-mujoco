@@ -216,6 +216,8 @@ var figcost = MjvFigure()
 var figtimer = MjvFigure()
 var figsize = MjvFigure()
 
+Mjcb.time = { 1000 * GLContext.time }
+
 // init profiler figures
 func profilerinit() {
   // titles

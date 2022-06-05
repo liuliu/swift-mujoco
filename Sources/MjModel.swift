@@ -6,16 +6,21 @@ public enum MjError: Error {
   case actuator(String?)
 }
 
+/// Protocolize internal storage for MjModel. Internal use only.
+public protocol MjModelStorage: AnyObject {
+  var _model: UnsafeMutablePointer<mjModel> { get }
+}
+
 /// This is the main data structure holding the MuJoCo model. It is treated as constant by the simulator.
 public struct MjModel {
 
   @usableFromInline
-  let _storage: Storage
+  let _storage: MjModelStorage
   @inlinable
   var _model: UnsafeMutablePointer<mjModel> { _storage._model }
 
   @usableFromInline
-  final class Storage {
+  final class Storage: MjModelStorage {
     @usableFromInline
     let _model: UnsafeMutablePointer<mjModel>
 
@@ -29,8 +34,23 @@ public struct MjModel {
   }
 
   @usableFromInline
+  final class StaticStorage: MjModelStorage {
+    @usableFromInline
+    let _model: UnsafeMutablePointer<mjModel>
+
+    init(model: UnsafeMutablePointer<mjModel>) {
+      _model = model
+    }
+  }
+
+  @usableFromInline
   init(model: UnsafeMutablePointer<mjModel>) {
     _storage = Storage(model: model)
+  }
+
+  @usableFromInline
+  init(staticModel: UnsafeMutablePointer<mjModel>) {
+    _storage = StaticStorage(model: staticModel)
   }
 
   /// Load model from binary MJB file.

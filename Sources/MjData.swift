@@ -1,10 +1,34 @@
 import C_mujoco
 
+/// Protocolize internal storage for MjData. Internal use only.
+public protocol MjDataStorage: AnyObject {
+  var _data: UnsafeMutablePointer<mjData> { get }
+  var nq: Int32 { get }
+  var nv: Int32 { get }
+  var na: Int32 { get }
+  var nu: Int32 { get }
+  var nbody: Int32 { get }
+  var nmocap: Int32 { get }
+  var nuserdata: Int32 { get }
+  var nsensordata: Int32 { get }
+  var njnt: Int32 { get }
+  var ngeom: Int32 { get }
+  var nsite: Int32 { get }
+  var ncam: Int32 { get }
+  var nlight: Int32 { get }
+  var ntendon: Int32 { get }
+  var nwrap: Int32 { get }
+  var nM: Int32 { get }
+  var nconmax: Int32 { get }
+  var njmax: Int32 { get }
+  var nD: Int32 { get }
+}
+
 /// This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.
 public struct MjData {
 
   @usableFromInline
-  let _storage: Storage
+  let _storage: MjDataStorage
 
   @inlinable
   var _data: UnsafeMutablePointer<mjData> { _storage._data }
@@ -62,7 +86,94 @@ public struct MjData {
   }
 
   @usableFromInline
-  final class Storage {
+  init(
+    staticData: UnsafeMutablePointer<mjData>, nq: Int32, nv: Int32, na: Int32, nu: Int32,
+    nbody: Int32,
+    nmocap: Int32, nuserdata: Int32, nsensordata: Int32, njnt: Int32, ngeom: Int32, nsite: Int32,
+    ncam: Int32, nlight: Int32, ntendon: Int32, nwrap: Int32, nM: Int32, nconmax: Int32,
+    njmax: Int32, nD: Int32
+  ) {
+    _storage = StaticStorage(
+      data: staticData, nq: nq, nv: nv, na: na, nu: nu, nbody: nbody, nmocap: nmocap,
+      nuserdata: nuserdata, nsensordata: nsensordata, njnt: njnt, ngeom: ngeom, nsite: nsite,
+      ncam: ncam, nlight: nlight, ntendon: ntendon, nwrap: nwrap, nM: nM, nconmax: nconmax,
+      njmax: njmax, nD: nD)
+  }
+
+  @usableFromInline
+  final class StaticStorage: MjDataStorage {
+    @usableFromInline
+    let _data: UnsafeMutablePointer<mjData>
+    @usableFromInline
+    let nq: Int32
+    @usableFromInline
+    let nv: Int32
+    @usableFromInline
+    let na: Int32
+    @usableFromInline
+    let nu: Int32
+    @usableFromInline
+    let nbody: Int32
+    @usableFromInline
+    let nmocap: Int32
+    @usableFromInline
+    let nuserdata: Int32
+    @usableFromInline
+    let nsensordata: Int32
+    @usableFromInline
+    let njnt: Int32
+    @usableFromInline
+    let ngeom: Int32
+    @usableFromInline
+    let nsite: Int32
+    @usableFromInline
+    let ncam: Int32
+    @usableFromInline
+    let nlight: Int32
+    @usableFromInline
+    let ntendon: Int32
+    @usableFromInline
+    let nwrap: Int32
+    @usableFromInline
+    let nM: Int32
+    @usableFromInline
+    let nconmax: Int32
+    @usableFromInline
+    let njmax: Int32
+    @usableFromInline
+    let nD: Int32
+
+    init(
+      data: UnsafeMutablePointer<mjData>, nq: Int32, nv: Int32, na: Int32, nu: Int32, nbody: Int32,
+      nmocap: Int32, nuserdata: Int32, nsensordata: Int32, njnt: Int32, ngeom: Int32, nsite: Int32,
+      ncam: Int32, nlight: Int32, ntendon: Int32, nwrap: Int32, nM: Int32, nconmax: Int32,
+      njmax: Int32, nD: Int32
+    ) {
+      _data = data
+      self.nq = nq
+      self.nv = nv
+      self.na = na
+      self.nu = nu
+      self.nbody = nbody
+      self.nmocap = nmocap
+      self.nuserdata = nuserdata
+      self.nsensordata = nsensordata
+      self.njnt = njnt
+      self.ngeom = ngeom
+      self.nsite = nsite
+      self.ncam = ncam
+      self.nlight = nlight
+      self.ntendon = ntendon
+      self.nwrap = nwrap
+      self.nM = nM
+      self.nconmax = nconmax
+      self.njmax = njmax
+      self.nD = nD
+    }
+  }
+
+  @usableFromInline
+  final class Storage: MjDataStorage {
     @usableFromInline
     let _data: UnsafeMutablePointer<mjData>
     @usableFromInline
