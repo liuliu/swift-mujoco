@@ -215,6 +215,7 @@ var figconstraint = MjvFigure()
 var figcost = MjvFigure()
 var figtimer = MjvFigure()
 var figsize = MjvFigure()
+var figsensor = MjvFigure()
 
 Mjcb.time = { 1000 * GLContext.time }
 
@@ -402,8 +403,101 @@ func profilershow(rect: MjrRect, context: MjrContext) {
   context.figure(viewport: viewport, figure: &figconstraint)
 }
 
+// init sensor figure
+func sensorinit() {
+  // set figure to default
+  figsensor.figurergba = (0, 0, 0, 0.5)
+
+  // set flags
+  figsensor.flgExtend = 1
+  figsensor.flgBarplot = 1
+  figsensor.flgSymmetric = 1
+
+  // title
+  figsensor.title = "Sensor data"
+
+  // y-tick nubmer format
+  figsensor.yformat = "%.0f"
+
+  // grid size
+  figsensor.gridsize = (2, 3)
+
+  // minimum range
+  figsensor.range[0] = (0, 0)
+  figsensor.range[1] = (-1, 1)
+}
+
+// update sensor figure
+func sensorupdate() {
+  guard let m = m, let d = d else { return }
+  let maxline = 10
+
+  // clear linepnt
+  for i in 0..<maxline {
+    figsensor.linepnt[i] = 0
+  }
+
+  // start with line 0
+  var lineid = 0
+
+  // loop over sensors
+  for n in 0..<Int(m.nsensor) {
+    // go to next line if type is different
+    if n > 0 && m.sensorType[n] != m.sensorType[n - 1] {
+      lineid = min(lineid + 1, maxline - 1)
+    }
+
+    // get info about this sensor
+    let cutoff = m.sensorCutoff[n] > 0 ? m.sensorCutoff[n] : 1
+    let adr = m.sensorAdr[n]
+    let dim = m.sensorDim[n]
+
+    // data pointer in line
+    let p = figsensor.linepnt[lineid]
+
+    // fill in data for this sensor
+    for i in 0..<Int(dim) {
+      // check size
+      guard (Int(p) + 2 * i) < 1000 / 2 else { break }
+
+      // x
+      figsensor.linedata[lineid, Int(p) + 2 * i] = (Float(adr + Int32(i)), 0)
+      figsensor.linedata[lineid, Int(p) + 2 * i + 1] = (
+        Float(adr + Int32(i)), Float(d.sensordata[Int(adr) + i] / cutoff)
+      )
+    }
+
+    // update linepnt
+    figsensor.linepnt[lineid] = min(1000 - 1, figsensor.linepnt[lineid] + 2 * dim)
+  }
+}
+
+// show sensor figure
+func sensorshow(rect: MjrRect, context: MjrContext) {
+  // constant width with and without profiler
+  let width = settings.profiler ? rect.width / 3 : rect.width / 4
+
+  // render figure on the right
+  let viewport = MjrRect(
+    left: rect.left + rect.width - width,
+    bottom: rect.bottom,
+    width: width,
+    height: rect.height / 3
+  )
+  context.figure(viewport: viewport, figure: &figsensor)
+}
+
+func cleartimers() {
+  guard var d = d else { return }
+  for i in 0..<MjtTimer.allCases.count {
+    d.timer[i].duration = 0
+    d.timer[i].number = 0
+  }
+}
+
 glContext.makeCurrent {
   profilerinit()
+  sensorinit()
   var scene = MjvScene(model: nil, maxgeom: maxgeom)
   // The context need to be initialized after having a GL context.
   var context = MjrContext(model: nil, fontScale: ._100)
@@ -500,10 +594,10 @@ glContext.makeCurrent {
         uiState.update(section: -1, item: -1, ui: ui0, context: context)
       case 262:  // Right
         guard let m = m, var d = d, !settings.run else { break }
-        // cleartimers()
+        cleartimers()
         m.step(data: &d)
         profilerupdate()
-      // sensorupdate()
+        sensorupdate()
       // updatesettings()
       case 266:  // Page up
         guard let m = m, pert.select > 0 else { break }
@@ -752,16 +846,24 @@ glContext.makeCurrent {
         settings.loadrequest = 1
       }
       glContext.pollEvents()
-      if settings.profiler && settings.run {
-        profilerupdate()
-      }
       if let m = m, var d = d {
         scene.updateScene(model: m, data: &d, option: vopt, perturb: pert, camera: &camera)
       }
+      if settings.profiler && settings.run {
+        profilerupdate()
+      }
+      if settings.sensor && settings.run {
+        sensorupdate()
+      }
+      cleartimers()
     }
-    let viewport = uiState.rect.3
-    rectangle(viewport: viewport, r: 0.2, g: 0.3, b: 0.4, a: 1)
-    context.render(viewport: viewport, scene: &scene)
+    let rect = uiState.rect.3
+    var smallrect = rect
+    if settings.profiler {
+      smallrect.width = rect.width - rect.width / 4
+    }
+    rectangle(viewport: rect, r: 0.2, g: 0.3, b: 0.4, a: 1)
+    context.render(viewport: rect, scene: &scene)
     if settings.ui0 {
       ui0.render(state: uiState, context: context)
     }
@@ -770,15 +872,19 @@ glContext.makeCurrent {
     }
     if settings.help {
       context.overlay(
-        font: .normal, gridpos: .topleft, viewport: viewport, overlay: helpTitle,
+        font: .normal, gridpos: .topleft, viewport: rect, overlay: helpTitle,
         overlay2: helpContent)
     }
     // show profiler
     if settings.profiler {
-      profilershow(rect: viewport, context: context)
+      profilershow(rect: rect, context: context)
+    }
+    // show sensor
+    if settings.sensor {
+      sensorshow(rect: smallrect, context: context)
     }
     context.overlay(
-      font: .normal, gridpos: .bottomleft, viewport: viewport,
+      font: .normal, gridpos: .bottomleft, viewport: rect,
       overlay: "Drag-and-drop model file here", overlay2: "")
   }
   glContext.clearCallbacks()
