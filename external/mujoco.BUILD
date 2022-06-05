@@ -7,6 +7,7 @@ cc_library(
         "src/**/*.inc",
     ]),
     hdrs = glob(["include/mujoco/*.h"]),
+    copts = ["-fPIC"],
     defines = ["mjUSEPLATFORMSIMD"],
     includes = [
         "include",
