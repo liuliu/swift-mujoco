@@ -397,6 +397,7 @@ for apiDefinition in apiDefinitions {
     nameMapping: [
       "m": ["model"], "d": ["data"], "con": ["contact", "context"], "scn": ["scene"],
       "key": ["keyframe"], "opt": ["option"], "pert": ["perturb"], "cam": ["camera"],
+      "fig": ["figure"],
     ])
   sourceCodeMapping[mainType] = sourceCodeMapping[mainType, default: ""] + sourceCode
 }

@@ -83,8 +83,8 @@ extension MjrContext {
   }
   ///  Draw 2D figure.
   @inlinable
-  public func figure(viewport: MjrRect, fig: inout MjvFigure) {
-    mjr_figure(viewport, fig._figure, self._context)
+  public func figure(viewport: MjrRect, figure: inout MjvFigure) {
+    mjr_figure(viewport, figure._figure, self._context)
   }
   ///  Render 3D scene.
   @inlinable

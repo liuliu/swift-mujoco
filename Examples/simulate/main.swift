@@ -212,20 +212,35 @@ func simulate() async throws {
 var camera = MjvCamera()
 var vopt = MjvOption()
 var figconstraint = MjvFigure()
+var figcost = MjvFigure()
+var figtimer = MjvFigure()
+var figsize = MjvFigure()
 
 // init profiler figures
 func profilerinit() {
   // titles
   figconstraint.title = "Counts"
+  figcost.title = "Convergence (log 10)"
+  figsize.title = "Dimensions"
+  figtimer.title = "CPU time (msec)"
 
   // x-labels
   figconstraint.xlabel = "Solver iteration"
+  figcost.xlabel = "Solver iteration"
+  figsize.xlabel = "Video frame"
+  figtimer.xlabel = "Video frame"
 
   // y-tick nubmer formats
   figconstraint.yformat = "%.0f"
+  figcost.yformat = "%.1f"
+  figsize.yformat = "%.0f"
+  figtimer.yformat = "%.2f"
 
   // colors
   figconstraint.figurergba = (0.1, 0, 0, 0.5)
+  figcost.figurergba = (0, 0, 0.2, 0.5)
+  figsize.figurergba = (0.1, 0, 0, 0.5)
+  figtimer.figurergba = (0, 0, 0.2, 0.5)
 
   // legends
   figconstraint.linename[0] = "total"
@@ -233,13 +248,44 @@ func profilerinit() {
   figconstraint.linename[2] = "changed"
   figconstraint.linename[3] = "evals"
   figconstraint.linename[4] = "updates"
+  figcost.linename[0] = "improvement"
+  figcost.linename[1] = "gradient"
+  figcost.linename[2] = "lineslope"
+  figsize.linename[0] = "dof"
+  figsize.linename[1] = "body"
+  figsize.linename[2] = "constraint"
+  figsize.linename[3] = "sqrt(nnz)"
+  figsize.linename[4] = "contact"
+  figsize.linename[5] = "iteration"
+  figtimer.linename[0] = "total"
+  figtimer.linename[1] = "collision"
+  figtimer.linename[2] = "prepare"
+  figtimer.linename[3] = "solve"
+  figtimer.linename[4] = "other"
 
   // grid sizes
   figconstraint.gridsize = (5, 5)
+  figcost.gridsize = (5, 5)
+  figsize.gridsize = (3, 5)
+  figtimer.gridsize = (3, 5)
 
   // minimum ranges
   figconstraint.range[0] = (0, 20)
   figconstraint.range[1] = (0, 80)
+  figcost.range[0] = (0, 20)
+  figcost.range[1] = (-15, 5)
+  figsize.range[0] = (-200, 0)
+  figsize.range[1] = (0, 100)
+  figtimer.range[0] = (-200, 0)
+  figtimer.range[1] = (0, 0.4)
+
+  // init x axis on history figures (do not show yet)
+  for n in 0..<6 {
+    for i in 0..<1000 {
+      figtimer.linedata[n, i].0 = Float(-i)
+      figsize.linedata[n, i].0 = Float(-i)
+    }
+  }
 }
 
 // update profiler figures
@@ -264,17 +310,94 @@ func profilerupdate() {
     figconstraint.linedata[3, i] = (Float(i), Float(d.solver[i].neval))
     figconstraint.linedata[4, i] = (Float(i), Float(d.solver[i].nupdate))
   }
+
+  // update cost figure
+  figcost.linepnt[0] = min(d.solverIter, 1000)
+  for i in 0..<3 {
+    figcost.linepnt[i] = figcost.linepnt[0]
+  }
+  if m.opt.solver == .pgs {
+    figcost.linepnt[1] = 0
+    figcost.linepnt[2] = 0
+  }
+
+  for i in 0..<Int(figcost.linepnt[0]) {
+    figcost.linedata[0, i] = (Float(i), Float(log10(max(1e-15, d.solver[i].improvement))))
+    figcost.linedata[1, i] = (Float(i), Float(log10(max(1e-15, d.solver[i].gradient))))
+    figcost.linedata[2, i] = (Float(i), Float(log10(max(1e-15, d.solver[i].lineslope))))
+  }
+
+  // get timers: total, collision, prepare, solve, other
+  var total = d.timer[Int(MjtTimer.step.rawValue)].duration
+  var number = d.timer[Int(MjtTimer.step.rawValue)].number
+  if number == 0 {
+    total = d.timer[Int(MjtTimer.forward.rawValue)].duration
+    number = d.timer[Int(MjtTimer.forward.rawValue)].number
+  }
+  number = max(1, number)
+  var tdata: [Float] = [
+    Float(total / Double(number)),
+    Float(d.timer[Int(MjtTimer.posCollision.rawValue)].duration / Double(number)),
+    Float(
+      d.timer[Int(MjtTimer.posMake.rawValue)].duration / Double(number)
+        + d.timer[Int(MjtTimer.posProject.rawValue)].duration / Double(number)),
+    Float(d.timer[Int(MjtTimer.constraint.rawValue)].duration / Double(number)),
+    0,
+  ]
+  tdata[4] = tdata[0] - tdata[1] - tdata[2] - tdata[3]
+
+  // update figtimer
+  var pnt = min(201, Int(figtimer.linepnt[0] + 1))
+  for n in 0..<5 {
+    // shift data
+    for i in stride(from: pnt - 1, to: 0, by: -1) {
+      figtimer.linedata[n, i].1 = figtimer.linedata[n, i - 1].1
+    }
+
+    // assign new
+    figtimer.linepnt[n] = Int32(pnt)
+    figtimer.linedata[n, 0].1 = tdata[n]
+  }
+
+  // get sizes: nv, nbody, nefc, sqrt(nnz), ncont, iter
+  let sdata: [Float] = [
+    Float(m.nv),
+    Float(m.nbody),
+    Float(d.nefc),
+    Float(d.solverNnz).squareRoot(),
+    Float(d.ncon),
+    Float(d.solverIter),
+  ]
+
+  // update figsize
+  pnt = min(201, Int(figsize.linepnt[0] + 1))
+  for n in 0..<6 {
+    // shift data
+    for i in stride(from: pnt - 1, to: 0, by: -1) {
+      figsize.linedata[n, i].1 = figsize.linedata[n, i - 1].1
+    }
+
+    // assign new
+    figsize.linepnt[n] = Int32(pnt)
+    figsize.linedata[n, 0].1 = sdata[n]
+  }
 }
 
 // show profiler figures
 func profilershow(rect: MjrRect, context: MjrContext) {
-  let viewport = MjrRect(
+  var viewport = MjrRect(
     left: rect.left + rect.width - rect.width / 4,
     bottom: rect.bottom,
     width: rect.width / 4,
     height: rect.height / 4
   )
-  context.figure(viewport: viewport, fig: &figconstraint)
+  context.figure(viewport: viewport, figure: &figtimer)
+  viewport.bottom += rect.height / 4
+  context.figure(viewport: viewport, figure: &figsize)
+  viewport.bottom += rect.height / 4
+  context.figure(viewport: viewport, figure: &figcost)
+  viewport.bottom += rect.height / 4
+  context.figure(viewport: viewport, figure: &figconstraint)
 }
 
 glContext.makeCurrent {
