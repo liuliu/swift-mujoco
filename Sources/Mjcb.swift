@@ -1,7 +1,7 @@
 import C_mujoco
 
 /// callbacks extending computation pipeline
-public enum Mjcb {
+public struct Mjcb {
   /// MjModel and MjData in the callback cannot be used outside of the callback.
   public static var passive: ((MjModel?, MjData?) -> Void)? = nil {
     didSet {
