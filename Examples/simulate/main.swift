@@ -211,11 +211,74 @@ func simulate() async throws {
 
 var camera = MjvCamera()
 var vopt = MjvOption()
+var figconstraint = MjvFigure()
 
+// init profiler figures
 func profilerinit() {
+  // titles
+  figconstraint.title = "Counts"
+
+  // x-labels
+  figconstraint.xlabel = "Solver iteration"
+
+  // y-tick nubmer formats
+  figconstraint.yformat = "%.0f"
+
+  // colors
+  figconstraint.figurergba = (0.1, 0, 0, 0.5)
+
+  // legends
+  figconstraint.linename[0] = "total"
+  figconstraint.linename[1] = "active"
+  figconstraint.linename[2] = "changed"
+  figconstraint.linename[3] = "evals"
+  figconstraint.linename[4] = "updates"
+
+  // grid sizes
+  figconstraint.gridsize = (5, 5)
+
+  // minimum ranges
+  figconstraint.range[0] = (0, 20)
+  figconstraint.range[1] = (0, 80)
+}
+
+// update profiler figures
+func profilerupdate() {
+  guard let d = d, let m = m else { return }
+  // update constraint figure
+  figconstraint.linepnt[0] = min(d.solverIter, 1000)
+  for i in 1..<5 {
+    figconstraint.linepnt[i] = figconstraint.linepnt[0]
+  }
+  if m.opt.solver == .pgs {
+    figconstraint.linepnt[3] = 0
+    figconstraint.linepnt[4] = 0
+  }
+  if m.opt.solver == .cg {
+    figconstraint.linepnt[4] = 0
+  }
+  for i in 0..<Int(figconstraint.linepnt[0]) {
+    figconstraint.linedata[0, i] = (Float(i), Float(d.nefc))
+    figconstraint.linedata[1, i] = (Float(i), Float(d.solver[i].nactive))
+    figconstraint.linedata[2, i] = (Float(i), Float(d.solver[i].nchange))
+    figconstraint.linedata[3, i] = (Float(i), Float(d.solver[i].neval))
+    figconstraint.linedata[4, i] = (Float(i), Float(d.solver[i].nupdate))
+  }
+}
+
+// show profiler figures
+func profilershow(rect: MjrRect, context: MjrContext) {
+  let viewport = MjrRect(
+    left: rect.left + rect.width - rect.width / 4,
+    bottom: rect.bottom,
+    width: rect.width / 4,
+    height: rect.height / 4
+  )
+  context.figure(viewport: viewport, fig: &figconstraint)
 }
 
 glContext.makeCurrent {
+  profilerinit()
   var scene = MjvScene(model: nil, maxgeom: maxgeom)
   // The context need to be initialized after having a GL context.
   var context = MjrContext(model: nil, fontScale: ._100)
@@ -314,7 +377,7 @@ glContext.makeCurrent {
         guard let m = m, var d = d, !settings.run else { break }
         // cleartimers()
         m.step(data: &d)
-      // profilerupdate()
+        profilerupdate()
       // sensorupdate()
       // updatesettings()
       case 266:  // Page up
@@ -564,6 +627,9 @@ glContext.makeCurrent {
         settings.loadrequest = 1
       }
       glContext.pollEvents()
+      if settings.profiler && settings.run {
+        profilerupdate()
+      }
       if let m = m, var d = d {
         scene.updateScene(model: m, data: &d, option: vopt, perturb: pert, camera: &camera)
       }
@@ -581,6 +647,10 @@ glContext.makeCurrent {
       context.overlay(
         font: .normal, gridpos: .topleft, viewport: viewport, overlay: helpTitle,
         overlay2: helpContent)
+    }
+    // show profiler
+    if settings.profiler {
+      profilershow(rect: viewport, context: context)
     }
     context.overlay(
       font: .normal, gridpos: .bottomleft, viewport: viewport,

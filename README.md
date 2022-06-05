@@ -36,7 +36,7 @@ Extra care was taken to make sure comments are properly parsed and added to thes
 
 ### Enum
 
-`enum` are parsed and generated. Because there is no type annotation, we do our best to infer which int type are enums from comment. `MjtEnableBit` and `MjtDisableBit` are special handled to be `OptionSet`.
+`enum` are parsed and generated. Because there is no type annotation, we do our best to infer which int type are enums from comment. `MjtEnableBit`, `MjtDisableBit`, `MjtCatBit` and `MjtPertBit` are special handled to be `OptionSet`.
 
 ### Functions
 
@@ -66,7 +66,6 @@ A `GLContext` object is introduced to delegate GLFW interactions. Functionalitie
 Although most APIs and struct properties now translated, there are some minor issues we need to solve before v0.1:
 
  * The lifetime management of associated storage for both `MjuiState` and `MjuiDef.pdata` is unsatisfactory. It may as well be the best solution I have so far, but could be something I spend time to think more about;
- * `MjvFigure` hasn't tested;
  * Not all functionalities from `simulate.cc` ported over to `Examples/simulate/main.swift`.
 
 ## Examples

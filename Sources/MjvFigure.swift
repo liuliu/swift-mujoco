@@ -23,6 +23,8 @@ public struct MjvFigure {
       mjv_defaultFigure(_figure)
     }
   }
+
+  public init() {}
 }
 
 extension MjvFigure {
