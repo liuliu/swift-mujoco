@@ -47,6 +47,7 @@ public struct Mjcb {
     }
   }
   /// contact filter: 1- discard, 0- collide
+  ///
   /// MjModel and MjData in this callback cannot be used outside of the callback.
   public static var contactfilter: ((MjModel, MjData, Int32, Int32) -> Int32)? = nil {
     didSet {
@@ -70,6 +71,7 @@ public struct Mjcb {
     }
   }
   /// sensor simulation
+  ///
   /// MjModel and MjData in this callback cannot be used outside of the callback.
   public static var sensor: ((MjModel, MjData, Int32) -> Void)? = nil {
     didSet {
@@ -105,6 +107,7 @@ public struct Mjcb {
     }
   }
   /// actuator dynamics
+  ///
   /// MjModel and MjData in this callback cannot be used outside of the callback.
   public static var actDyn: ((MjModel, MjData, Int32) -> Double)? = nil {
     didSet {
@@ -129,6 +132,7 @@ public struct Mjcb {
     }
   }
   /// actuator gain
+  ///
   /// MjModel and MjData in this callback cannot be used outside of the callback.
   public static var actGain: ((MjModel, MjData, Int32) -> Double)? = nil {
     didSet {
@@ -153,6 +157,7 @@ public struct Mjcb {
     }
   }
   /// actuator bias
+  ///
   /// MjModel and MjData in this callback cannot be used outside of the callback.
   public static var actBias: ((MjModel, MjData, Int32) -> Double)? = nil {
     didSet {

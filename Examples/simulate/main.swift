@@ -828,6 +828,11 @@ glContext.makeCurrent {
   }
   ui0.resize(context: context)
   glContext.modify(ui: ui0, uiState: &uiState, context: &context)
+  glContext.dragAndDrop = {
+    guard $0.count > 0 else { return }
+    filename = $0.first
+    settings.loadrequest = 1
+  }
   glContext.runLoop(swapInterval: 1) { _, _ in
     mtx.sync {
       if settings.loadrequest == 1, let filename = filename {

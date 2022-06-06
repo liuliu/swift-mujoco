@@ -2,6 +2,10 @@ import C_glfw
 import C_mujoco
 
 public final class GLContext {
+  // Note that we assume all accesses to this dictionary is from one thread. Which may not be
+  // true depending on how you use GLFW.
+  static var dragAndDrops = [OpaquePointer: ([String]) -> Void]()
+
   final class Factory {
     static let factory = Factory()
     init() {
@@ -11,10 +15,33 @@ public final class GLContext {
     }
   }
   let window: OpaquePointer
+  private var isCurrent: Bool = false
   private var pollEventsTriggered: Bool = false
+  /// glfwSwapInterval
   public var swapInterval: Int32 = 0 {
     didSet {
       glfwSwapInterval(swapInterval)
+    }
+  }
+  /// Callback when a file drag and dropped into current window.
+  ///
+  /// This doesn't receive drag and drop if the window is not current one (a.k.a. makeCurrent). You
+  /// are responsible to avoid retain-cycle between this closure and the current GLContext class.
+  /// (i.e. using weak pointer if you want to reference to GLContext inside the closure).
+  public var dragAndDrop: (([String]) -> Void)? = nil {
+    didSet {
+      // If it is not current, we are not doing anything anyway.
+      guard isCurrent else {
+        return
+      }
+      guard let dragAndDrop = dragAndDrop else {
+        GLContext.dragAndDrops[window] = nil
+        glfwSetDropCallback(window, nil)
+        return
+      }
+      // Make sure we set the callback.
+      GLContext.dragAndDrops[window] = dragAndDrop
+      glfwSetDropCallback(window, uiDrop)
     }
   }
 
@@ -39,8 +66,20 @@ public final class GLContext {
 
   /// Make the window the current one to display and receive events.
   public func makeCurrent<Result>(_ closure: () throws -> Result) rethrows -> Result {
+    isCurrent = true
     glfwMakeContextCurrent(window)
+    // Register drop callback only when we are in current.
+    if let dragAndDrop = dragAndDrop {
+      GLContext.dragAndDrops[window] = dragAndDrop
+      glfwSetDropCallback(window, uiDrop)
+    }
     let result = try closure()
+    isCurrent = false
+    if dragAndDrop != nil {
+      // Deregister the drop callback.
+      GLContext.dragAndDrops[window] = nil
+      glfwSetDropCallback(window, nil)
+    }
     return result
   }
 
@@ -68,6 +107,21 @@ public final class GLContext {
     glfwPollEvents()
     pollEventsTriggered = true
   }
+}
+
+func uiDrop(
+  _ wnd: OpaquePointer?, count: Int32, paths: UnsafeMutablePointer<UnsafePointer<CChar>?>?
+) {
+  guard let paths = paths, let wnd = wnd else { return }
+  guard let dragAndDrop = GLContext.dragAndDrops[wnd] else { return }
+  var filePaths = [String]()
+  for i in 0..<Int(count) {
+    guard let path = paths[i],
+      let filePath = String(cString: path, encoding: .utf8)
+    else { continue }
+    filePaths.append(filePath)
+  }
+  dragAndDrop(filePaths)
 }
 
 func uiUpdateState(_ wnd: OpaquePointer, uiState: inout MjuiState, buffer2window: Double) {
