@@ -62,8 +62,9 @@ let MjTypes: [String: MjType] = [
 ]
 
 public func mjObjectExtensions() -> String {
+  let mjTypes = MjTypes.map({ $0 }).sorted { $0.key < $1.key }
   var code = "import C_mujoco\n\n"
-  for (key, value) in MjTypes {
+  for (key, value) in mjTypes {
     code += "extension \(key): MjObject {\n"
     let cType = key.firstLowercased() + "_"
     code += "  public typealias CType = \(cType)\n"
