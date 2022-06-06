@@ -61,6 +61,29 @@ let MjTypes: [String: MjType] = [
   "MjWarningStat": .alias,
 ]
 
+public func mjObjectExtensions() -> String {
+  var code = "import C_mujoco\n\n"
+  for (key, value) in MjTypes {
+    code += "extension \(key): MjObject {\n"
+    let cType = key.firstLowercased() + "_"
+    code += "  public typealias CType = \(cType)\n"
+    code +=
+      "  public static func withCTypeUnsafeMutablePointer<R>(to value: inout Self, _ body: (UnsafeMutablePointer<CType>) throws -> R) rethrows -> R {\n"
+    let varName = varName(key)
+    switch value {
+    case .value:
+      code += "  try withUnsafeMutablePointer(to: &value.\(varName), body)\n"
+    case .alias:
+      code += "  try withUnsafeMutablePointer(to: &value, body)\n"
+    case .ref:
+      code += "  try body(value.\(varName))\n"
+    }
+    code += "  }\n"
+    code += "}\n"
+  }
+  return code
+}
+
 let MjTypeConversionSuffixPatch: [String: String] = [
   "MjuiItem": ", object: _storage"
 ]

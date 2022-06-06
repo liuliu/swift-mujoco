@@ -44,12 +44,20 @@ struct Settings {
   // watch section of UI
   @MjuiDefState(.edittxt, name: "Field", state: 2, other: "qpos")
   var field: String = "qpos"
+  @MjuiDefStateMap({ i, _ in
+    (type: .checkint, name: "\(MjtDisableBit.allCases[i])", state: 2, other: "")
+  })
+  var disable: [Bool] = Array(repeating: false, count: MjtDisableBit.allCases.count)
+  @MjuiDefStateMap({ i, _ in
+    (type: .checkint, name: "\(MjtEnableBit.allCases[i])", state: 2, other: "")
+  })
+  var enable: [Bool] = Array(repeating: false, count: MjtEnableBit.allCases.count)
   @MjuiDefState(.editint, name: "Index", state: 2, other: "1")
   var index: Int32 = 0
   var loadrequest: Int32 = 0
 }
 
-enum UI0Section: Int32 {
+enum UI0Section: Int32, CaseIterable {
   // left ui
   case file = 0
   case option
@@ -60,7 +68,7 @@ enum UI0Section: Int32 {
   case group
 }
 
-enum UI1Section: Int32 {
+enum UI1Section: Int32, CaseIterable {
   // right ui
   case joint = 0
   case control
@@ -569,6 +577,122 @@ glContext.makeCurrent {
   }
   ui1.predicate = ui0.predicate
   settings.font = glContext.fontScale / 50 - 1
+
+  // update UI 0 when MuJoCo structures change (except for joint sliders)
+  func updatesettings() {
+    guard let m = m else { return }
+    // physics flags
+    for (i, flag) in MjtDisableBit.allCases.enumerated() {
+      settings.disable[i] = m.opt.disableflags.contains(flag)
+    }
+    for (i, flag) in MjtEnableBit.allCases.enumerated() {
+      settings.enable[i] = m.opt.enableflags.contains(flag)
+    }
+
+    // camera
+    switch camera.type {
+    case .fixed:
+      settings.camera = 2 + camera.fixedcamid
+    case .tracking:
+      settings.camera = 1
+    default:
+      settings.camera = 0
+    }
+
+    // update UI
+    uiState.update(section: -1, item: -1, ui: ui0, context: context)
+  }
+
+  func makephysics(_ oldstate: Int32) {
+    guard var m = m else { return }
+    let mMapper = MjuiDefObjectMapper(to: &m)
+    let defPhysics: [MjuiDef] = [
+      MjuiDef(.section, name: "Physics", state: oldstate, pdata: nil, other: "AP"),
+      mMapper(
+        \.opt.integrator, .select, name: "IntegratorPhysics", state: 2,
+        other: "Euler\nRK4\nimplicit"),
+      mMapper(\.opt.collision, .select, name: "Collision", state: 2, other: "All\nPair\nDynamic"),
+      mMapper(\.opt.cone, .select, name: "Cone", state: 2, other: "Pyramidal\nElliptic"),
+      mMapper(\.opt.jacobian, .select, name: "Jacobian", state: 2, other: "Dense\nSparse\nAuto"),
+      mMapper(\.opt.solver, .select, name: "Solver", state: 2, other: "PGS\nCG\nNewton"),
+      MjuiDef(.separator, name: "Algorithmic Parameters", state: 1, pdata: nil, other: ""),
+      mMapper(\.opt.timestep, .editnum, name: "Timestep", state: 2, other: "1 0 1"),
+      mMapper(\.opt.iterations, .editint, name: "Iterations", state: 2, other: "1 0 1000"),
+      mMapper(\.opt.tolerance, .editnum, name: "Tolerance", state: 2, other: "1 0 1"),
+      mMapper(\.opt.noslip_iterations, .editint, name: "Noslip Iter", state: 2, other: "1 0 1000"),
+      mMapper(\.opt.noslip_tolerance, .editnum, name: "Noslip Tol", state: 2, other: "1 0 1"),
+      mMapper(\.opt.mpr_iterations, .editint, name: "MRR Iter", state: 2, other: "1 0 1000"),
+      mMapper(\.opt.mpr_tolerance, .editnum, name: "MPR Tol", state: 2, other: "1 0 1"),
+      mMapper(\.opt.apirate, .editnum, name: "API Rate", state: 2, other: "1 0 1000"),
+      MjuiDef(.separator, name: "Physical Parameters", state: 1, pdata: nil, other: ""),
+      mMapper(\.opt.gravity, .editnum, name: "Gravity", state: 2, other: "3"),
+      mMapper(\.opt.wind, .editnum, name: "Wind", state: 2, other: "3"),
+      mMapper(\.opt.magnetic, .editnum, name: "Magnetic", state: 2, other: "3"),
+      mMapper(\.opt.density, .editnum, name: "Density", state: 2, other: "1"),
+      mMapper(\.opt.viscosity, .editnum, name: "Viscosity", state: 2, other: "1"),
+      mMapper(\.opt.impratio, .editnum, name: "Imp Ratio", state: 2, other: "1"),
+      MjuiDef(.separator, name: "Disable Flags", state: 1, pdata: nil, other: ""),
+    ]
+    // add physics
+    ui0.add(defs: defPhysics)
+
+    // add flags programmatically
+    ui0.add(defs: settings.$disable)
+    ui0.add(defs: [MjuiDef(.separator, name: "Enable Flags", state: 1, pdata: nil, other: "")])
+    ui0.add(defs: settings.$enable)
+
+    // add contact override
+    let defOverride: [MjuiDef] = [
+      MjuiDef(.separator, name: "Contact Override", state: 1, pdata: nil, other: ""),
+      mMapper(\.opt.o_margin, .editnum, name: "Margin", state: 2, other: "1"),
+      mMapper(\.opt.o_solimp, .editnum, name: "Sol Imp", state: 2, other: "5"),
+      mMapper(\.opt.o_solref, .editnum, name: "Sol Ref", state: 2, other: "2"),
+    ]
+    ui0.add(defs: defOverride)
+  }
+
+  func makerendering(_ oldstate: Int32) {
+  }
+
+  func makegroup(_ oldstate: Int32) {
+  }
+
+  func makejoint(_ oldstate: Int32) {
+  }
+
+  func makecontrol(_ oldstate: Int32) {
+  }
+
+  // make model-dependent UI sections
+  func makesections() {
+    // get section open-close state, UI 0
+    var oldstate0: [Int32] = Array(repeating: 0, count: UI0Section.allCases.count)
+    for i in 0..<UI0Section.allCases.count {
+      if ui0.nsect > i {
+        oldstate0[i] = ui0.sect[i].state
+      }
+    }
+
+    // get section open-close state, UI 1
+    var oldstate1: [Int32] = Array(repeating: 0, count: UI1Section.allCases.count)
+    for i in 0..<UI1Section.allCases.count {
+      if ui1.nsect > i {
+        oldstate1[i] = ui1.sect[i].state
+      }
+    }
+
+    // clear model-dependent sections of UI
+    ui0.nsect = UI0Section.physics.rawValue
+    ui1.nsect = 0
+
+    // make
+    makephysics(oldstate0[Int(UI0Section.physics.rawValue)])
+    makerendering(oldstate0[Int(UI0Section.rendering.rawValue)])
+    makegroup(oldstate0[Int(UI0Section.group.rawValue)])
+    makejoint(oldstate1[Int(UI1Section.joint.rawValue)])
+    makecontrol(oldstate1[Int(UI1Section.control.rawValue)])
+  }
+
   glContext.setCallbacks(uiState: &uiState) { uiState in
     if uiState.dragrect == ui0.rectid || (uiState.dragrect == 0 && uiState.mouserect == ui0.rectid)
       || uiState.type == .key
@@ -598,7 +722,7 @@ glContext.makeCurrent {
         m.step(data: &d)
         profilerupdate()
         sensorupdate()
-      // updatesettings()
+        updatesettings()
       case 266:  // Page up
         guard let m = m, pert.select > 0 else { break }
         pert.select = m.bodyParentid[Int(pert.select)]
@@ -833,20 +957,27 @@ glContext.makeCurrent {
     filename = $0.first
     settings.loadrequest = 1
   }
+  func loadmodel(filename: String) {
+    let model = try! MjModel(fromXMLPath: filename)
+    var data = model.makeData()
+    ctrlnoise = Array(repeating: 0, count: Int(model.nu))
+    m = model
+    d = data
+    model.forward(data: &data)
+    scene.makeScene(model: model, maxgeom: maxgeom)
+    context.makeContext(model: model, fontscale: ._100)
+    makesections()
+    ui0.resize(context: context)
+    glContext.modify(ui: ui0, uiState: &uiState, context: &context)
+    ui1.resize(context: context)
+    glContext.modify(ui: ui1, uiState: &uiState, context: &context)
+    updatesettings()
+    settings.loadrequest = 0
+  }
   glContext.runLoop(swapInterval: 1) { _, _ in
     mtx.sync {
       if settings.loadrequest == 1, let filename = filename {
-        let model = try! MjModel(fromXMLPath: filename)
-        var data = model.makeData()
-        ctrlnoise = Array(repeating: 0, count: Int(model.nu))
-        m = model
-        d = data
-        model.forward(data: &data)
-        scene.makeScene(model: model, maxgeom: maxgeom)
-        context.makeContext(model: model, fontscale: ._100)
-        ui0.resize(context: context)
-        glContext.modify(ui: ui0, uiState: &uiState, context: &context)
-        settings.loadrequest = 0
+        loadmodel(filename: filename)
       } else if settings.loadrequest > 1 {
         settings.loadrequest = 1
       }

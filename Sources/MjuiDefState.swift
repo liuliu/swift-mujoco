@@ -103,3 +103,32 @@ public struct MjuiDefState<T> {
     self.other = other
   }
 }
+
+/// A propertyWrapper to construct MjuiDef of arrays.
+///
+/// Usage: @MjuiDefStateMap( { i, _ in (type: .checkint, name: "\(i)", state: 2, other: "" } ) var property: [Bool]
+///        and on MjUI.add(defs: $property). property itself will auto-updated along.
+@propertyWrapper
+public struct MjuiDefStateMap<T> {
+  public var wrappedValue: [T] {
+    get { states.map { $0.wrappedValue } }
+    set {
+      precondition(newValue.count == states.count)
+      for i in 0..<states.count {
+        states[i].wrappedValue = newValue[i]
+      }
+    }
+  }
+  public var projectedValue: [MjuiDef] {
+    states.map { $0.projectedValue }
+  }
+  private var states: [MjuiDefState<T>]
+  public typealias State = (type: MjtItem, name: String, state: Int32, other: String)
+  public init(wrappedValue: [T], _ closure: (Int, T) -> State) {
+    states = wrappedValue.enumerated().map {
+      let state = closure($0, $1)
+      return MjuiDefState(
+        wrappedValue: $1, state.type, name: state.name, state: state.state, other: state.other)
+    }
+  }
+}

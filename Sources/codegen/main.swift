@@ -419,3 +419,8 @@ for (mainType, sourceCode) in sourceCodeMapping {
     to: URL(fileURLWithPath: WorkDir).appendingPathComponent("\(mainType)+Functions.swift"),
     atomically: false, encoding: .utf8)
 }
+
+let code = mjObjectExtensions()
+try! code.write(
+  to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjObject+Extensions.swift"),
+  atomically: false, encoding: .utf8)
