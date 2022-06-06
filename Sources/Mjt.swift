@@ -25,7 +25,7 @@ public enum MjtTimer: Int32, CaseIterable {
   case posProject
 }
 /// disable default feature bitflags
-public struct MjtDisableBit: OptionSet, CaseIterable {
+public struct MjtDisableBit: OptionSet, CustomStringConvertible, CaseIterable {
   public let rawValue: Int32
   public init(rawValue: Int32) {
     self.rawValue = rawValue
@@ -46,9 +46,39 @@ public struct MjtDisableBit: OptionSet, CaseIterable {
     .constraint, .equality, .frictionloss, .limit, .contact, .passive, .gravity, .clampctrl,
     .warmstart, .filterparent, .actuation, .refsafe,
   ]
+  public var description: String {
+    switch self {
+    case .constraint:
+      return "constraint"
+    case .equality:
+      return "equality"
+    case .frictionloss:
+      return "frictionloss"
+    case .limit:
+      return "limit"
+    case .contact:
+      return "contact"
+    case .passive:
+      return "passive"
+    case .gravity:
+      return "gravity"
+    case .clampctrl:
+      return "clampctrl"
+    case .warmstart:
+      return "warmstart"
+    case .filterparent:
+      return "filterparent"
+    case .actuation:
+      return "actuation"
+    case .refsafe:
+      return "refsafe"
+    default:
+      return "MjtDisableBit(rawValue: \(rawValue))"
+    }
+  }
 }
 /// enable optional feature bitflags
-public struct MjtEnableBit: OptionSet, CaseIterable {
+public struct MjtEnableBit: OptionSet, CustomStringConvertible, CaseIterable {
   public let rawValue: Int32
   public init(rawValue: Int32) {
     self.rawValue = rawValue
@@ -61,6 +91,22 @@ public struct MjtEnableBit: OptionSet, CaseIterable {
   public static let allCases: [MjtEnableBit] = [
     .override, .energy, .fwdinv, .sensornoise, .multiccd,
   ]
+  public var description: String {
+    switch self {
+    case .override:
+      return "override"
+    case .energy:
+      return "energy"
+    case .fwdinv:
+      return "fwdinv"
+    case .sensornoise:
+      return "sensornoise"
+    case .multiccd:
+      return "multiccd"
+    default:
+      return "MjtEnableBit(rawValue: \(rawValue))"
+    }
+  }
 }
 /// type of degree of freedom
 public enum MjtJoint: Int32 {
@@ -346,7 +392,7 @@ public enum MjtItem: Int32, CaseIterable {
   case edittxt
 }
 /// bitflags for mjvGeom category
-public struct MjtCatBit: OptionSet {
+public struct MjtCatBit: OptionSet, CustomStringConvertible {
   public let rawValue: Int32
   public init(rawValue: Int32) {
     self.rawValue = rawValue
@@ -355,6 +401,20 @@ public struct MjtCatBit: OptionSet {
   public static let `dynamic` = MjtCatBit(rawValue: 2)
   public static let decor = MjtCatBit(rawValue: 4)
   public static let all = MjtCatBit(rawValue: 7)
+  public var description: String {
+    switch self {
+    case .`static`:
+      return "`static`"
+    case .`dynamic`:
+      return "`dynamic`"
+    case .decor:
+      return "decor"
+    case .all:
+      return "all"
+    default:
+      return "MjtCatBit(rawValue: \(rawValue))"
+    }
+  }
 }
 /// mouse interaction mode
 public enum MjtMouse: Int32 {
@@ -367,13 +427,23 @@ public enum MjtMouse: Int32 {
   case select
 }
 /// mouse perturbations
-public struct MjtPertBit: OptionSet {
+public struct MjtPertBit: OptionSet, CustomStringConvertible {
   public let rawValue: Int32
   public init(rawValue: Int32) {
     self.rawValue = rawValue
   }
   public static let translate = MjtPertBit(rawValue: 1)
   public static let rotate = MjtPertBit(rawValue: 2)
+  public var description: String {
+    switch self {
+    case .translate:
+      return "translate"
+    case .rotate:
+      return "rotate"
+    default:
+      return "MjtPertBit(rawValue: \(rawValue))"
+    }
+  }
 }
 /// abstract camera type
 public enum MjtCamera: Int32 {
