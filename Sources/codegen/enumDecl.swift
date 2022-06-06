@@ -56,11 +56,12 @@ public func optionSet(_ thisEnum: Enum) -> String {
   if let comment = thisEnum.comment {
     code += "/// \(comment)\n"
   }
-  code += "public struct \(swiftName): OptionSet {\n"
+  code += "public struct \(swiftName): OptionSet\(thisEnum.iterable ? ", CaseIterable" : "") {\n"
   code += "  public let rawValue: Int32\n"
   code += "  public init(rawValue: Int32) {\n"
   code += "    self.rawValue = rawValue\n"
   code += "  }\n"
+  var keys: [String] = []
   for (key, value) in thisEnum.keyValues {
     var swiftKey = key.split(separator: "_", maxSplits: 1)[1].lowercased().camelCase()
     // If it starts with integer, prefix _.
@@ -72,7 +73,12 @@ public func optionSet(_ thisEnum: Enum) -> String {
       swiftKey = "`\(swiftKey)`"
     }
     guard let value = value else { fatalError() }
+    keys.append(swiftKey)
     code += "  public static let \(swiftKey) = \(swiftName)(rawValue: \(value))\n"
+  }
+  if thisEnum.iterable {
+    code +=
+      "  public static let allCases: [\(swiftName)] = [\(keys.map({ ".\($0)" }).joined(separator: ", "))]\n"
   }
   code += "}\n"
   return code
