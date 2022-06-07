@@ -632,6 +632,10 @@ glContext.makeCurrent {
   }
   ui1.predicate = ui0.predicate
   settings.font = glContext.fontScale / 50 - 1
+  // update watch
+  func watch() {
+    // TODO: This cannot be implemented properly unless I generate some reflection mechanism for MjData. I am honestly not that interested in doing that for now.
+  }
 
   // update UI 0 when MuJoCo structures change (except for joint sliders)
   func updatesettings() {
@@ -970,6 +974,13 @@ glContext.makeCurrent {
 
     guard let m = m, var d = d else { return }
     scene.updateScene(model: m, data: &d, option: vopt, perturb: pert, camera: &camera)
+    // update watch
+    if settings.ui0 && ui0.nsect > UI0Section.watch.rawValue
+      && ui0.sect[Int(UI0Section.watch.rawValue)].state != 0
+    {
+      watch()
+      uiState.update(section: UI0Section.watch.rawValue, item: -1, ui: ui0, context: context)
+    }
     // update joint
     if settings.ui1 && ui1.nsect > UI1Section.joint.rawValue
       && ui1.sect[Int(UI1Section.joint.rawValue)].state != 0
