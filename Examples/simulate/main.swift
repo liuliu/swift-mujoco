@@ -788,6 +788,44 @@ glContext.makeCurrent {
   }
 
   func makecontrol(_ oldstate: Int32) {
+    guard let m = m, let d = d else { return }
+    let defControl: [MjuiDef] = [
+      MjuiDef(.section, name: "Control", state: oldstate, pdata: nil, other: "AC"),
+      MjuiDef(.button, name: "Clear all", state: 2, pdata: nil, other: ""),
+    ]
+
+    // add section
+    ui1.add(defs: defControl)
+
+    // add controls, exit if UI limit reached (Clear button already added)
+    var itemcnt: Int32 = 1
+    for i in 0..<Int(m.nu) {
+      guard itemcnt < MjuiSection.maxUIItem else { break }
+      guard
+        (withUnsafePointer(to: &vopt.actuatorgroup.0) {
+          $0[max(0, min(6 - 1, Int(m.actuatorGroup[i])))]
+        }) != 0
+      else { continue }
+      let actuatorname: String
+      if m.names[Int(m.nameActuatoradr[i])] != 0,
+        let newname = String(cString: m.names + Int(m.nameActuatoradr[i]), encoding: .utf8)
+      {
+        actuatorname = newname
+      } else {
+        actuatorname = "control \(i)"
+      }
+      let other: String
+      if m.actuatorCtrllimited[i] != 0 {
+        other =
+          "\(String(format: "%.4g", m.actuatorCtrlrange[2 * i])) \(String(format: "%.4g", m.actuatorCtrlrange[2 * i + 1]))"
+      } else {
+        other = "-1 1"
+      }
+      ui1.add(defs: [
+        MjuiDef(.slidernum, name: actuatorname, state: 2, pdata: d.ctrl + i, other: other)
+      ])
+      itemcnt += 1
+    }
   }
 
   // make model-dependent UI sections
@@ -1118,6 +1156,11 @@ glContext.makeCurrent {
         && ui1.sect[Int(UI1Section.joint.rawValue)].state != 0
       {
         uiState.update(section: UI1Section.joint.rawValue, item: -1, ui: ui1, context: context)
+      }
+      if settings.ui1 && ui1.nsect > UI1Section.control.rawValue
+        && ui1.sect[Int(UI1Section.control.rawValue)].state != 0
+      {
+        uiState.update(section: UI1Section.control.rawValue, item: -1, ui: ui1, context: context)
       }
       // update profiler
       if settings.profiler && settings.run {
