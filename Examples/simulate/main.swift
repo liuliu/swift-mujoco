@@ -750,8 +750,7 @@ glContext.makeCurrent {
   }
 
   func makejoint(_ oldstate: Int32) {
-    guard let m = m, var d = d else { return }
-    let dMapper = MjuiDefObjectMapper(to: &d)
+    guard let m = m, let d = d else { return }
 
     // add section
     ui1.add(defs: [MjuiDef(.section, name: "Joint", state: oldstate, pdata: nil, other: "AJ")])
@@ -781,9 +780,8 @@ glContext.makeCurrent {
         other = "-3.1416 3.1416"
       }
       ui1.add(defs: [
-        dMapper(
-          \.qpos, .slidernum, name: jntname, state: 4, other: other,
-          offsetBy: Int(m.jntQposadr[i]) * MemoryLayout<Double>.size)
+        MjuiDef(
+          .slidernum, name: jntname, state: 4, pdata: d.qpos + Int(m.jntQposadr[i]), other: other)
       ])
       itemcnt += 1
     }
@@ -1115,12 +1113,21 @@ glContext.makeCurrent {
       if let m = m, var d = d {
         scene.updateScene(model: m, data: &d, option: vopt, perturb: pert, camera: &camera)
       }
+      // update joint
+      if settings.ui1 && ui1.nsect > UI1Section.joint.rawValue
+        && ui1.sect[Int(UI1Section.joint.rawValue)].state != 0
+      {
+        uiState.update(section: UI1Section.joint.rawValue, item: -1, ui: ui1, context: context)
+      }
+      // update profiler
       if settings.profiler && settings.run {
         profilerupdate()
       }
+      // update sensor
       if settings.sensor && settings.run {
         sensorupdate()
       }
+      // clear timers once profiler info has been copied
       cleartimers()
     }
     let rect = uiState.rect.3
