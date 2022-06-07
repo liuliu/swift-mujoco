@@ -189,9 +189,8 @@ public struct MjStaticStringArray {
       precondition(index < len)
       var value = newValue
       value.withUTF8 {
-        precondition($0.count < strlen)
         let pos = (_array + index * Int(strlen))
-        let count = $0.count
+        let count = min($0.count, Int(strlen) - 1)  // This will be wrong for UTF8, especially emojis.
         $0.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
           pos.assign(from: $0, count: count)
         }

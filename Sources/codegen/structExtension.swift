@@ -342,14 +342,14 @@ public func structExtension(
       code += "    set {\n"
       code += "      var value = newValue\n"
       code += "      value.withUTF8 { utf8 in\n"
-      code += "        precondition(utf8.count < \(count))\n"
+      code += "        let count = min(utf8.count, \(count - 1))\n"
       code +=
         "        withUnsafeMutablePointer(to: &_\(varName)\(suffix).\(fieldName).0) { pos in\n"
       code +=
-        "          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {\n"
-      code += "            pos.assign(from: $0, count: utf8.count)\n"
+        "          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {\n"
+      code += "            pos.assign(from: $0, count: count)\n"
       code += "          }\n"
-      code += "          pos[utf8.count] = 0\n"
+      code += "          pos[count] = 0\n"
       code += "        }\n"
       code += "      }\n"
       code += "    }\n"

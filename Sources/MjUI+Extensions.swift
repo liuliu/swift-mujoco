@@ -105,12 +105,12 @@ extension MjUI {
     set {
       var value = newValue
       value.withUTF8 { utf8 in
-        precondition(utf8.count < 300)
+        let count = min(utf8.count, 299)
         withUnsafeMutablePointer(to: &_ui.pointee.edittext.0) { pos in
-          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {
-            pos.assign(from: $0, count: utf8.count)
+          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
+            pos.assign(from: $0, count: count)
           }
-          pos[utf8.count] = 0
+          pos[count] = 0
         }
       }
     }

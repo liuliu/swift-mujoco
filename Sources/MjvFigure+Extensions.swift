@@ -123,12 +123,12 @@ extension MjvFigure {
     set {
       var value = newValue
       value.withUTF8 { utf8 in
-        precondition(utf8.count < 20)
+        let count = min(utf8.count, 19)
         withUnsafeMutablePointer(to: &_figure.pointee.xformat.0) { pos in
-          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {
-            pos.assign(from: $0, count: utf8.count)
+          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
+            pos.assign(from: $0, count: count)
           }
-          pos[utf8.count] = 0
+          pos[count] = 0
         }
       }
     }
@@ -143,12 +143,12 @@ extension MjvFigure {
     set {
       var value = newValue
       value.withUTF8 { utf8 in
-        precondition(utf8.count < 20)
+        let count = min(utf8.count, 19)
         withUnsafeMutablePointer(to: &_figure.pointee.yformat.0) { pos in
-          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {
-            pos.assign(from: $0, count: utf8.count)
+          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
+            pos.assign(from: $0, count: count)
           }
-          pos[utf8.count] = 0
+          pos[count] = 0
         }
       }
     }
@@ -163,12 +163,12 @@ extension MjvFigure {
     set {
       var value = newValue
       value.withUTF8 { utf8 in
-        precondition(utf8.count < 20)
+        let count = min(utf8.count, 19)
         withUnsafeMutablePointer(to: &_figure.pointee.minwidth.0) { pos in
-          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {
-            pos.assign(from: $0, count: utf8.count)
+          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
+            pos.assign(from: $0, count: count)
           }
-          pos[utf8.count] = 0
+          pos[count] = 0
         }
       }
     }
@@ -183,12 +183,12 @@ extension MjvFigure {
     set {
       var value = newValue
       value.withUTF8 { utf8 in
-        precondition(utf8.count < 1000)
+        let count = min(utf8.count, 999)
         withUnsafeMutablePointer(to: &_figure.pointee.title.0) { pos in
-          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {
-            pos.assign(from: $0, count: utf8.count)
+          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
+            pos.assign(from: $0, count: count)
           }
-          pos[utf8.count] = 0
+          pos[count] = 0
         }
       }
     }
@@ -203,12 +203,12 @@ extension MjvFigure {
     set {
       var value = newValue
       value.withUTF8 { utf8 in
-        precondition(utf8.count < 100)
+        let count = min(utf8.count, 99)
         withUnsafeMutablePointer(to: &_figure.pointee.xlabel.0) { pos in
-          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: utf8.count) {
-            pos.assign(from: $0, count: utf8.count)
+          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
+            pos.assign(from: $0, count: count)
           }
-          pos[utf8.count] = 0
+          pos[count] = 0
         }
       }
     }
