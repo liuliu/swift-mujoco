@@ -27,6 +27,10 @@ public struct MjUI {
   }
 }
 
+extension MjUI {
+  public static let maxUISect = mjMAXUISECT
+}
+
 public struct MjuiSectionArray {
   @usableFromInline
   var object: AnyObject  // Make sure the array is valid.

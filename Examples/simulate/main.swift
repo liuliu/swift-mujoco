@@ -6,6 +6,7 @@ struct Settings {
   var exitrequest = false
   var slowdown: Int32 = 1
   var speedchanged = false
+  @MjuiDefState(.select, name: "Camera", state: 2, other: "Free\nTracking")
   var camera: Int32 = 0
   // option section of UI
   @MjuiDefState(.select, name: "Spacing", state: 1, other: "Tight\nWide")
@@ -224,6 +225,7 @@ var figcost = MjvFigure()
 var figtimer = MjvFigure()
 var figsize = MjvFigure()
 var figsensor = MjvFigure()
+var voptMapper = MjuiDefObjectMapper(to: &vopt)
 
 Mjcb.time = { 1000 * GLContext.time }
 
@@ -507,6 +509,7 @@ glContext.makeCurrent {
   profilerinit()
   sensorinit()
   var scene = MjvScene(model: nil, maxgeom: maxgeom)
+  let sceneMapper = MjuiDefObjectMapper(to: &scene)
   // The context need to be initialized after having a GL context.
   var context = MjrContext(model: nil, fontScale: ._100)
   Task.detached(operation: simulate)
@@ -603,6 +606,7 @@ glContext.makeCurrent {
     uiState.update(section: -1, item: -1, ui: ui0, context: context)
   }
 
+  // make physics section of UI
   func makephysics(_ oldstate: Int32) {
     guard var m = m else { return }
     let mMapper = MjuiDefObjectMapper(to: &m)
@@ -651,13 +655,137 @@ glContext.makeCurrent {
     ui0.add(defs: defOverride)
   }
 
+  // make rendering section of UI
   func makerendering(_ oldstate: Int32) {
+    guard let m = m else { return }
+    var defRendering: [MjuiDef] = [
+      MjuiDef(.section, name: "Rendering", state: oldstate, pdata: nil, other: "AR"),
+      settings.$camera,
+      voptMapper(
+        \.label, .select, name: "Label", state: 2,
+        other:
+          "None\nBody\nJoint\nGeom\nSite\nCamera\nLight\nTendon\nActuator\nConstraint\nSkin\nSelection\nSel Pnt\nForce"
+      ),
+      voptMapper(
+        \.frame, .select, name: "Frame", state: 2,
+        other: "None\nBody\nGeom\nSite\nCamera\nLight\nContact\nWorld"),
+      MjuiDef(.button, name: "Copy camera", state: 2, pdata: nil, other: ""),
+      MjuiDef(.separator, name: "Model Elements", state: 1, pdata: nil, other: ""),
+    ]
+
+    // add model cameras, up to UI limit
+    var other = defRendering[1].other
+    for i in 0..<min(Int(m.ncam), Int(MjuiItem.maxUIMulti) - 2) {
+      // prepare name
+      var camname = "\n"
+      if m.names[Int(m.nameCamadr[i])] != 0,
+        let newname = String(cString: m.names + Int(m.nameCamadr[i]), encoding: .utf8)
+      {
+        camname += newname
+      } else {
+        camname += "Camera \(i)"
+      }
+      other += camname
+    }
+    defRendering[1].other = other
+    // add rendering standard
+    ui0.add(defs: defRendering)
+
+    // add flags programmatically
+    for (i, flag) in MjtVisFlag.allCases.enumerated() {
+      ui0.add(defs: [
+        voptMapper(\.flags, .checkbyte, name: "\(flag)", state: 2, other: "", offsetBy: i)
+      ])
+    }
+    ui0.add(defs: [MjuiDef(.separator, name: "OpenGL Effects", state: 1, pdata: nil, other: "")])
+    for (i, flag) in MjtRndFlag.allCases.enumerated() {
+      ui0.add(defs: [
+        sceneMapper(\.flags, .checkbyte, name: "\(flag)", state: 2, other: "", offsetBy: i)
+      ])
+    }
   }
 
   func makegroup(_ oldstate: Int32) {
+    let defGroup: [MjuiDef] = [
+      MjuiDef(.section, name: "Group enable", state: oldstate, pdata: nil, other: "AG"),
+      MjuiDef(.separator, name: "Geom groups", state: 1, pdata: nil, other: ""),
+      voptMapper(\.geomgroup, .checkbyte, name: "Geom 0", state: 2, other: " 0"),
+      voptMapper(\.geomgroup, .checkbyte, name: "Geom 1", state: 2, other: " 1", offsetBy: 1),
+      voptMapper(\.geomgroup, .checkbyte, name: "Geom 2", state: 2, other: " 2", offsetBy: 2),
+      voptMapper(\.geomgroup, .checkbyte, name: "Geom 3", state: 2, other: " 3", offsetBy: 3),
+      voptMapper(\.geomgroup, .checkbyte, name: "Geom 4", state: 2, other: " 4", offsetBy: 4),
+      voptMapper(\.geomgroup, .checkbyte, name: "Geom 5", state: 2, other: " 5", offsetBy: 5),
+      MjuiDef(.separator, name: "Site groups", state: 1, pdata: nil, other: ""),
+      voptMapper(\.sitegroup, .checkbyte, name: "Site 0", state: 2, other: "S0"),
+      voptMapper(\.sitegroup, .checkbyte, name: "Site 1", state: 2, other: "S1", offsetBy: 1),
+      voptMapper(\.sitegroup, .checkbyte, name: "Site 2", state: 2, other: "S2", offsetBy: 2),
+      voptMapper(\.sitegroup, .checkbyte, name: "Site 3", state: 2, other: "S3", offsetBy: 3),
+      voptMapper(\.sitegroup, .checkbyte, name: "Site 4", state: 2, other: "S4", offsetBy: 4),
+      voptMapper(\.sitegroup, .checkbyte, name: "Site 5", state: 2, other: "S5", offsetBy: 5),
+      MjuiDef(.separator, name: "Joint groups", state: 1, pdata: nil, other: ""),
+      voptMapper(\.jointgroup, .checkbyte, name: "Joint 0", state: 2, other: ""),
+      voptMapper(\.jointgroup, .checkbyte, name: "Joint 1", state: 2, other: "", offsetBy: 1),
+      voptMapper(\.jointgroup, .checkbyte, name: "Joint 2", state: 2, other: "", offsetBy: 2),
+      voptMapper(\.jointgroup, .checkbyte, name: "Joint 3", state: 2, other: "", offsetBy: 3),
+      voptMapper(\.jointgroup, .checkbyte, name: "Joint 4", state: 2, other: "", offsetBy: 4),
+      voptMapper(\.jointgroup, .checkbyte, name: "Joint 5", state: 2, other: "", offsetBy: 5),
+      MjuiDef(.separator, name: "Tendon groups", state: 1, pdata: nil, other: ""),
+      voptMapper(\.tendongroup, .checkbyte, name: "Tendon 0", state: 2, other: ""),
+      voptMapper(\.tendongroup, .checkbyte, name: "Tendon 1", state: 2, other: "", offsetBy: 1),
+      voptMapper(\.tendongroup, .checkbyte, name: "Tendon 2", state: 2, other: "", offsetBy: 2),
+      voptMapper(\.tendongroup, .checkbyte, name: "Tendon 3", state: 2, other: "", offsetBy: 3),
+      voptMapper(\.tendongroup, .checkbyte, name: "Tendon 4", state: 2, other: "", offsetBy: 4),
+      voptMapper(\.tendongroup, .checkbyte, name: "Tendon 5", state: 2, other: "", offsetBy: 5),
+      MjuiDef(.separator, name: "Actuator groups", state: 1, pdata: nil, other: ""),
+      voptMapper(\.actuatorgroup, .checkbyte, name: "Actuator 0", state: 2, other: ""),
+      voptMapper(\.actuatorgroup, .checkbyte, name: "Actuator 1", state: 2, other: "", offsetBy: 1),
+      voptMapper(\.actuatorgroup, .checkbyte, name: "Actuator 2", state: 2, other: "", offsetBy: 2),
+      voptMapper(\.actuatorgroup, .checkbyte, name: "Actuator 3", state: 2, other: "", offsetBy: 3),
+      voptMapper(\.actuatorgroup, .checkbyte, name: "Actuator 4", state: 2, other: "", offsetBy: 4),
+      voptMapper(\.actuatorgroup, .checkbyte, name: "Actuator 5", state: 2, other: "", offsetBy: 5),
+    ]
+
+    // add section
+    ui0.add(defs: defGroup)
   }
 
   func makejoint(_ oldstate: Int32) {
+    guard let m = m, var d = d else { return }
+    let dMapper = MjuiDefObjectMapper(to: &d)
+
+    // add section
+    ui1.add(defs: [MjuiDef(.section, name: "Joint", state: oldstate, pdata: nil, other: "AJ")])
+    var itemcnt = 0
+    for i in 0..<Int(m.njnt) {
+      guard m.jntType[i] == .hinge || m.jntType[i] == .slide else { continue }
+      guard
+        (withUnsafePointer(to: &vopt.jointgroup.0) { $0[max(0, min(6 - 1, Int(m.jntGroup[i])))] })
+          != 0
+      else { continue }
+      let jntname: String
+      if m.names[Int(m.nameJntadr[i])] != 0,
+        let newname = String(cString: m.names + Int(m.nameJntadr[i]), encoding: .utf8)
+      {
+        jntname = newname
+      } else {
+        jntname = "Joint \(i)"
+      }
+      let other: String
+      if m.jntLimited[i] != 0 {
+        other =
+          "\(String(format: "%.4g", m.jntRange[2 * i])) \(String(format: "%.4g", m.jntRange[2 * i + 1]))"
+      } else if m.jntType[i] == .slide {
+        other = "-1 1"
+      } else {
+        other = "-3.1416 3.1416"
+      }
+      ui1.add(defs: [
+        dMapper(
+          \.qpos, .slidernum, name: jntname, state: 4, other: other,
+          offsetBy: Int(m.jntQposadr[i]) * MemoryLayout<Double>.size)
+      ])
+      itemcnt += 1
+    }
   }
 
   func makecontrol(_ oldstate: Int32) {
@@ -697,8 +825,7 @@ glContext.makeCurrent {
     if uiState.dragrect == ui0.rectid || (uiState.dragrect == 0 && uiState.mouserect == ui0.rectid)
       || uiState.type == .key
     {
-      let it = ui0.event(state: &uiState, context: context)
-      if let it = it {
+      if let it = ui0.event(state: &uiState, context: context) {
         if it.sectionid == UI0Section.file.rawValue {
           // File
         } else if it.sectionid == UI0Section.option.rawValue {
@@ -708,6 +835,8 @@ glContext.makeCurrent {
         }
         return
       }
+    }
+    if let _ = ui1.event(state: &uiState, context: context) {
     }
     if uiState.type == .key && uiState.key != 0 {
       switch uiState.key {

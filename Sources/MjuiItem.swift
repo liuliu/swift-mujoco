@@ -16,6 +16,11 @@ public struct MjuiItem {
 }
 
 extension MjuiItem {
+  public static let maxUIMulti = mjMAXUIMULTI
+  public static let maxUIEdit = mjMAXUIEDIT
+}
+
+extension MjuiItem {
   /// check and button
   @inlinable
   public var single: MjuiItemSingle {

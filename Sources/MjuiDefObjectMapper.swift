@@ -16,10 +16,11 @@ public struct MjuiDefObjectMapper<T: MjObject> {
     _addr = T.withCTypeUnsafeMutablePointer(to: &value) { $0 }
   }
   public func callAsFunction(
-    _ keyPath: PartialKeyPath<T.CType>, _ type: MjtItem, name: String, state: Int32, other: String
+    _ keyPath: PartialKeyPath<T.CType>, _ type: MjtItem, name: String, state: Int32, other: String,
+    offsetBy distance: Int = 0
   ) -> MjuiDef {
     let offset = MemoryLayout<T.CType>.offset(of: keyPath)!
-    let pdata = UnsafeMutableRawPointer(_addr) + offset
+    let pdata = UnsafeMutableRawPointer(_addr) + offset + distance
     return MjuiDef(type, name: name, state: state, pdata: pdata, other: other)
   }
 }
