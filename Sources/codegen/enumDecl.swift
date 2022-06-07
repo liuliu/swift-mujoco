@@ -23,7 +23,9 @@ public func enumDecl(_ thisEnum: Enum) -> String {
     code += "/// \(comment)\n"
   }
   code += "@objc\n"  // Makes sure the enum use full Int32 rather than smallest possible.
-  code += "public enum \(swiftName): Int32\(thisEnum.iterable ? ", CaseIterable" : "") {\n"
+  code +=
+    "public enum \(swiftName): Int32, CustomStringConvertible\(thisEnum.iterable ? ", CaseIterable" : "") {\n"
+  var keys: [String] = []
   for (key, value) in thisEnum.keyValues {
     var swiftKey = key.split(separator: "_", maxSplits: 1)[1].lowercased().camelCase()
     // If it starts with integer, prefix _.
@@ -34,6 +36,7 @@ public func enumDecl(_ thisEnum: Enum) -> String {
     if ["static", "enum", "dynamic", "func"].contains(swiftKey) {
       swiftKey = "`\(swiftKey)`"
     }
+    keys.append(swiftKey)
     if var value = value {
       if value.contains("<<") {  // Evaluate this, Swift is not happy with anything other than literal.
         let parts = value.components(separatedBy: "<<")
@@ -44,6 +47,16 @@ public func enumDecl(_ thisEnum: Enum) -> String {
       code += "  case \(swiftKey)\n"
     }
   }
+  // Because @objc enum doesn't do description as good as ordinary enum, we have to do it ourselves.
+  code += "  public var description: String {\n"
+  code += "    switch self {\n"
+  for key in keys {
+    code += "    case .\(key):\n"
+    let value = key.hasPrefix("`") && key.hasSuffix("`") ? String(key.dropFirst().dropLast()) : key
+    code += "      return \"\(value)\"\n"
+  }
+  code += "    }\n"
+  code += "  }\n"
   code += "}\n"
   return code
 }
@@ -87,7 +100,8 @@ public func optionSet(_ thisEnum: Enum) -> String {
   code += "    switch self {\n"
   for key in keys {
     code += "    case .\(key):\n"
-    code += "      return \"\(key)\"\n"
+    let value = key.hasPrefix("`") && key.hasSuffix("`") ? String(key.dropFirst().dropLast()) : key
+    code += "      return \"\(value)\"\n"
   }
   code += "    default:\n"
   code += "      return \"\(swiftName)(rawValue: \\(rawValue))\"\n"
