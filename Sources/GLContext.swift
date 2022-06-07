@@ -54,6 +54,12 @@ public final class GLContext {
     glfwDestroyWindow(window)
   }
 
+  /// glfwGetClipboardString, glfwSetClipboardString
+  public var clipboard: String? {
+    get { String(cString: glfwGetClipboardString(window), encoding: .utf8) }
+    set { glfwSetClipboardString(window, newValue) }
+  }
+
   /// glfwGetTime.
   public static var time: Double {
     glfwGetTime()

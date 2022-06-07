@@ -123,6 +123,9 @@ let helpTitle = """
   Expand/collapse all
   """
 
+var infoContent = ""
+var infoTitle = ""
+
 let glContext = GLContext(width: 1280, height: 720, title: "simulate")
 let mtx = DispatchQueue(label: "mtx")
 var m: MjModel? = nil
@@ -858,6 +861,93 @@ glContext.makeCurrent {
     makecontrol(oldstate1[Int(UI1Section.control.rawValue)])
   }
 
+  func infotext(interval: Double) -> (String, String) {
+    guard let m = m, let d = d else { return ("", "") }
+    // compute solver error
+    var solerr: Double = 0
+    if d.solverIter > 0 {
+      let ind = Int(min(d.solverIter - 1, 1000 - 1))
+      solerr = min(d.solver[ind].improvement, d.solver[ind].gradient)
+      if solerr == 0 {
+        solerr = max(d.solver[ind].improvement, d.solver[ind].gradient)
+      }
+    }
+    solerr = log10(max(1e-15, solerr))
+
+    // prepare info text
+    let realtimeNominator = settings.slowdown == 1 ? "" : "1/"
+    var title = "Time\nSize\nCPU\nSolver   \nFPS\nstack\nconbuf\nefcbuf"
+    var content = String(
+      format: "%-9.3f %s%d x\n%d  (%d con)\n%.3f\n%.1f  (%d it)\n%.0f\n%.3f\n%.3f\n%.3f",
+      d.time, realtimeNominator, settings.slowdown,
+      d.nefc, d.ncon,
+      settings.run
+        ? d.timer[Int(MjtTimer.step.rawValue)].duration
+          / Double(max(1, d.timer[Int(MjtTimer.step.rawValue)].number))
+        : d.timer[Int(MjtTimer.forward.rawValue)].duration
+          / Double(max(1, d.timer[Int(MjtTimer.forward.rawValue)].number)),
+      solerr, d.solverIter,
+      1 / interval,
+      Double(d.maxuseStack) / Double(d.nstack),
+      Double(d.maxuseCon) / Double(m.nconmax),
+      Double(d.maxuseEfc) / Double(m.njmax))
+
+    // add Energy if enabled
+    if m.opt.enableflags.contains(.energy) {
+      content += String(format: "\n%.3f", d.energy.0 + d.energy.1)
+      title += "\nEnergy"
+    }
+
+    // add FwdInv if enabled
+    if m.opt.enableflags.contains(.fwdinv) {
+      content += String(
+        format: "\n%.1f %.1f", log10(max(1e-15, d.solverFwdinv.0)),
+        log10(max(1e-15, d.solverFwdinv.1)))
+      title += "\nFwdInv"
+    }
+    return (title, content)
+  }
+
+  var lastupdatetm: Double = 0
+
+  func prepare() {
+    // data for FPS calculation
+
+    // update interval, save update time
+    let tmnow = GLContext.time
+    var interval = tmnow - lastupdatetm
+    interval = min(1, max(0.0001, interval))
+    lastupdatetm = tmnow
+
+    guard let m = m, var d = d else { return }
+    scene.updateScene(model: m, data: &d, option: vopt, perturb: pert, camera: &camera)
+    // update joint
+    if settings.ui1 && ui1.nsect > UI1Section.joint.rawValue
+      && ui1.sect[Int(UI1Section.joint.rawValue)].state != 0
+    {
+      uiState.update(section: UI1Section.joint.rawValue, item: -1, ui: ui1, context: context)
+    }
+    // update info text
+    if settings.info {
+      (infoTitle, infoContent) = infotext(interval: interval)
+    }
+    if settings.ui1 && ui1.nsect > UI1Section.control.rawValue
+      && ui1.sect[Int(UI1Section.control.rawValue)].state != 0
+    {
+      uiState.update(section: UI1Section.control.rawValue, item: -1, ui: ui1, context: context)
+    }
+    // update profiler
+    if settings.profiler && settings.run {
+      profilerupdate()
+    }
+    // update sensor
+    if settings.sensor && settings.run {
+      sensorupdate()
+    }
+    // clear timers once profiler info has been copied
+    cleartimers()
+  }
+
   glContext.setCallbacks(uiState: &uiState) { uiState in
     if uiState.dragrect == ui0.rectid || (uiState.dragrect == 0 && uiState.mouserect == ui0.rectid)
       || uiState.type == .key
@@ -1148,30 +1238,7 @@ glContext.makeCurrent {
         settings.loadrequest = 1
       }
       glContext.pollEvents()
-      if let m = m, var d = d {
-        scene.updateScene(model: m, data: &d, option: vopt, perturb: pert, camera: &camera)
-      }
-      // update joint
-      if settings.ui1 && ui1.nsect > UI1Section.joint.rawValue
-        && ui1.sect[Int(UI1Section.joint.rawValue)].state != 0
-      {
-        uiState.update(section: UI1Section.joint.rawValue, item: -1, ui: ui1, context: context)
-      }
-      if settings.ui1 && ui1.nsect > UI1Section.control.rawValue
-        && ui1.sect[Int(UI1Section.control.rawValue)].state != 0
-      {
-        uiState.update(section: UI1Section.control.rawValue, item: -1, ui: ui1, context: context)
-      }
-      // update profiler
-      if settings.profiler && settings.run {
-        profilerupdate()
-      }
-      // update sensor
-      if settings.sensor && settings.run {
-        sensorupdate()
-      }
-      // clear timers once profiler info has been copied
-      cleartimers()
+      prepare()
     }
     let rect = uiState.rect.3
     var smallrect = rect
@@ -1190,6 +1257,12 @@ glContext.makeCurrent {
       context.overlay(
         font: .normal, gridpos: .topleft, viewport: rect, overlay: helpTitle,
         overlay2: helpContent)
+    }
+    // show info
+    if settings.info {
+      context.overlay(
+        font: .normal, gridpos: .bottomleft, viewport: rect, overlay: infoTitle,
+        overlay2: infoContent)
     }
     // show profiler
     if settings.profiler {
