@@ -1247,6 +1247,18 @@ glContext.makeCurrent {
     }
     rectangle(viewport: rect, r: 0.2, g: 0.3, b: 0.4, a: 1)
     context.render(viewport: rect, scene: &scene)
+    // show pause/loading label
+    if !settings.run || settings.loadrequest != 0 {
+      context.overlay(
+        font: .big, gridpos: .topright, viewport: smallrect,
+        overlay: settings.loadrequest != 0 ? "loading" : "pause", overlay2: "")
+    }
+    // show realtime label
+    if settings.run && settings.slowdown != 1 {
+      let realtimeLabel = "1/\(settings.slowdown) x"
+      context.overlay(
+        font: .big, gridpos: .topright, viewport: smallrect, overlay: realtimeLabel, overlay2: "")
+    }
     if settings.ui0 {
       ui0.render(state: uiState, context: context)
     }
