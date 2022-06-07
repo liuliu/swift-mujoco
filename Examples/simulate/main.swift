@@ -1014,7 +1014,7 @@ glContext.makeCurrent {
     {
       if let it = ui0.event(state: &uiState, context: context) {
         if it.sectionid == UI0Section.file.rawValue {
-          // File
+          // File, these are safe because it is triggered under pollEvents, which is protected by mtx.
           switch it.itemid {
           case 0:
             try? m?.saveLastXML(filename: "mjmodel.xml")

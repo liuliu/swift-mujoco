@@ -1,4 +1,5 @@
 import C_mujoco
+import Foundation  // This is for memset.
 
 /// entire UI
 ///
@@ -17,6 +18,7 @@ public struct MjUI {
     let _ui: UnsafeMutablePointer<mjUI_>
     init() {
       _ui = UnsafeMutablePointer.allocate(capacity: 1)
+      memset(_ui, 0, MemoryLayout<mjUI_>.size)
     }
     deinit {
       if let userdata = _ui.pointee.userdata {
@@ -90,7 +92,7 @@ extension MjUI {
     _defs.append(MjuiDef(.end, name: "", state: 0, pdata: nil, other: ""))
     _defs.withUnsafeBufferPointer {
       mjui_add(
-        self._ui, $0.baseAddress?.withMemoryRebound(to: mjuiDef.self, capacity: $0.count) { $0 })
+        self._ui, $0.baseAddress.map { UnsafeRawPointer($0).assumingMemoryBound(to: mjuiDef.self) })
     }
   }
   ///  Add definitions to UI section.
@@ -101,7 +103,7 @@ extension MjUI {
     _defs.withUnsafeBufferPointer {
       mjui_addToSection(
         self._ui, sect,
-        $0.baseAddress?.withMemoryRebound(to: mjuiDef.self, capacity: $0.count) { $0 })
+        $0.baseAddress.map { UnsafeRawPointer($0).assumingMemoryBound(to: mjuiDef.self) })
     }
   }
 
