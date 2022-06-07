@@ -1,0 +1,14 @@
+common --disk_cache=.cache
+
+build:asan --strip=never
+build:asan --copt -fsanitize=address
+build:asan --copt -DADDRESS_SANITIZER
+build:asan --copt -O0
+build:asan --copt -g
+build:asan --copt -fno-omit-frame-pointer
+build:asan --linkopt -fsanitize=address
+build:asan --swiftcopt -g
+build:asan --swiftcopt -sanitize=address
+
+try-import %workspace%/clang.bazelrc
+try-import %workspace%/.bazelrc.local

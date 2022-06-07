@@ -27,8 +27,7 @@ jobs:
         run: |
           sudo apt -y install clang llvm
           ./bazel/setup_clang.sh
-          echo "build --config=clang" >> "${GITHUB_WORKSPACE}/.bazelrc"
-          echo "try-import %workspace%/clang.bazelrc" >> "${GITHUB_WORKSPACE}/.bazelrc"
+          echo "build --config=clang" >> "${GITHUB_WORKSPACE}/.bazelrc.local"
 
       - name: Setup GLFW
         run: |
