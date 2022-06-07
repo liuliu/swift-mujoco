@@ -159,7 +159,7 @@ public struct Mj2DArray<Element> {
 extension MjArray where Element == Double {
   /// Zero out the array.
   @inlinable
-  public func zero() {
+  public mutating func zero() {
     mju_zero(_array, len)
   }
 }

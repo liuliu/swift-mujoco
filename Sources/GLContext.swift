@@ -91,15 +91,16 @@ public final class GLContext {
 
   /// Establish the event run loop for GL window.
   public func runLoop(
-    swapInterval: Int32, _ closure: (_ width: Int32, _ height: Int32) throws -> Void
+    swapInterval: Int32, _ closure: (_ width: Int32, _ height: Int32) throws -> Bool
   ) rethrows {
     self.swapInterval = swapInterval
-    while glfwWindowShouldClose(window) == 0 {
+    var continuerequest = true
+    while glfwWindowShouldClose(window) == 0 && continuerequest {
       var width: Int32 = 0
       var height: Int32 = 0
       pollEventsTriggered = false
       glfwGetFramebufferSize(window, &width, &height)
-      try closure(width, height)
+      continuerequest = try closure(width, height)
       glfwSwapBuffers(window)
       if !pollEventsTriggered {
         glfwPollEvents()

@@ -500,6 +500,55 @@ func sensorshow(rect: MjrRect, context: MjrContext) {
   context.figure(viewport: viewport, figure: &figsensor)
 }
 
+// align and scale view
+func alignscale() {
+  guard let m = m else { return }
+  // autoscale
+  camera.lookat.0 = m.stat.center.0
+  camera.lookat.1 = m.stat.center.1
+  camera.lookat.2 = m.stat.center.2
+  camera.distance = 1.5 * m.stat.extent
+
+  // set to free camera
+  camera.type = .free
+}
+
+// copy qpos to clipboard as key
+func copykey() {
+  guard let m = m, let d = d else { return }
+  var clipboard = "<key qpos='"
+
+  // prepare string
+  for i in 0..<Int(m.nq) {
+    clipboard += String(format: i == Int(m.nq) - 1 ? "%g" : "%g ", d.qpos[i])
+  }
+  clipboard += "'/>"
+
+  // copy to clipboard
+  glContext.clipboard = clipboard
+}
+
+func copycamera(_ camera: (MjvGLCamera, MjvGLCamera)) {
+  // get camera spec from the GLCamera
+  let cam_right: (Double, Double, Double) = (
+    Double(camera.0.forward.1) * Double(camera.0.up.2) - Double(camera.0.forward.2)
+      * Double(camera.0.up.1),
+    Double(camera.0.forward.2) * Double(camera.0.up.0) - Double(camera.0.forward.0)
+      * Double(camera.0.up.2),
+    Double(camera.0.forward.0) * Double(camera.0.up.1) - Double(camera.0.forward.1)
+      * Double(camera.0.up.0)
+  )
+
+  glContext.clipboard = String(
+    format:
+      "<camera pos=\"%.3f %.3f %.3f\" xyaxes=\"%.3f %.3f %.3f %.3f %.3f %.3f\"/>\n",
+    (camera.0.pos.0 + camera.1.pos.0) / 2,
+    (camera.0.pos.1 + camera.1.pos.1) / 2,
+    (camera.0.pos.2 + camera.1.pos.2) / 2,
+    cam_right.0, cam_right.1, cam_right.2,
+    camera.0.up.0, camera.0.up.1, camera.0.up.2)
+}
+
 func cleartimers() {
   guard var d = d else { return }
   for i in 0..<MjtTimer.allCases.count {
@@ -955,15 +1004,183 @@ glContext.makeCurrent {
       if let it = ui0.event(state: &uiState, context: context) {
         if it.sectionid == UI0Section.file.rawValue {
           // File
+          switch it.itemid {
+          case 0:
+            try? m?.saveLastXML(filename: "mjmodel.xml")
+          case 1:
+            m?.write(to: "mjmodel.mjb")
+          case 2:
+            m?.printModel(filename: "MJMODEL.TXT")
+          case 3:
+            if let m = m, var d = d {
+              m.print(data: &d, filename: "MJDATA.TXT")
+            }
+          case 4:
+            settings.exitrequest = true
+          default:
+            break
+          }
         } else if it.sectionid == UI0Section.option.rawValue {
           // Option
+          switch it.itemid {
+          case 0:
+            ui0.spacing = MjuiThemeSpacing(settings.spacing)
+            ui1.spacing = MjuiThemeSpacing(settings.spacing)
+          case 1:
+            ui0.color = MjuiThemeColor(settings.color)
+            ui1.color = MjuiThemeColor(settings.color)
+          case 2:
+            context.changeFont(fontscale: MjtFontScale(rawValue: 50 * (settings.font + 1))!)
+          case 9:  // fullscreen
+            glContext.swapInterval = settings.vsync
+          case 10:
+            glContext.swapInterval = settings.vsync
+          default:
+            break
+          }
+          ui0.resize(context: context)
+          glContext.modify(ui: ui0, uiState: &uiState, context: &context)
+          ui1.resize(context: context)
+          glContext.modify(ui: ui1, uiState: &uiState, context: &context)
         } else if it.sectionid == UI0Section.simulation.rawValue {
           // Simulation
+          switch it.itemid {
+          case 1:  // Reset
+            guard let m = m, var d = d else { break }
+            m.reset(data: &d)
+            m.forward(data: &d)
+            profilerupdate()
+            sensorupdate()
+            updatesettings()
+          case 2:  // Reload
+            settings.loadrequest = 1
+          case 3:  // Align
+            alignscale()
+            updatesettings()
+            break
+          case 4:  // Copy pose
+            copykey()
+            break
+          case 5...6:  // Adjust key, Load key
+            guard let m = m, var d = d else { break }
+            let i = Int(settings.key)
+            d.time = m.keyTime[i]
+            for j in 0..<Int(m.nq) {
+              d.qpos[j] = m.keyQpos[i * Int(m.nq) + j]
+            }
+            for j in 0..<Int(m.nv) {
+              d.qvel[j] = m.keyQvel[i * Int(m.nv) + j]
+            }
+            for j in 0..<Int(m.na) {
+              d.act[j] = m.keyAct[i * Int(m.na) + j]
+            }
+            for j in 0..<Int(m.nmocap) {
+              d.mocapPos[j] = m.keyMpos[i * Int(m.nmocap) + j]
+              d.mocapQuat[j] = m.keyMquat[i * Int(m.nmocap) + j]
+            }
+            m.forward(data: &d)
+            profilerupdate()
+            sensorupdate()
+            updatesettings()
+            break
+          case 7:  // Save key
+            guard var m = m, let d = d else { break }
+            let i = Int(settings.key)
+            m.keyTime[i] = d.time
+            for j in 0..<Int(m.nq) {
+              m.keyQpos[i * Int(m.nq) + j] = d.qpos[j]
+            }
+            for j in 0..<Int(m.nv) {
+              m.keyQvel[i * Int(m.nv) + j] = d.qvel[j]
+            }
+            for j in 0..<Int(m.na) {
+              m.keyAct[i * Int(m.na) + j] = d.act[j]
+            }
+            for j in 0..<Int(m.nmocap) {
+              m.keyMpos[i * Int(m.nmocap) + j] = d.mocapPos[j]
+              m.keyMquat[i * Int(m.nmocap) + j] = d.mocapQuat[j]
+            }
+            break
+          default:
+            break
+          }
+        } else if it.sectionid == UI0Section.physics.rawValue {
+          // Physics
+          guard var m = m else { return }
+          // update disable flags in mjOption
+          m.opt.disableflags = []
+          for (i, flag) in MjtDisableBit.allCases.enumerated() {
+            if settings.disable[i] {
+              m.opt.disableflags.insert(flag)
+            }
+          }
+
+          // update enable flags in mjOption
+          m.opt.enableflags = []
+          for (i, flag) in MjtEnableBit.allCases.enumerated() {
+            if settings.enable[i] {
+              m.opt.enableflags.insert(flag)
+            }
+          }
+        } else if it.sectionid == UI0Section.rendering.rawValue {
+          // Rendering
+          // set camera in mjvCamera
+          if settings.camera == 0 {
+            camera.type = .free
+          } else if settings.camera == 1 {
+            if pert.select > 0 {
+              camera.type = .tracking
+              camera.trackbodyid = pert.select
+              camera.fixedcamid = -1
+            } else {
+              camera.type = .free
+              settings.camera = 0
+              uiState.update(
+                section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
+            }
+          } else {
+            camera.type = .fixed
+            camera.fixedcamid = settings.camera - 2
+          }
+          // copy camera spec to clipboard (as MJCF element)
+          if it.itemid == 3 {
+            copycamera(scene.camera)
+          }
+        } else if it.sectionid == UI0Section.group.rawValue {
+          // Group
+          // remake joint section if joint group changed
+          if it.name.hasPrefix("Jo") {
+            let oldstate = ui1.sect[Int(UI1Section.joint.rawValue)].state
+            ui1.nsect = UI1Section.joint.rawValue
+            makejoint(oldstate)
+            ui1.nsect = Int32(UI1Section.allCases.count)
+            ui1.resize(context: context)
+            glContext.modify(ui: ui1, uiState: &uiState, context: &context)
+          }
+
+          // remake control section if actuator group changed
+          if it.name.hasPrefix("Ac") {
+            let oldstate = ui1.sect[Int(UI1Section.control.rawValue)].state
+            ui1.nsect = UI1Section.control.rawValue
+            makecontrol(oldstate)
+            ui1.nsect = Int32(UI1Section.allCases.count)
+            ui1.resize(context: context)
+            glContext.modify(ui: ui1, uiState: &uiState, context: &context)
+          }
         }
         return
       }
     }
-    if let _ = ui1.event(state: &uiState, context: context) {
+    if let it = ui1.event(state: &uiState, context: context) {
+      // control section
+      if it.sectionid == UI1Section.control.rawValue {
+        // clear controls
+        if it.itemid == 0, var d = d {
+          d.ctrl.zero()
+          uiState.update(section: UI1Section.control.rawValue, item: -1, ui: ui1, context: context)
+        }
+      }
+      return
     }
     if uiState.type == .key && uiState.key != 0 {
       switch uiState.key {
@@ -1287,6 +1504,7 @@ glContext.makeCurrent {
     context.overlay(
       font: .normal, gridpos: .bottomleft, viewport: rect,
       overlay: "Drag-and-drop model file here", overlay2: "")
+    return !settings.exitrequest
   }
   glContext.clearCallbacks()
 }
