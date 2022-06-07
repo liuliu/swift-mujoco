@@ -755,8 +755,9 @@ glContext.makeCurrent {
 
     // add section
     ui1.add(defs: [MjuiDef(.section, name: "Joint", state: oldstate, pdata: nil, other: "AJ")])
-    var itemcnt = 0
+    var itemcnt: Int32 = 0
     for i in 0..<Int(m.njnt) {
+      guard itemcnt < MjuiSection.maxUIItem else { break }
       guard m.jntType[i] == .hinge || m.jntType[i] == .slide else { continue }
       guard
         (withUnsafePointer(to: &vopt.jointgroup.0) { $0[max(0, min(6 - 1, Int(m.jntGroup[i])))] })

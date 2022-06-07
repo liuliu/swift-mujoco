@@ -22,6 +22,7 @@ public func enumDecl(_ thisEnum: Enum) -> String {
   if let comment = thisEnum.comment {
     code += "/// \(comment)\n"
   }
+  code += "@objc\n"  // Makes sure the enum use full Int32 rather than smallest possible.
   code += "public enum \(swiftName): Int32\(thisEnum.iterable ? ", CaseIterable" : "") {\n"
   for (key, value) in thisEnum.keyValues {
     var swiftKey = key.split(separator: "_", maxSplits: 1)[1].lowercased().camelCase()

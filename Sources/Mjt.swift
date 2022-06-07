@@ -1,4 +1,5 @@
 /// warning types
+@objc
 public enum MjtWarning: Int32, CaseIterable {
   case inertia = 0
   case contactfull
@@ -9,6 +10,7 @@ public enum MjtWarning: Int32, CaseIterable {
   case badqacc
   case badctrl
 }
+@objc
 public enum MjtTimer: Int32, CaseIterable {
   case step = 0
   case forward
@@ -109,6 +111,7 @@ public struct MjtEnableBit: OptionSet, CustomStringConvertible, CaseIterable {
   }
 }
 /// type of degree of freedom
+@objc
 public enum MjtJoint: Int32 {
   case free = 0
   case ball
@@ -116,6 +119,7 @@ public enum MjtJoint: Int32 {
   case hinge
 }
 /// type of geometric shape
+@objc
 public enum MjtGeom: Int32, CaseIterable {
   case plane = 0
   case hfield
@@ -134,6 +138,7 @@ public enum MjtGeom: Int32, CaseIterable {
   case none = 1001
 }
 /// tracking mode for camera and light
+@objc
 public enum MjtCamLight: Int32 {
   case fixed = 0
   case track
@@ -142,41 +147,48 @@ public enum MjtCamLight: Int32 {
   case targetbodycom
 }
 /// type of texture
+@objc
 public enum MjtTexture: Int32 {
   case _2d = 0
   case cube
   case skybox
 }
 /// integrator mode
+@objc
 public enum MjtIntegrator: Int32 {
   case euler = 0
   case rk4
   case implicit
 }
 /// collision mode for selecting geom pairs
+@objc
 public enum MjtCollision: Int32 {
   case all = 0
   case pair
   case `dynamic`
 }
 /// type of friction cone
+@objc
 public enum MjtCone: Int32 {
   case pyramidal = 0
   case elliptic
 }
 /// type of constraint Jacobian
+@objc
 public enum MjtJacobian: Int32 {
   case dense = 0
   case sparse
   case auto
 }
 /// constraint solver algorithm
+@objc
 public enum MjtSolver: Int32 {
   case pgs = 0
   case cg
   case newton
 }
 /// type of equality constraint
+@objc
 public enum MjtEq: Int32 {
   case connect = 0
   case weld
@@ -185,6 +197,7 @@ public enum MjtEq: Int32 {
   case distance
 }
 /// type of tendon wrap object
+@objc
 public enum MjtWrap: Int32 {
   case none = 0
   case joint
@@ -194,6 +207,7 @@ public enum MjtWrap: Int32 {
   case cylinder
 }
 /// type of actuator transmission
+@objc
 public enum MjtTrn: Int32 {
   case joint = 0
   case jointinparent
@@ -203,6 +217,7 @@ public enum MjtTrn: Int32 {
   case undefined = 1000
 }
 /// type of actuator dynamics
+@objc
 public enum MjtDyn: Int32 {
   case none = 0
   case integrator
@@ -211,12 +226,14 @@ public enum MjtDyn: Int32 {
   case user
 }
 /// type of actuator gain
+@objc
 public enum MjtGain: Int32 {
   case fixed = 0
   case muscle
   case user
 }
 /// type of actuator bias
+@objc
 public enum MjtBias: Int32 {
   case none = 0
   case affine
@@ -224,6 +241,7 @@ public enum MjtBias: Int32 {
   case user
 }
 /// type of MujoCo object
+@objc
 public enum MjtObj: Int32 {
   case unknown = 0
   case body
@@ -251,6 +269,7 @@ public enum MjtObj: Int32 {
   case key
 }
 /// type of constraint
+@objc
 public enum MjtConstraint: Int32 {
   case equality = 0
   case frictionDof
@@ -262,6 +281,7 @@ public enum MjtConstraint: Int32 {
   case contactElliptic
 }
 /// constraint state
+@objc
 public enum MjtConstraintState: Int32 {
   case satisfied = 0
   case quadratic
@@ -270,6 +290,7 @@ public enum MjtConstraintState: Int32 {
   case cone
 }
 /// type of sensor
+@objc
 public enum MjtSensor: Int32 {
   case touch = 0
   case accelerometer
@@ -309,6 +330,7 @@ public enum MjtSensor: Int32 {
   case user
 }
 /// computation stage
+@objc
 public enum MjtStage: Int32 {
   case none = 0
   case pos
@@ -316,6 +338,7 @@ public enum MjtStage: Int32 {
   case acc
 }
 /// data type for sensors
+@objc
 public enum MjtDataType: Int32 {
   case real = 0
   case positive
@@ -323,6 +346,7 @@ public enum MjtDataType: Int32 {
   case quaternion
 }
 /// mode for actuator length range computation
+@objc
 public enum MjtLRMode: Int32 {
   case none = 0
   case muscle
@@ -330,6 +354,7 @@ public enum MjtLRMode: Int32 {
   case all
 }
 /// grid position for overlay
+@objc
 public enum MjtGridPos: Int32 {
   case topleft = 0
   case topright
@@ -337,11 +362,13 @@ public enum MjtGridPos: Int32 {
   case bottomright
 }
 /// OpenGL framebuffer option
+@objc
 public enum MjtFramebuffer: Int32 {
   case window = 0
   case offscreen
 }
 /// font scale, used at context creation
+@objc
 public enum MjtFontScale: Int32 {
   case _50 = 50
   case _100 = 100
@@ -351,12 +378,14 @@ public enum MjtFontScale: Int32 {
   case _300 = 300
 }
 /// font type, used at each text operation
+@objc
 public enum MjtFont: Int32 {
   case normal = 0
   case shadow
   case big
 }
 /// mouse button
+@objc
 public enum MjtButton: Int32 {
   case none = 0
   case left
@@ -364,6 +393,7 @@ public enum MjtButton: Int32 {
   case middle
 }
 /// mouse and keyboard event type
+@objc
 public enum MjtEvent: Int32 {
   case none = 0
   case move
@@ -374,6 +404,7 @@ public enum MjtEvent: Int32 {
   case resize
 }
 /// UI item type
+@objc
 public enum MjtItem: Int32, CaseIterable {
   case end = -2
   case section = -1
@@ -417,6 +448,7 @@ public struct MjtCatBit: OptionSet, CustomStringConvertible {
   }
 }
 /// mouse interaction mode
+@objc
 public enum MjtMouse: Int32 {
   case none = 0
   case rotateV
@@ -446,6 +478,7 @@ public struct MjtPertBit: OptionSet, CustomStringConvertible {
   }
 }
 /// abstract camera type
+@objc
 public enum MjtCamera: Int32 {
   case free = 0
   case tracking
@@ -453,6 +486,7 @@ public enum MjtCamera: Int32 {
   case user
 }
 /// object labeling
+@objc
 public enum MjtLabel: Int32, CaseIterable {
   case none = 0
   case body
@@ -470,6 +504,7 @@ public enum MjtLabel: Int32, CaseIterable {
   case contactforce
 }
 /// frame visualization
+@objc
 public enum MjtFrame: Int32, CaseIterable {
   case none = 0
   case body
@@ -481,6 +516,7 @@ public enum MjtFrame: Int32, CaseIterable {
   case world
 }
 /// flags enabling model element visualization
+@objc
 public enum MjtVisFlag: Int32, CaseIterable {
   case convexhull = 0
   case texture
@@ -506,6 +542,7 @@ public enum MjtVisFlag: Int32, CaseIterable {
   case skin
 }
 /// flags enabling rendering effects
+@objc
 public enum MjtRndFlag: Int32, CaseIterable {
   case shadow = 0
   case wireframe
@@ -518,6 +555,7 @@ public enum MjtRndFlag: Int32, CaseIterable {
   case idcolor
 }
 /// type of stereo rendering
+@objc
 public enum MjtStereo: Int32 {
   case none = 0
   case quadbuffered
