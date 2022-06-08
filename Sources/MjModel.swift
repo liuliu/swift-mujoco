@@ -167,3 +167,90 @@ extension MjModel {
     return buffer
   }
 }
+
+public struct MjNameArray {
+  @usableFromInline
+  let names: MjArray<CChar>  // These are entirely immutable (read-only)
+  @usableFromInline
+  let adr: MjArray<Int32>
+  @usableFromInline
+  init(names: MjArray<CChar>, adr: MjArray<Int32>) {
+    self.names = names
+    self.adr = adr
+  }
+  @inlinable
+  public subscript(index: Int) -> String? {
+    let offset = Int(adr[index])
+    guard names[offset] != 0 else { return nil }
+    return String(cString: names + offset, encoding: .utf8)
+  }
+  @inlinable
+  public var count: Int { adr.count }
+}
+
+// Deconstruct names into MjNameArray, these are read-only.
+extension MjModel {
+  /// body name                       (nbody x 1)
+  @inlinable
+  public var bodyNames: MjNameArray { MjNameArray(names: names, adr: nameBodyadr) }
+  /// joint name                      (njnt x 1)
+  @inlinable
+  public var jntNames: MjNameArray { MjNameArray(names: names, adr: nameJntadr) }
+  /// geom name                       (ngeom x 1)
+  @inlinable
+  public var geomNames: MjNameArray { MjNameArray(names: names, adr: nameGeomadr) }
+  /// site name                       (nsite x 1)
+  @inlinable
+  public var siteNames: MjNameArray { MjNameArray(names: names, adr: nameSiteadr) }
+  /// camera name                     (ncam x 1)
+  @inlinable
+  public var camNames: MjNameArray { MjNameArray(names: names, adr: nameCamadr) }
+  /// light name                      (nlight x 1)
+  @inlinable
+  public var lightNames: MjNameArray { MjNameArray(names: names, adr: nameLightadr) }
+  /// mesh name                       (nmesh x 1)
+  @inlinable
+  public var meshNames: MjNameArray { MjNameArray(names: names, adr: nameMeshadr) }
+  /// skin name                       (nskin x 1)
+  @inlinable
+  public var skinNames: MjNameArray { MjNameArray(names: names, adr: nameSkinadr) }
+  /// hfield name                     (nhfield x 1)
+  @inlinable
+  public var HfieldNames: MjNameArray { MjNameArray(names: names, adr: nameHfieldadr) }
+  /// texture name                    (ntex x 1)
+  @inlinable
+  public var texNames: MjNameArray { MjNameArray(names: names, adr: nameTexadr) }
+  /// material name                   (nmat x 1)
+  @inlinable
+  public var matNames: MjNameArray { MjNameArray(names: names, adr: nameMatadr) }
+  /// geom pair name                  (npair x 1)
+  @inlinable
+  public var pairNames: MjNameArray { MjNameArray(names: names, adr: namePairadr) }
+  /// exclude name                    (nexclude x 1)
+  @inlinable
+  public var excludeNames: MjNameArray { MjNameArray(names: names, adr: nameExcludeadr) }
+  /// equality constraint name        (neq x 1)
+  @inlinable
+  public var eqNames: MjNameArray { MjNameArray(names: names, adr: nameEqadr) }
+  /// tendon name                     (ntendon x 1)
+  @inlinable
+  public var tendonNames: MjNameArray { MjNameArray(names: names, adr: nameTendonadr) }
+  /// actuator name                   (nu x 1)
+  @inlinable
+  public var actuatorNames: MjNameArray { MjNameArray(names: names, adr: nameActuatoradr) }
+  /// sensor name                     (nsensor x 1)
+  @inlinable
+  public var sensorNames: MjNameArray { MjNameArray(names: names, adr: nameSensoradr) }
+  /// numeric name                    (nnumeric x 1)
+  @inlinable
+  public var numericNames: MjNameArray { MjNameArray(names: names, adr: nameNumericadr) }
+  /// text name                       (ntext x 1)
+  @inlinable
+  public var textNames: MjNameArray { MjNameArray(names: names, adr: nameTextadr) }
+  /// tuple name                      (ntuple x 1)
+  @inlinable
+  public var tupleNames: MjNameArray { MjNameArray(names: names, adr: nameTupleadr) }
+  /// keyframe name                   (nkey x 1)
+  @inlinable
+  public var keyNames: MjNameArray { MjNameArray(names: names, adr: nameKeyadr) }
+}

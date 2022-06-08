@@ -751,9 +751,7 @@ glContext.makeCurrent {
     for i in 0..<min(Int(m.ncam), Int(MjuiItem.maxUIMulti) - 2) {
       // prepare name
       var camname = "\n"
-      if m.names[Int(m.nameCamadr[i])] != 0,
-        let newname = String(cString: m.names + Int(m.nameCamadr[i]), encoding: .utf8)
-      {
+      if let newname = m.camNames[i] {
         camname += newname
       } else {
         camname += "Camera \(i)"
@@ -836,9 +834,7 @@ glContext.makeCurrent {
           != 0
       else { continue }
       let jntname: String
-      if m.names[Int(m.nameJntadr[i])] != 0,
-        let newname = String(cString: m.names + Int(m.nameJntadr[i]), encoding: .utf8)
-      {
+      if let newname = m.jntNames[i] {
         jntname = newname
       } else {
         jntname = "Joint \(i)"
@@ -880,9 +876,7 @@ glContext.makeCurrent {
         }) != 0
       else { continue }
       let actuatorname: String
-      if m.names[Int(m.nameActuatoradr[i])] != 0,
-        let newname = String(cString: m.names + Int(m.nameActuatoradr[i]), encoding: .utf8)
-      {
+      if let newname = m.actuatorNames[i] {
         actuatorname = newname
       } else {
         actuatorname = "control \(i)"
