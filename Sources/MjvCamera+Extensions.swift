@@ -42,3 +42,13 @@ extension MjvCamera {
     set { _camera.elevation = newValue }
   }
 }
+extension MjvCamera: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "type": type, "fixedcamid": fixedcamid, "trackbodyid": trackbodyid, "lookat": lookat,
+        "distance": distance, "azimuth": azimuth, "elevation": elevation,
+      ])
+  }
+}

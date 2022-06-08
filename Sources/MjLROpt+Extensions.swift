@@ -60,3 +60,14 @@ extension MjLROpt {
     set { _lropt.tolrange = newValue }
   }
 }
+extension MjLROpt: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "mode": mode, "useexisting": useexisting, "uselimit": uselimit, "accel": accel,
+        "maxforce": maxforce, "timeconst": timeconst, "timestep": timestep, "inttotal": inttotal,
+        "inteval": inteval, "tolrange": tolrange,
+      ])
+  }
+}

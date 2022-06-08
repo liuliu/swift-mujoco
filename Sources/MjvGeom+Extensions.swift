@@ -146,3 +146,17 @@ extension MjvGeom {
     set { _geom.transparent = newValue }
   }
 }
+extension MjvGeom: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "type": type, "dataid": dataid, "objtype": objtype, "objid": objid, "category": category,
+        "texid": texid, "texuniform": texuniform, "texcoord": texcoord, "segid": segid,
+        "texrepeat": texrepeat, "size": size, "pos": pos, "mat": mat, "rgba": rgba,
+        "emission": emission, "specular": specular, "shininess": shininess,
+        "reflectance": reflectance, "label": label, "camdist": camdist, "modelrbound": modelrbound,
+        "transparent": transparent,
+      ])
+  }
+}

@@ -10,3 +10,12 @@ public struct MjuiState {
     _state = mjuiState_()
   }
 }
+
+extension MjuiState {
+  /// pointer to user data (for callbacks)
+  @inlinable
+  public var userdata: UnsafeMutableRawPointer? {
+    get { _state.userdata }
+    set { _state.userdata = newValue }
+  }
+}

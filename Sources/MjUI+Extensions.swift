@@ -122,3 +122,17 @@ extension MjUI {
     set { _ui.pointee.nsect = newValue }
   }
 }
+extension MjUI: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "spacing": spacing, "color": color, "rectid": rectid, "auxid": auxid, "radiocol": radiocol,
+        "width": width, "height": height, "maxheight": maxheight, "scroll": scroll,
+        "mousesect": mousesect, "mouseitem": mouseitem, "mousehelp": mousehelp,
+        "editsect": editsect, "edititem": edititem, "editcursor": editcursor,
+        "editscroll": editscroll, "edittext": edittext, "nsect": nsect,
+        "predicate": predicate as Any, "editchanged": editchanged as Any, "sect": sect,
+      ])
+  }
+}

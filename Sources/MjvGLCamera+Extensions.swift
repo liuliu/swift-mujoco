@@ -48,3 +48,14 @@ extension MjvGLCamera {
     set { _glcamera.frustum_far = newValue }
   }
 }
+extension MjvGLCamera: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "pos": pos, "forward": forward, "up": up, "frustumCenter": frustumCenter,
+        "frustumBottom": frustumBottom, "frustumTop": frustumTop, "frustumNear": frustumNear,
+        "frustumFar": frustumFar,
+      ])
+  }
+}

@@ -144,3 +144,18 @@ extension MjOption {
     set { _option.enableflags = newValue.rawValue }
   }
 }
+extension MjOption: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "timestep": timestep, "apirate": apirate, "impratio": impratio, "tolerance": tolerance,
+        "noslipTolerance": noslipTolerance, "mprTolerance": mprTolerance, "gravity": gravity,
+        "wind": wind, "magnetic": magnetic, "density": density, "viscosity": viscosity,
+        "oMargin": oMargin, "oSolref": oSolref, "oSolimp": oSolimp, "integrator": integrator,
+        "collision": collision, "cone": cone, "jacobian": jacobian, "solver": solver,
+        "iterations": iterations, "noslipIterations": noslipIterations,
+        "mprIterations": mprIterations, "disableflags": disableflags, "enableflags": enableflags,
+      ])
+  }
+}

@@ -453,3 +453,31 @@ extension MjrContext {
     set { _context.pointee.currentBuffer = newValue }
   }
 }
+extension MjrContext: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "lineWidth": lineWidth, "shadowClip": shadowClip, "shadowScale": shadowScale,
+        "fogStart": fogStart, "fogEnd": fogEnd, "fogRgba": fogRgba, "shadowSize": shadowSize,
+        "offWidth": offWidth, "offHeight": offHeight, "offSamples": offSamples,
+        "fontScale": fontScale, "auxWidth": auxWidth, "auxHeight": auxHeight,
+        "auxSamples": auxSamples, "offFbo": offFbo, "offFBO_r": offFBO_r, "offColor": offColor,
+        "offColor_r": offColor_r, "offDepthStencil": offDepthStencil,
+        "offDepthStencil_r": offDepthStencil_r, "shadowFbo": shadowFbo, "shadowTex": shadowTex,
+        "auxFbo": auxFbo, "auxFBO_r": auxFBO_r, "auxColor": auxColor, "auxColor_r": auxColor_r,
+        "ntexture": ntexture, "textureType": textureType, "texture": texture,
+        "basePlane": basePlane, "baseMesh": baseMesh, "baseHField": baseHField,
+        "baseBuiltin": baseBuiltin, "baseFontNormal": baseFontNormal,
+        "baseFontShadow": baseFontShadow, "baseFontBig": baseFontBig, "rangePlane": rangePlane,
+        "rangeMesh": rangeMesh, "rangeHField": rangeHField, "rangeBuiltin": rangeBuiltin,
+        "rangeFont": rangeFont, "nskin": nskin, "skinvertVbo": skinvertVbo,
+        "skinnormalVbo": skinnormalVbo, "skintexcoordVbo": skintexcoordVbo,
+        "skinfaceVbo": skinfaceVbo, "charWidth": charWidth, "charWidthBig": charWidthBig,
+        "charHeight": charHeight, "charHeightBig": charHeightBig, "glInitialized": glInitialized,
+        "windowAvailable": windowAvailable, "windowSamples": windowSamples,
+        "windowStereo": windowStereo, "windowDoublebuffer": windowDoublebuffer,
+        "currentBuffer": currentBuffer,
+      ])
+  }
+}

@@ -32,3 +32,13 @@ extension MjVisual {
     set { _visual.rgba = newValue }
   }
 }
+extension MjVisual: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "global": global, "quality": quality, "headlight": headlight, "map": map, "scale": scale,
+        "rgba": rgba,
+      ])
+  }
+}

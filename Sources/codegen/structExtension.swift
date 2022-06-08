@@ -218,7 +218,8 @@ public func structExtension(
   optionSets: Set<String>, prefix: String = "",
   suffix: String = "", deny: [String] = [], propertiesMapping: [String: String] = [:],
   staticArrayAsDynamic: [String] = [], excludingCamelCaseForProperties: [String] = [],
-  boundingObject: String = "self"
+  boundingObject: String = "self",
+  additionalReflectingProperties: [(name: String, optional: Bool)] = []
 ) -> String {
   precondition(thisStruct.name.hasPrefix("mj"))
   let swiftName_ =
@@ -229,6 +230,7 @@ public func structExtension(
     .lowercased()
   let denySet = Set(deny)
   var code = "extension \(swiftName) {\n"
+  var fieldNames = [(name: String, optional: Bool)]()
   for (name, type, comment) in thisStruct.fields {
     guard let name = name else { continue }  // Handle sum type.
     let fieldName = cleanupFieldName(name: name)
@@ -241,8 +243,10 @@ public func structExtension(
       structName: thisStruct.name, fieldName: name, fieldType: type, comment: comment,
       staticArrayAsDynamic: staticArrayAsDynamic, definedConstants: definedConstants)
     if excludingCamelCaseForProperties.contains(fieldName) {
+      fieldNames.append((name: fieldName, optional: false))
       code += "  public var \(fieldName): \(fieldType) {\n"
     } else {
+      fieldNames.append((name: fieldName.camelCase(), optional: false))
       code += "  public var \(fieldName.camelCase()): \(fieldType) {\n"
     }
     // If this is MjArray, we need to have more parsing, particularly on the comment.
@@ -359,6 +363,12 @@ public func structExtension(
     }
     code += "  }\n"
   }
+  code += "}\n"
+  code += "extension \(swiftName): CustomReflectable {\n"
+  code += "  public var customMirror: Mirror {\n"
+  code +=
+    "    Mirror(self, children: [\((fieldNames + additionalReflectingProperties).map({ "\"\($0.name)\": \($0.name)" + ($0.optional ? " as Any" : "") }).joined(separator: ", "))])\n"
+  code += "  }\n"
   code += "}\n"
   return code
 }

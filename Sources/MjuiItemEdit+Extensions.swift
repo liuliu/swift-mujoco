@@ -21,3 +21,8 @@ extension MjuiItemEdit {
     }
   }
 }
+extension MjuiItemEdit: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(self, children: ["nelem": nelem, "range": range])
+  }
+}

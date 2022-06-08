@@ -174,3 +174,17 @@ extension MjvScene {
     set { _scene.pointee.framergb = newValue }
   }
 }
+extension MjvScene: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "maxgeom": maxgeom, "ngeom": ngeom, "geoms": geoms, "geomorder": geomorder, "nskin": nskin,
+        "skinfacenum": skinfacenum, "skinvertadr": skinvertadr, "skinvertnum": skinvertnum,
+        "skinvert": skinvert, "skinnormal": skinnormal, "nlight": nlight, "lights": lights,
+        "camera": camera, "enabletransform": enabletransform, "translate": translate,
+        "rotate": rotate, "scale": scale, "stereo": stereo, "flags": flags,
+        "framewidth": framewidth, "framergb": framergb,
+      ])
+  }
+}

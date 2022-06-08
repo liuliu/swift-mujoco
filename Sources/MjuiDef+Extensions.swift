@@ -52,3 +52,10 @@ extension MjuiDef {
     }
   }
 }
+extension MjuiDef: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: ["type": type, "name": name, "state": state, "other": other, "pdata": pdata as Any])
+  }
+}

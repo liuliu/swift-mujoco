@@ -1138,3 +1138,42 @@ extension MjData {
     }
   }
 }
+extension MjData: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "nstack": nstack, "nbuffer": nbuffer, "pstack": pstack, "maxuseStack": maxuseStack,
+        "maxuseCon": maxuseCon, "maxuseEfc": maxuseEfc, "warning": warning, "timer": timer,
+        "solver": solver, "solverIter": solverIter, "solverNnz": solverNnz,
+        "solverFwdinv": solverFwdinv, "ne": ne, "nf": nf, "nefc": nefc, "ncon": ncon, "time": time,
+        "energy": energy, "qpos": qpos, "qvel": qvel, "act": act, "qaccWarmstart": qaccWarmstart,
+        "ctrl": ctrl, "qfrcApplied": qfrcApplied, "xfrcApplied": xfrcApplied, "mocapPos": mocapPos,
+        "mocapQuat": mocapQuat, "qacc": qacc, "actDot": actDot, "userdata": userdata,
+        "sensordata": sensordata, "xpos": xpos, "xquat": xquat, "xmat": xmat, "xipos": xipos,
+        "ximat": ximat, "xanchor": xanchor, "xaxis": xaxis, "geomXpos": geomXpos,
+        "geomXmat": geomXmat, "siteXpos": siteXpos, "siteXmat": siteXmat, "camXpos": camXpos,
+        "camXmat": camXmat, "lightXpos": lightXpos, "lightXdir": lightXdir,
+        "subtreeCom": subtreeCom, "cdof": cdof, "cinert": cinert, "tenWrapadr": tenWrapadr,
+        "tenWrapnum": tenWrapnum, "tenJRownnz": tenJRownnz, "tenJRowadr": tenJRowadr,
+        "tenJColind": tenJColind, "tenLength": tenLength, "tenJ": tenJ, "wrapObj": wrapObj,
+        "wrapXpos": wrapXpos, "actuatorLength": actuatorLength, "actuatorMoment": actuatorMoment,
+        "crb": crb, "qM": qM, "qLd": qLd, "qLDiagInv": qLDiagInv, "qLDiagSqrtInv": qLDiagSqrtInv,
+        "contact": contact, "efcType": efcType, "efcId": efcId, "efcJRownnz": efcJRownnz,
+        "efcJRowadr": efcJRowadr, "efcJRowsuper": efcJRowsuper, "efcJColind": efcJColind,
+        "efcJtRownnz": efcJtRownnz, "efcJtRowadr": efcJtRowadr, "efcJtRowsuper": efcJtRowsuper,
+        "efcJtColind": efcJtColind, "efcJ": efcJ, "efcJt": efcJt, "efcPos": efcPos,
+        "efcMargin": efcMargin, "efcFrictionloss": efcFrictionloss, "efcDiagApprox": efcDiagApprox,
+        "efcKbip": efcKbip, "efcD": efcD, "efcR": efcR, "efcArRownnz": efcArRownnz,
+        "efcArRowadr": efcArRowadr, "efcArColind": efcArColind, "efcAr": efcAr,
+        "tenVelocity": tenVelocity, "actuatorVelocity": actuatorVelocity, "cvel": cvel,
+        "cdofDot": cdofDot, "qfrcBias": qfrcBias, "qfrcPassive": qfrcPassive, "efcVel": efcVel,
+        "efcAref": efcAref, "subtreeLinvel": subtreeLinvel, "subtreeAngmom": subtreeAngmom,
+        "dRownnz": dRownnz, "dRowadr": dRowadr, "dColind": dColind, "qDeriv": qDeriv, "qLu": qLu,
+        "actuatorForce": actuatorForce, "qfrcActuator": qfrcActuator, "qfrcSmooth": qfrcSmooth,
+        "qaccSmooth": qaccSmooth, "efcB": efcB, "efcForce": efcForce, "efcState": efcState,
+        "qfrcConstraint": qfrcConstraint, "qfrcInverse": qfrcInverse, "cacc": cacc,
+        "cfrcInt": cfrcInt, "cfrcExt": cfrcExt,
+      ])
+  }
+}

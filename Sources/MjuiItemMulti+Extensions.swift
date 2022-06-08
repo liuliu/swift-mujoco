@@ -21,3 +21,8 @@ extension MjuiItemMulti {
     }
   }
 }
+extension MjuiItemMulti: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(self, children: ["nelem": nelem, "name": name])
+  }
+}

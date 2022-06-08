@@ -56,3 +56,13 @@ extension MjuiSection {
     set { _section.pointee.rcontent = newValue }
   }
 }
+extension MjuiSection: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "name": name, "state": state, "modifier": modifier, "shortcut": shortcut, "nitem": nitem,
+        "rtitle": rtitle, "rcontent": rcontent, "item": item,
+      ])
+  }
+}

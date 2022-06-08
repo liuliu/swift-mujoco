@@ -12,3 +12,8 @@ extension MjuiItemSlider {
     set { _itemslider.pointee.divisions = newValue }
   }
 }
+extension MjuiItemSlider: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(self, children: ["range": range, "divisions": divisions])
+  }
+}

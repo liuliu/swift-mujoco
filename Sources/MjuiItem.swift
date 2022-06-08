@@ -73,4 +73,10 @@ extension MjuiItem {
       unsafeMutablePointer.assign(from: newValue._itemedit, count: 1)
     }
   }
+  /// data pointer (type-specific)
+  @inlinable
+  public var pdata: UnsafeMutableRawPointer? {
+    get { _item.pointee.pdata }
+    set { _item.pointee.pdata = newValue }
+  }
 }

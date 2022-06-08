@@ -12,3 +12,8 @@ extension MjuiItemSingle {
     set { _itemsingle.pointee.shortcut = newValue }
   }
 }
+extension MjuiItemSingle: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(self, children: ["modifier": modifier, "shortcut": shortcut])
+  }
+}

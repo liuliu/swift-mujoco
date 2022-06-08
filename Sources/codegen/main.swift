@@ -163,7 +163,7 @@ for thisStruct in structs {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
       optionSets: optionSets,
-      deny: ["userdata"])
+      deny: ["userdata"], additionalReflectingProperties: [("userdata", true)])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiState+Extensions.swift"),
       atomically: false, encoding: .utf8)
@@ -218,7 +218,10 @@ for thisStruct in structs {
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
       optionSets: optionSets,
       suffix: ".pointee", deny: ["*pdata", "single", "multi", "slider", "edit"],
-      boundingObject: "object")
+      boundingObject: "object",
+      additionalReflectingProperties: [
+        ("pdata", true), ("single", false), ("multi", false), ("slider", false), ("edit", false),
+      ])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiItem+Extensions.swift"),
       atomically: false, encoding: .utf8)
@@ -226,7 +229,7 @@ for thisStruct in structs {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
       optionSets: optionSets,
-      suffix: ".pointee", deny: ["item"])
+      suffix: ".pointee", deny: ["item"], additionalReflectingProperties: [("item", false)])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiSection+Extensions.swift"),
       atomically: false, encoding: .utf8)
@@ -235,7 +238,8 @@ for thisStruct in structs {
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
       optionSets: optionSets,
       suffix: ".pointee", deny: ["predicate", "userdata", "editchanged", "sect"],
-      boundingObject: "_storage")
+      boundingObject: "_storage",
+      additionalReflectingProperties: [("predicate", true), ("editchanged", true), ("sect", false)])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjUI+Extensions.swift"),
       atomically: false, encoding: .utf8)
@@ -243,7 +247,7 @@ for thisStruct in structs {
     let code = structExtension(
       thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
       optionSets: optionSets,
-      deny: ["pdata"])
+      deny: ["pdata"], additionalReflectingProperties: [("pdata", true)])
     try! code.write(
       to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjuiDef+Extensions.swift"),
       atomically: false, encoding: .utf8)

@@ -48,3 +48,13 @@ extension MjvPerturb {
     set { _perturb.scale = newValue }
   }
 }
+extension MjvPerturb: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "select": select, "skinselect": skinselect, "active": active, "active2": active2,
+        "refpos": refpos, "refquat": refquat, "localpos": localpos, "scale": scale,
+      ])
+  }
+}

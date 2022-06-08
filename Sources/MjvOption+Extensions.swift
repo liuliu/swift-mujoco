@@ -53,3 +53,14 @@ extension MjvOption {
     set { _option.flags = newValue }
   }
 }
+extension MjvOption: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "label": label, "frame": frame, "geomgroup": geomgroup, "sitegroup": sitegroup,
+        "jointgroup": jointgroup, "tendongroup": tendongroup, "actuatorgroup": actuatorgroup,
+        "flags": flags,
+      ])
+  }
+}

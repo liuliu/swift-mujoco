@@ -91,3 +91,14 @@ extension MjContact {
     set { _contact.efc_address = newValue }
   }
 }
+extension MjContact: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "dist": dist, "pos": pos, "frame": frame, "includemargin": includemargin,
+        "friction": friction, "solref": solref, "solimp": solimp, "mu": mu, "H": H, "dim": dim,
+        "geom1": geom1, "geom2": geom2, "exclude": exclude, "efcAddress": efcAddress,
+      ])
+  }
+}

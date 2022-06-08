@@ -126,3 +126,17 @@ extension MjuiThemeColor {
     set { _themecolor.cursor = newValue }
   }
 }
+extension MjuiThemeColor: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "master": master, "thumb": thumb, "secttitle": secttitle, "sectfont": sectfont,
+        "sectsymbol": sectsymbol, "sectpane": sectpane, "shortcut": shortcut,
+        "fontactive": fontactive, "fontinactive": fontinactive, "decorinactive": decorinactive,
+        "decorinactive2": decorinactive2, "button": button, "check": check, "radio": radio,
+        "select": select, "select2": select2, "slider": slider, "slider2": slider2, "edit": edit,
+        "edit2": edit2, "cursor": cursor,
+      ])
+  }
+}

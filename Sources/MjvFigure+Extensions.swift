@@ -298,3 +298,21 @@ extension MjvFigure {
     set { _figure.pointee.yaxisdata = newValue }
   }
 }
+extension MjvFigure: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "flgLegend": flgLegend, "flgTicklabel": flgTicklabel, "flgExtend": flgExtend,
+        "flgBarplot": flgBarplot, "flgSelection": flgSelection, "flgSymmetric": flgSymmetric,
+        "linewidth": linewidth, "gridwidth": gridwidth, "gridsize": gridsize, "gridrgb": gridrgb,
+        "figurergba": figurergba, "panergba": panergba, "legendrgba": legendrgba,
+        "textrgb": textrgb, "linergb": linergb, "range": range, "xformat": xformat,
+        "yformat": yformat, "minwidth": minwidth, "title": title, "xlabel": xlabel,
+        "linename": linename, "legendoffset": legendoffset, "subplot": subplot,
+        "highlight": highlight, "highlightid": highlightid, "selection": selection,
+        "linepnt": linepnt, "xaxispixel": xaxispixel, "yaxispixel": yaxispixel,
+        "xaxisdata": xaxisdata, "yaxisdata": yaxisdata,
+      ])
+  }
+}

@@ -66,3 +66,14 @@ extension MjuiThemeSpacing {
     set { _themespacing.samples = newValue }
   }
 }
+extension MjuiThemeSpacing: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "total": total, "scroll": scroll, "label": label, "section": section, "itemside": itemside,
+        "itemmid": itemmid, "itemver": itemver, "texthor": texthor, "textver": textver,
+        "linescroll": linescroll, "samples": samples,
+      ])
+  }
+}

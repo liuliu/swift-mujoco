@@ -50,3 +50,14 @@ extension MjuiItem {
     set { _item.pointee.rect = newValue }
   }
 }
+extension MjuiItem: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: [
+        "type": type, "name": name, "state": state, "sectionid": sectionid, "itemid": itemid,
+        "rect": rect, "pdata": pdata as Any, "single": single, "multi": multi, "slider": slider,
+        "edit": edit,
+      ])
+  }
+}
