@@ -96,3 +96,11 @@ extension MjVFS {
     _vfs.pointee.nfile
   }
 }
+
+extension MjVFS: CustomReflectable {
+  public var customMirror: Mirror {
+    Mirror(
+      self,
+      children: ["filesize": filesize, "filedata": filedata, "filename": filename, "nfile": nfile])
+  }
+}
