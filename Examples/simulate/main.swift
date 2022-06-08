@@ -632,9 +632,26 @@ glContext.makeCurrent {
   }
   ui1.predicate = ui0.predicate
   settings.font = glContext.fontScale / 50 - 1
+
   // update watch
   func watch() {
-    // TODO: This cannot be implemented properly unless I generate some reflection mechanism for MjData. I am honestly not that interested in doing that for now.
+    guard let d = d else { return }
+    // clear
+    ui0.sect[Int(UI0Section.watch.rawValue)].item[2].multi.nelem = 1
+    ui0.sect[Int(UI0Section.watch.rawValue)].item[2].multi.name[0] = "invalid field"
+    let mirror = Mirror(reflecting: d)
+    let field = settings.field
+    for child in mirror.children {
+      guard child.label == field else { continue }
+      guard let data = child.value as? MjArray<Double> else { return }  // Found, and it is not expected type, no need to continue.
+      let index = Int(settings.index)
+      guard index >= 0 && index < data.count else {
+        ui0.sect[Int(UI0Section.watch.rawValue)].item[2].multi.name[0] = "invalid index"
+        return
+      }
+      ui0.sect[Int(UI0Section.watch.rawValue)].item[2].multi.name[0] = "\(data[index])"
+      return
+    }
   }
 
   // update UI 0 when MuJoCo structures change (except for joint sliders)

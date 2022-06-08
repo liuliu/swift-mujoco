@@ -15,6 +15,7 @@ swift_library(
     visibility = ["//visibility:public"],
     deps = [
         ":C_glfw",
+        "//Sources:CShim",
         "@mujoco//:C_mujoco",
     ],
 )

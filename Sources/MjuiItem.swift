@@ -1,3 +1,4 @@
+import CShim_mujoco
 import C_mujoco
 
 /// UI item
@@ -26,10 +27,13 @@ extension MjuiItem {
   public var single: MjuiItemSingle {
     get {
       MjuiItemSingle(
-        object: object, itemsingle: withUnsafeMutablePointer(to: &_item.pointee.single) { $0 })
+        object: object,
+        itemsingle: (UnsafeMutableRawPointer(_item) + Int(offset_of_mjuiitem()))
+          .assumingMemoryBound(to: mjuiItemSingle_.self))
     }
     set {
-      let unsafeMutablePointer = withUnsafeMutablePointer(to: &_item.pointee.single) { $0 }
+      let unsafeMutablePointer = (UnsafeMutableRawPointer(_item) + Int(offset_of_mjuiitem()))
+        .assumingMemoryBound(to: mjuiItemSingle_.self)
       guard unsafeMutablePointer != newValue._itemsingle else { return }
       unsafeMutablePointer.assign(from: newValue._itemsingle, count: 1)
     }
@@ -39,10 +43,13 @@ extension MjuiItem {
   public var multi: MjuiItemMulti {
     get {
       MjuiItemMulti(
-        object: object, itemmulti: withUnsafeMutablePointer(to: &_item.pointee.multi) { $0 })
+        object: object,
+        itemmulti: (UnsafeMutableRawPointer(_item) + Int(offset_of_mjuiitem())).assumingMemoryBound(
+          to: mjuiItemMulti_.self))
     }
     set {
-      let unsafeMutablePointer = withUnsafeMutablePointer(to: &_item.pointee.multi) { $0 }
+      let unsafeMutablePointer = (UnsafeMutableRawPointer(_item) + Int(offset_of_mjuiitem()))
+        .assumingMemoryBound(to: mjuiItemMulti_.self)
       guard unsafeMutablePointer != newValue._itemmulti else { return }
       unsafeMutablePointer.assign(from: newValue._itemmulti, count: 1)
     }
@@ -52,10 +59,13 @@ extension MjuiItem {
   public var slider: MjuiItemSlider {
     get {
       MjuiItemSlider(
-        object: object, itemslider: withUnsafeMutablePointer(to: &_item.pointee.slider) { $0 })
+        object: object,
+        itemslider: (UnsafeMutableRawPointer(_item) + Int(offset_of_mjuiitem()))
+          .assumingMemoryBound(to: mjuiItemSlider_.self))
     }
     set {
-      let unsafeMutablePointer = withUnsafeMutablePointer(to: &_item.pointee.slider) { $0 }
+      let unsafeMutablePointer = (UnsafeMutableRawPointer(_item) + Int(offset_of_mjuiitem()))
+        .assumingMemoryBound(to: mjuiItemSlider_.self)
       guard unsafeMutablePointer != newValue._itemslider else { return }
       unsafeMutablePointer.assign(from: newValue._itemslider, count: 1)
     }
@@ -65,10 +75,13 @@ extension MjuiItem {
   public var edit: MjuiItemEdit {
     get {
       MjuiItemEdit(
-        object: object, itemedit: withUnsafeMutablePointer(to: &_item.pointee.edit) { $0 })
+        object: object,
+        itemedit: (UnsafeMutableRawPointer(_item) + Int(offset_of_mjuiitem())).assumingMemoryBound(
+          to: mjuiItemEdit_.self))
     }
     set {
-      let unsafeMutablePointer = withUnsafeMutablePointer(to: &_item.pointee.edit) { $0 }
+      let unsafeMutablePointer = (UnsafeMutableRawPointer(_item) + Int(offset_of_mjuiitem()))
+        .assumingMemoryBound(to: mjuiItemEdit_.self)
       guard unsafeMutablePointer != newValue._itemedit else { return }
       unsafeMutablePointer.assign(from: newValue._itemedit, count: 1)
     }

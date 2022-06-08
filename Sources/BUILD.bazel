@@ -28,6 +28,17 @@ swift_binary(
     ],
 )
 
+cc_library(
+    name = "CShim",
+    srcs = ["Shim/_CShim.c"],
+    hdrs = ["Shim/_CShim.h"],
+    tags = ["swift_module=CShim_mujoco"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "@mujoco//:C_mujoco",
+    ],
+)
+
 filegroup(
     name = "Sources",
     srcs = glob(["*.swift"]),
