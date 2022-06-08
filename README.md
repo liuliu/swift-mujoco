@@ -20,9 +20,9 @@ A mixed strategy was used for MuJoCo interface generation. MuJoCo's API heavily 
  * If not, refer a `public struct` with C struct interior, keeping the memory layout exactly the same (can better expose certain properties, more on that later);
  * If there are associated heap data, typically, with `mj_deleteXXX` methods. These are `public struct` with a `final class Storage` interior to track lifetime.
 
-Which out of the three implemented was tracked in `Sources/codegen/functionExtension.swift`.
+Which out of the three implemented was tracked in `Sources/codegen/functionExtension.swift`. We later generated `Sources/MjObject+Extensions.swift` to encode above strategies into Swift protocol. All `MjStruct` conforms to this protocol which provides associated type of the underlying C struct, as well as the memory access method `withCTypeUnsafeMutablePointer(to:)`.
 
-MuJoCo's C headers are parsed and used to generate `enum`, properties on structs and functions on structs. These are `Mjt.swift`, `XX+Extensions.swift` and `XX+Functions.swift` files.
+MuJoCo's C headers are parsed and used to generate properties on structs and functions on structs. These are `XX+Extensions.swift` and `XX+Functions.swift` files. All accessors are generated for public C structs from MuJoCo.
 
 They can be reproduced with:
 
@@ -30,13 +30,13 @@ They can be reproduced with:
 bazel run Sources:codegen -- ~/workspace/swift-mujoco/Sources/ ~/workspace/mujoco/include/mujoco/*.h
 ```
 
-Extra care was taken to make sure comments are properly parsed and added to these extensions. <https://liuliu.github.io/swift-mujoco/documentation/mujoco> is the documentation generated based on these comments.
+Extra care was taken to make sure comments are properly parsed and added to these extensions. <https://liuliu.github.io/swift-mujoco> is the documentation generated based on these comments.
 
-`MjArray<T>` is the array type that exposes static or dynamic arrays within a C struct. It retains the underlying storage to make sure the access is safe. All accessors are generated for public C structs from MuJoCo.
+`MjArray<T>` is the array type that exposes static or dynamic arrays within a C struct. It retains the underlying storage to make sure the access is safe. It also conforms to set of protocols such that for `inout` parameters and other array parameters, you can either pass vanilla array or `MjArray<T>` (or `MjTuple`, through .tuple()) and expect it just works.
 
 ### Enum
 
-`enum` are parsed and generated. Because there is no type annotation, we do our best to infer which int type are enums from comment. `MjtEnableBit`, `MjtDisableBit`, `MjtCatBit` and `MjtPertBit` are special handled to be `OptionSet`.
+`enum` are parsed and generated in `Mjt.swift` file. Because there is no type annotation, we do our best to infer which int type are enums from comment. `MjtEnableBit`, `MjtDisableBit`, `MjtCatBit` and `MjtPertBit` are special handled to be `OptionSet`.
 
 ### Functions
 
@@ -46,28 +46,40 @@ The interface generation process also treats `const` annotation seriously. Witho
 
 Not all functions are automatically generated, some of these are manually implemented because:
 
- * The C API can be better reflected with corresponding Swift API, for example, `mj_loadXML` can be better translated with `throws` for errors;
+ * The C API can be better refactored to Swift API. For example, `mj_loadXML` can be better translated with `throws` for errors;
  * Some parameters can be nil, but during automatic interface generation, we assumed all parameters to be non-nil.
 
 ### MjUI
 
-Whenever possible, we lean towards automatic interface generation. That's why certain APIs even looks weird, we keep it that way. `MjUI` has many quirks that at odds with this philosophy. In particular, `MjuiDef` automatically associated the UI control with the underlying storage `pdata`. Because `pdata` is a pointer, it has no regards to the underlying storage lifetime. A property wrapper `MjuiDefState` is introduced to solve this issue. Although users are still responsible to make sure the underlying storage lifetime longer than `MjUI` itself, you don't need to deal with raw `pdata`.
+Whenever possible, we lean towards automatic interface generation. That's why we kept certain APIs in a way that look weird. `MjUI` has many quirks that at odds with this philosophy. In particular, `MjuiDef` automatically associated the UI control with the underlying storage `pdata`. Because `pdata` is a pointer, it has no regards to the underlying storage lifetime. A set of property wrappers: `MjuiDefState`, `MjuiDefStateMap` are introduced to solve this issue. Although users are still responsible to make sure the underlying storage lifetime longer than `MjUI` itself, you don't need to deal with raw `pdata`. A `MjuiDefObjectMapper` is introduced to facilitate direct mapping between an `MjStruct` and a `MjuiDef`. You need to pay extra attention because there is no guarantee on underlying `MjStruct` lifetime with `MjuiDefObjectMapper`. A recommended way is to group them both under a `final class` to make sure their lifetime is in sync.
+
+### Constants
+
+Only constants related to `MjUI` are ported over so far.
+
+### Callbacks
+
+Callbacks can be found under `Mjcb`. These are manually ported callbacks but does support Swift closures (i.e. captures).
+
+### Reflection
+
+No additional reflection capability provided besides what exists in Swift (i.e. custom descriptions for enums). In particular, the functionalities of `mjxmacro.h` is specifically not ported over.
 
 ### String
 
-MuJoCo leans heavily on static allocated strings. To make interaction easier, these are exposed as ordinary Swift strings. The back-and-forth copying can be expensive.
+MuJoCo leans heavily on static allocated strings. To make interaction easier, these are exposed as ordinary Swift strings. The back-and-forth copying can be expensive. Because static allocated strings have hard limit, there is a silent truncation if such limit reached.
 
 ### GLContext
 
-A `GLContext` object is introduced to delegate GLFW interactions. Functionalities from `uitools.cc` in `./sample/` of MuJoCo were added to make interactions with `MjUI` easier.
+A `GLContext` object is introduced to delegate GLFW interactions. Functionalities from `uitools.cc` in `./sample/` of MuJoCo were added to make interactions with `MjUI` easier. This object is a bit overreaching as it provides access to clipboard, timing and drag & drop functions.
 
 ## Examples
 
-Both `Examples/simulate` and `Examples/ant` should provide good starting point to learn about this port. To run:
+Both `Examples/simulate` and `Examples/ant` should provide good starting points to learn about the APIs. To run:
 
 ```
 bazel run Examples:ant
 bazel run --compilation_mode=opt Examples:simulate -- ~/workspace/swift-mujoco/Examples/assets/ant.xml
 ```
 
-Visit documentation at: <https://liuliu.github.io/swift-mujoco/documentation/mujoco>. These should be regularly updated.
+Visit documentation at: <https://liuliu.github.io/swift-mujoco>. These should be kept up-to-date with `main` branch.
