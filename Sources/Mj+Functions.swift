@@ -25,6 +25,16 @@ public func printMatSparse(
     }
   }
 }
+///  Return version number: 1.0.2 is encoded as 102.
+@inlinable
+public func version() -> Int32 {
+  return mj_version()
+}
+///  Return the current version of MuJoCo as a null-terminated string.
+@inlinable
+public func versionString() -> String? {
+  return String(cString: mj_versionString(), encoding: .utf8)
+}
 ///  Interect ray with pure geom, return nearest distance or -1 if no intersection.
 @inlinable
 public func rayGeom(
@@ -123,6 +133,11 @@ public func warning_i(msg: String, i: Int32) {
 @inlinable
 public func warning_s(msg: String, text: String) {
   mju_warning_s(msg, text)
+}
+///  Clear user error and memory handlers.
+@inlinable
+public func clearHandlers() {
+  mju_clearHandlers()
 }
 ///  Write [datetime, type: message] to MUJOCO_LOG.TXT.
 @inlinable

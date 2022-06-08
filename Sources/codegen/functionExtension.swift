@@ -281,7 +281,6 @@ public func functionExtension(
   // 1. Only look at first or last parameter (excluding mjt* or ordinary C types) as the primary owner, if cannot find any, fatal.
   // 2. Identify parameter corresponding to the function signature, if the function starts with mjv_
   //    find the parameter has type mjv*.
-  guard apiDefinition.parameters.count > 0 else { return (mainType: nil, sourceCode: "") }
   let prefix = apiDefinition.name.prefix(while: { $0 != "_" })
   var mainInd: Int? = nil
   var mainType: String? = nil

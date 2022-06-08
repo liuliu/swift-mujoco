@@ -304,6 +304,9 @@ let FunctionDeny: Set<String> = Set([
   "mju_free",
   "mj_activate",
   "mj_deactivate",
+  "mj_resetCallbacks",
+  "mjr_finish",
+  "mjr_getError",
   // No need for math.
   "mju_zero3",
   "mju_copy3",
