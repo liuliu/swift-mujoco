@@ -55,6 +55,32 @@ public final class GLContext {
     glfwDestroyWindow(window)
   }
 
+  private var oldxpos: Int32 = 0
+  private var oldypos: Int32 = 0
+  private var oldwidth: Int32 = 0
+  private var oldheight: Int32 = 0
+  /// Switch between fullscreen or windowed mode.
+  public var fullscreen: Bool {
+    get { glfwGetWindowMonitor(window) != nil }
+    set {
+      let oldValue = (glfwGetWindowMonitor(window) != nil)
+      guard newValue != oldValue else { return }
+      if newValue {
+        // currently windowed: switch to full screen
+        // save window data
+        glfwGetWindowPos(window, &oldxpos, &oldypos)
+        glfwGetWindowSize(window, &oldwidth, &oldheight)
+        // switch
+        let vmode = Self.videoMode
+        glfwSetWindowMonitor(
+          window, glfwGetPrimaryMonitor(), 0, 0, vmode.width, vmode.height, vmode.refreshRate)
+      } else {
+        // restore window from saved data
+        glfwSetWindowMonitor(window, nil, oldxpos, oldypos, oldwidth, oldheight, 0)
+      }
+    }
+  }
+
   /// glfwSetWindowTitle
   public var title: String = "" {
     didSet { glfwSetWindowTitle(window, title) }

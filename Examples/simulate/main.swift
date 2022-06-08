@@ -1055,6 +1055,7 @@ glContext.makeCurrent {
           case 2:
             context.changeFont(fontscale: MjtFontScale(rawValue: 50 * (settings.font + 1))!)
           case 9:  // fullscreen
+            glContext.fullscreen = settings.fullscreen
             glContext.swapInterval = settings.vsync
           case 10:
             glContext.swapInterval = settings.vsync
