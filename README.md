@@ -63,7 +63,7 @@ Callbacks can be found under `Mjcb`. These are manually ported callbacks but doe
 
 ### Reflection
 
-`CustomReflectable` protocol conformance is implemented for MjStruct. These should contain all the fields in C structs with very few exceptions (`buffer` and `stack` in `MjData, `buffer` in `MjModel` and `userdata` in `MjUI`).
+`CustomReflectable` protocol conformance is implemented for MjStruct. These should contain all the fields in C structs with very few exceptions (`buffer` and `stack` in `MjData`, `buffer` in `MjModel` and `userdata` in `MjUI`).
 
 ### String
 
