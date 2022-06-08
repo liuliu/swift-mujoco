@@ -2,6 +2,6 @@
 
 #include "mujoco/mjui.h"
 
-int offset_of_mjuiitem() {
+int offsetAnonymousUnionOfMjuiItem() {
 	return offsetof(struct mjuiItem_, single);
 }

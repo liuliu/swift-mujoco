@@ -1193,16 +1193,22 @@ glContext.makeCurrent {
         return
       }
     }
-    if let it = ui1.event(state: &uiState, context: context) {
-      // control section
-      if it.sectionid == UI1Section.control.rawValue {
-        // clear controls
-        if it.itemid == 0, var d = d {
-          d.ctrl.zero()
-          uiState.update(section: UI1Section.control.rawValue, item: -1, ui: ui1, context: context)
+
+    if uiState.dragrect == ui1.rectid || (uiState.dragrect == 0 && uiState.mouserect == ui1.rectid)
+      || uiState.type == .key
+    {
+      if let it = ui1.event(state: &uiState, context: context) {
+        // control section
+        if it.sectionid == UI1Section.control.rawValue {
+          // clear controls
+          if it.itemid == 0, var d = d {
+            d.ctrl.zero()
+            uiState.update(
+              section: UI1Section.control.rawValue, item: -1, ui: ui1, context: context)
+          }
         }
+        return
       }
-      return
     }
     if uiState.type == .key && uiState.key != 0 {
       switch uiState.key {
