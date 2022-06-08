@@ -190,6 +190,9 @@ public struct MjNameArray {
 
 // Deconstruct names into MjNameArray, these are read-only.
 extension MjModel {
+  /// model name
+  @inlinable
+  public var name: String? { _model.pointee.names.flatMap { String(cString: $0, encoding: .utf8) } }
   /// body name                       (nbody x 1)
   @inlinable
   public var bodyNames: MjNameArray { MjNameArray(names: names, adr: nameBodyadr) }

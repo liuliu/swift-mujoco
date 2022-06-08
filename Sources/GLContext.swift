@@ -48,15 +48,21 @@ public final class GLContext {
   public init(width: Int, height: Int, title: String) {
     Factory.factory.sink()  // Make sure we init glfw.
     window = glfwCreateWindow(Int32(width), Int32(height), title, nil, nil)
+    self.title = title
   }
 
   deinit {
     glfwDestroyWindow(window)
   }
 
+  /// glfwSetWindowTitle
+  public var title: String = "" {
+    didSet { glfwSetWindowTitle(window, title) }
+  }
+
   /// glfwGetClipboardString, glfwSetClipboardString
   public var clipboard: String? {
-    get { String(cString: glfwGetClipboardString(window), encoding: .utf8) }
+    get { glfwGetClipboardString(window).flatMap { String(cString: $0, encoding: .utf8) } }
     set { glfwSetClipboardString(window, newValue) }
   }
 

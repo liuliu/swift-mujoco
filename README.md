@@ -83,3 +83,7 @@ bazel run --compilation_mode=opt Examples:simulate -- ~/workspace/swift-mujoco/E
 ```
 
 Visit documentation at: <https://liuliu.github.io/swift-mujoco>. These should be kept up-to-date with `main` branch.
+
+## Appendix
+
+### List of Supported MuJoCo C APIs

@@ -148,6 +148,7 @@ func noise(_ std: Double) -> Double {
 }
 
 var filename: String? = nil
+var previousFilename: String? = nil
 if CommandLine.arguments.count > 1 {
   filename = CommandLine.arguments[1]
   settings.loadrequest = 2
@@ -1459,15 +1460,46 @@ glContext.makeCurrent {
     settings.loadrequest = 1
   }
   func loadmodel(filename: String) {
-    let model = try! MjModel(fromXMLPath: filename)
+    let model: MjModel?
+    if filename.lowercased().hasSuffix(".mjb") {
+      model = MjModel(fromBinaryPath: filename)
+    } else {
+      model = try? MjModel(fromXMLPath: filename)
+    }
+    guard let model = model else { return }
     var data = model.makeData()
-    ctrlnoise = Array(repeating: 0, count: Int(model.nu))
     m = model
     d = data
     model.forward(data: &data)
+    // allocate ctrlnoise
+    ctrlnoise = Array(repeating: 0, count: Int(model.nu))
+    // re-create scene and context
     scene.makeScene(model: model, maxgeom: maxgeom)
     context.makeContext(model: model, fontscale: ._100)
+    // clear perturbation state
+    pert.active = []
+    pert.select = 0
+    pert.skinselect = -1
+    // align and scale view unless reloading the same file
+    if previousFilename != filename {
+      alignscale()
+      previousFilename = filename
+    }
+    // update scene
+    scene.updateScene(model: model, data: &data, option: vopt, perturb: pert, camera: &camera)
+    // set window title to model name
+    if let name = model.name {
+      glContext.title = "Simulate : \(name)"
+    }
+    // set keyframe range and divisions
+    ui0.sect[Int(UI0Section.simulation.rawValue)].item[5].slider.range = (
+      0, Double(max(0, model.nkey - 1))
+    )
+    ui0.sect[Int(UI0Section.simulation.rawValue)].item[5].slider.divisions = Double(
+      max(1, model.nkey - 1))
+    // rebuild UI sections
     makesections()
+    // full ui update
     ui0.resize(context: context)
     glContext.modify(ui: ui0, uiState: &uiState, context: &context)
     ui1.resize(context: context)
