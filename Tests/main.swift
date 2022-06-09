@@ -2,7 +2,7 @@
   import XCTest
 
   XCTMain([
-    testCase(ModelTests.allTests),
+    testCase(XMLTests.allTests)
   ])
 
 #endif

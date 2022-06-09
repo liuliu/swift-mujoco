@@ -1,6 +1,7 @@
 # MuJoCo for Swift
 
 [![macos-spm](https://github.com/liuliu/swift-mujoco/actions/workflows/macos-spm.yaml/badge.svg?branch=main)](https://github.com/liuliu/swift-mujoco/actions/workflows/macos-spm.yaml?query=branch%3Amain)
+[![macos-bazel](https://github.com/liuliu/swift-mujoco/actions/workflows/macos-bazel.yaml/badge.svg?branch=main)](https://github.com/liuliu/swift-mujoco/actions/workflows/macos-bazel.yaml?query=branch%3Amain)
 [![ubuntu-spm](https://github.com/liuliu/swift-mujoco/actions/workflows/ubuntu-spm.yaml/badge.svg?branch=main)](https://github.com/liuliu/swift-mujoco/actions/workflows/ubuntu-spm.yaml?query=branch%3Amain)
 [![ubuntu-bazel](https://github.com/liuliu/swift-mujoco/actions/workflows/ubuntu-bazel.yaml/badge.svg?branch=main)](https://github.com/liuliu/swift-mujoco/actions/workflows/ubuntu-bazel.yaml?query=branch%3Amain)
 [![documentation](https://github.com/liuliu/swift-mujoco/actions/workflows/documentation.yaml/badge.svg?branch=main)](https://github.com/liuliu/swift-mujoco/actions/workflows/documentation.yaml?query=branch%3Amain)

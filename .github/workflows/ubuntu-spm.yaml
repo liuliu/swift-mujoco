@@ -17,10 +17,13 @@ jobs:
         run: |
           sudo apt -y install libglfw3-dev
 
-      - name: Build debug simulate
+      - name: Build
         run: |
           swift build -v
 
-      - name: Build release simulate
+      - name: Run tests
+        run: swift test -v
+
+      - name: Build release
         run: |
           swift build -c release -v

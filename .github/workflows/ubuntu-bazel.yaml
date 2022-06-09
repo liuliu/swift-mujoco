@@ -37,3 +37,7 @@ jobs:
       - name: Build release simulate
         run: |
           "${GITHUB_WORKSPACE}/bin/bazel" build --compilation_mode=opt Examples:simulate
+
+      - name: Run tests
+        run: |
+          "${GITHUB_WORKSPACE}/bin/bazel" test --test_output=errors Tests:tests

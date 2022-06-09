@@ -66,5 +66,10 @@ let package = Package(
       sources: [
         "main.swift"
       ]),
+    .testTarget(
+      name: "Tests",
+      dependencies: ["MuJoCo"],
+      path: "Tests",
+      exclude: ["main.swift"]),
   ]
 )
