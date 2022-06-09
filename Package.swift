@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -33,9 +33,12 @@ let package = Package(
       publicHeadersPath: "."),
     .target(
       name: "MuJoCo",
-      dependencies: ["CShim_mujoco", "C_glfw", "C_mujoco"],
+      dependencies: [
+        "CShim_mujoco", "C_mujoco",
+        .target(name: "C_glfw", condition: .when(platforms: [.macOS, .linux])),
+      ],
       path: "Sources",
-      exclude: ["CShim", "C_glfw", "codegen"]),
+      exclude: ["CShim", "C_glfw", "codegen", "BUILD.bazel"]),
     .target(
       name: "simulate",
       dependencies: ["MuJoCo", .product(name: "Numerics", package: "swift-numerics")],
@@ -46,6 +49,10 @@ let package = Package(
     .target(
       name: "ChangeCases",
       path: "Sources/codegen",
+      exclude: [
+        "main.swift", "enumDecl.swift", "functionExtension.swift", "parseHeaders.swift",
+        "structExtension.swift",
+      ],
       sources: [
         "changeCases.swift"
       ]),
@@ -53,6 +60,7 @@ let package = Package(
       name: "MuJoCoCSyntax",
       dependencies: ["ChangeCases"],
       path: "Sources/codegen",
+      exclude: ["changeCases.swift", "main.swift"],
       sources: [
         "enumDecl.swift",
         "functionExtension.swift",
@@ -63,6 +71,10 @@ let package = Package(
       name: "codegen",
       dependencies: ["MuJoCoCSyntax"],
       path: "Sources/codegen",
+      exclude: [
+        "changeCases.swift", "enumDecl.swift", "functionExtension.swift", "parseHeaders.swift",
+        "structExtension.swift",
+      ],
       sources: [
         "main.swift"
       ]),
@@ -70,6 +82,6 @@ let package = Package(
       name: "Tests",
       dependencies: ["MuJoCo"],
       path: "Tests",
-      exclude: ["main.swift"]),
+      exclude: ["main.swift", "BUILD.bazel"]),
   ]
 )
