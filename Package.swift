@@ -15,7 +15,7 @@ let package = Package(
     .package(
       name: "C_mujoco", url: "https://github.com/liuliu/mujoco.git",
       .revision("5e2af0b65785d742b9de05c48c75d71354a3d23d")),
-    .package(name: "Numerics", url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
+    .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
   ],
   targets: [
     .target(
@@ -39,7 +39,7 @@ let package = Package(
       exclude: ["CShim", "glfw", "codegen"]),
     .target(
       name: "simulate",
-      dependencies: ["MuJoCo", "Numerics"],
+      dependencies: ["MuJoCo", .product(name: "Numerics", package: "swift-numerics")],
       path: "Examples/simulate",
       sources: [
         "main.swift"
