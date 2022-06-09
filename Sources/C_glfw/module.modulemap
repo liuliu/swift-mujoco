@@ -1,0 +1,5 @@
+module C_glfw [system] {
+    header "glfw.h"
+    link "glfw"
+    export *
+}

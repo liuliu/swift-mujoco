@@ -155,6 +155,7 @@ if CommandLine.arguments.count > 1 {
 }
 
 // We will run this function off main thread on a default global queue.
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 @Sendable
 func simulate() async throws {
   final class Timer {
@@ -565,7 +566,9 @@ glContext.makeCurrent {
   let sceneMapper = MjuiDefObjectMapper(to: &scene)
   // The context need to be initialized after having a GL context.
   var context = MjrContext(model: nil, fontScale: ._100)
-  Task.detached(operation: simulate)
+  if #available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *) {
+    Task.detached(operation: simulate)
+  }
   var ui0 = MjUI()
   ui0.spacing = MjuiThemeSpacing(settings.spacing)
   ui0.color = MjuiThemeColor(settings.color)

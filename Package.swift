@@ -14,10 +14,15 @@ let package = Package(
   dependencies: [
     .package(
       name: "C_mujoco", url: "https://github.com/liuliu/mujoco.git",
-      .revision("5e2af0b65785d742b9de05c48c75d71354a3d23d")),
+      .revision("f45d21c897d04ac52ab3aa8e8c132015a4c02e1c")),
     .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
   ],
   targets: [
+    .systemLibrary(
+      name: "C_glfw",
+      pkgConfig: "glfw3",
+      providers: [.brew(["glfw"]), .apt(["libglfw3-dev"])]
+    ),
     .target(
       name: "CShim_mujoco",
       dependencies: ["C_mujoco"],
@@ -27,16 +32,10 @@ let package = Package(
       ],
       publicHeadersPath: "."),
     .target(
-      name: "C_glfw",
-      path: "Sources/glfw",
-      sources: ["glfw.c"],
-      publicHeadersPath: ".",
-      linkerSettings: [.linkedLibrary("glfw")]),
-    .target(
       name: "MuJoCo",
       dependencies: ["CShim_mujoco", "C_glfw", "C_mujoco"],
       path: "Sources",
-      exclude: ["CShim", "glfw", "codegen"]),
+      exclude: ["CShim", "C_glfw", "codegen"]),
     .target(
       name: "simulate",
       dependencies: ["MuJoCo", .product(name: "Numerics", package: "swift-numerics")],

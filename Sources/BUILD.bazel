@@ -30,7 +30,7 @@ swift_binary(
 
 cc_library(
     name = "C_glfw",
-    hdrs = ["glfw/glfw.h"],
+    hdrs = ["C_glfw/glfw.h"],
     linkopts = ["-lglfw"],
     tags = ["swift_module=C_glfw"],
     visibility = ["//:__pkg__"],
