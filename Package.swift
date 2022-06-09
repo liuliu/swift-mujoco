@@ -14,7 +14,7 @@ let package = Package(
   dependencies: [
     .package(
       name: "C_mujoco", url: "https://github.com/liuliu/mujoco.git",
-      .revision("f45d21c897d04ac52ab3aa8e8c132015a4c02e1c")),
+      .revision("8cdb034f4447b15d6a80e9f169e122a4a8c808e2")),
     .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
   ],
   targets: [
