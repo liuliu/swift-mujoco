@@ -1,0 +1,25 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "C_mujoco",
+        "repositoryURL": "https://github.com/liuliu/mujoco.git",
+        "state": {
+          "branch": null,
+          "revision": "5e2af0b65785d742b9de05c48c75d71354a3d23d",
+          "version": null
+        }
+      },
+      {
+        "package": "swift-numerics",
+        "repositoryURL": "https://github.com/apple/swift-numerics",
+        "state": {
+          "branch": null,
+          "revision": "0a5bc04095a675662cf24757cc0640aa2204253b",
+          "version": "1.0.2"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

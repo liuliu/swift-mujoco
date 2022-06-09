@@ -29,6 +29,15 @@ swift_binary(
 )
 
 cc_library(
+    name = "C_glfw",
+    hdrs = ["glfw/glfw.h"],
+    linkopts = ["-lglfw"],
+    tags = ["swift_module=C_glfw"],
+    visibility = ["//:__pkg__"],
+    deps = [],
+)
+
+cc_library(
     name = "CShim",
     srcs = ["CShim/CShim.c"],
     hdrs = ["CShim/CShim.h"],
@@ -42,11 +51,5 @@ cc_library(
 filegroup(
     name = "Sources",
     srcs = glob(["*.swift"]),
-    visibility = ["//:__pkg__"],
-)
-
-filegroup(
-    name = "glfw_headers",
-    srcs = ["glfw/glfw.h"],
     visibility = ["//:__pkg__"],
 )

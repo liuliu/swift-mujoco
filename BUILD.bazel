@@ -1,21 +1,13 @@
 load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
 
-cc_library(
-    name = "C_glfw",
-    hdrs = ["//Sources:glfw_headers"],
-    linkopts = ["-lglfw"],
-    tags = ["swift_module=C_glfw"],
-    deps = [],
-)
-
 swift_library(
     name = "swift-mujoco",
     srcs = ["//Sources"],
     module_name = "MuJoCo",
     visibility = ["//visibility:public"],
     deps = [
-        ":C_glfw",
         "//Sources:CShim",
+        "//Sources:C_glfw",
         "@mujoco//:C_mujoco",
     ],
 )
