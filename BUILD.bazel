@@ -7,7 +7,10 @@ swift_library(
     visibility = ["//visibility:public"],
     deps = [
         "//Sources:CShim",
-        "//Sources:C_glfw",
         "@mujoco//:C_mujoco",
-    ],
+    ] + select({
+        "@platforms//os:macos": [],
+        "@platforms//os:ios": [],
+        "//conditions:default": ["//Sources:C_glfw"],
+    }),
 )

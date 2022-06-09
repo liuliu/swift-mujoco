@@ -1,5 +1,6 @@
-import C_glfw
 import C_mujoco
+#if canImport(C_glfw)
+import C_glfw
 
 public final class GLContext {
   // Note that we assume all accesses to this dictionary is from one thread. Which may not be
@@ -485,3 +486,4 @@ extension GLContext {
     uiState.update(section: -1, item: -1, ui: ui, context: context)
   }
 }
+#endif
