@@ -1,0 +1,17 @@
+name: macos-spm
+on: [push]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup GLFW
+        run: |
+          brew install glfw
+
+      - name: Build
+        run: swift build -v
+
+      - name: Build release
+        run: swift build -c release -v

@@ -19,8 +19,8 @@ jobs:
 
       - name: Build debug simulate
         run: |
-          swift build
+          swift build -v
 
       - name: Build release simulate
         run: |
-          swift build -c release
+          swift build -c release -v
