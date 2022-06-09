@@ -16,3 +16,7 @@ jobs:
       - name: Run tests
         run: |
           "${GITHUB_WORKSPACE}/bin/bazel" test --test_output=errors Tests:tests
+
+      - name: Run tests on iOS simulator
+        run: |
+          "${GITHUB_WORKSPACE}/bin/bazel" test --test_output=errors Tests:iostests

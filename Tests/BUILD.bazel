@@ -1,12 +1,28 @@
-load("@build_bazel_rules_swift//swift:swift.bzl", "swift_test")
+load("@build_bazel_rules_apple//apple:ios.bzl", "ios_unit_test")
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library", "swift_test")
 
-swift_test(
-    name = "tests",
+swift_library(
+    name = "tests_lib",
     srcs = [
         "main.swift",
         "xml.swift",
     ],
     deps = [
         "//:swift-mujoco",
+    ],
+)
+
+swift_test(
+    name = "tests",
+    deps = [
+        ":tests_lib",
+    ],
+)
+
+ios_unit_test(
+    name = "iostests",
+    minimum_os_version = "10.0",
+    deps = [
+        ":tests_lib",
     ],
 )

@@ -10,6 +10,17 @@ git_repository(
     shallow_since = "1654173801 -0500",
 )
 
+git_repository(
+    name = "build_bazel_rules_apple",
+    commit = "39bf97fb9b2db76bca8fe015b8c72fc92d5c6b81",
+    remote = "https://github.com/bazelbuild/rules_apple.git",
+    shallow_since = "1653707025 -0700",
+)
+
+load("@build_bazel_rules_apple//apple:repositories.bzl", "apple_rules_dependencies")
+
+apple_rules_dependencies(ignore_version_differences = True)
+
 load("@build_bazel_rules_swift//swift:repositories.bzl", "swift_rules_dependencies")
 
 swift_rules_dependencies()
