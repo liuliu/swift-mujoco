@@ -1,0 +1,39 @@
+name: ubuntu-bazel
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Swift dependencies
+        run: |
+          sudo apt-get install clang libicu-dev 
+          wget https://download.swift.org/swift-5.6.1-release/ubuntu2004/swift-5.6.1-RELEASE/swift-5.6.1-RELEASE-ubuntu20.04.tar.gz
+          tar xzf swift-5.6.1-RELEASE-ubuntu20.04.tar.gz
+          echo "$(pwd)/swift-5.6.1-RELEASE-ubuntu20.04/usr/bin" >> $GITHUB_PATH
+
+      - name: Install bazelisk
+        run: |
+          curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-linux-amd64"
+          mkdir -p "${GITHUB_WORKSPACE}/bin/"
+          mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazel"
+          chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
+
+      - name: Setup clang
+        run: |
+          sudo apt -y install clang llvm
+          ./bazel/setup_clang.sh
+          echo "build --config=clang" >> "${GITHUB_WORKSPACE}/.bazelrc.local"
+
+      - name: Setup GLFW
+        run: |
+          sudo apt -y install libglfw3-dev
+
+      - name: Build debug simulate
+        run: |
+          "${GITHUB_WORKSPACE}/bin/bazel" build Examples:simulate
+
+      - name: Build release simulate
+        run: |
+          "${GITHUB_WORKSPACE}/bin/bazel" build --compilation_mode=opt Examples:simulate

@@ -1,5 +1,9 @@
 # MuJoCo for Swift
 
+[![ubuntu-spm](https://github.com/liuliu/swift-mujoco/actions/workflows/ubuntu-spm.yaml/badge.svg?branch=main)](https://github.com/liuliu/swift-mujoco/actions/workflows/ubuntu-spm.yaml?query=branch%3Amain)
+[![ubuntu-bazel](https://github.com/liuliu/swift-mujoco/actions/workflows/ubuntu-bazel.yaml/badge.svg?branch=main)](https://github.com/liuliu/swift-mujoco/actions/workflows/ubuntu-bazel.yaml?query=branch%3Amain)
+[![documentation](https://github.com/liuliu/swift-mujoco/actions/workflows/documentation.yaml/badge.svg?branch=main)](https://github.com/liuliu/swift-mujoco/actions/workflows/documentation.yaml?query=branch%3Amain)
+
 This is a Swift binding for [MuJoCo](https://mujoco.org) physics simulation library.
 
 [MuJoCo](https://mujoco.org) is a very accurate CPU-based physics simulation library. Since its acquisition by [DeepMind](https://github.com/deepmind/mujoco), MuJoCo has been more readily available broadly.

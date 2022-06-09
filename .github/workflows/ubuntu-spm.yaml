@@ -1,0 +1,26 @@
+name: ubuntu-spm
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Swift dependencies
+        run: |
+          sudo apt-get install clang libicu-dev
+          wget https://download.swift.org/swift-5.5.1-release/ubuntu2004/swift-5.5.1-RELEASE/swift-5.5.1-RELEASE-ubuntu20.04.tar.gz
+          tar xzf swift-5.5.1-RELEASE-ubuntu20.04.tar.gz
+          echo "$(pwd)/swift-5.5.1-RELEASE-ubuntu20.04/usr/bin" >> $GITHUB_PATH
+
+      - name: Setup GLFW
+        run: |
+          sudo apt -y install libglfw3-dev
+
+      - name: Build debug simulate
+        run: |
+          swift build --target simulate
+
+      - name: Build release simulate
+        run: |
+          swift build --target simulate -c release
