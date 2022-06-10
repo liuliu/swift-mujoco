@@ -1161,8 +1161,9 @@ public enum MjtVisFlag: Int32, CustomStringConvertible, CaseIterable {
   case convexhull = 0
   case texture
   case joint
-  case actuator
   case camera
+  case actuator
+  case activation
   case light
   case tendon
   case rangefinder
@@ -1188,10 +1189,12 @@ public enum MjtVisFlag: Int32, CustomStringConvertible, CaseIterable {
       return "texture"
     case .joint:
       return "joint"
-    case .actuator:
-      return "actuator"
     case .camera:
       return "camera"
+    case .actuator:
+      return "actuator"
+    case .activation:
+      return "activation"
     case .light:
       return "light"
     case .tendon:

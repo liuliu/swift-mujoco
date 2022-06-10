@@ -1,5 +1,6 @@
 common --disk_cache=.cache
 
+build --cxxopt='--std=c++17'
 build:asan --strip=never
 build:asan --copt -fsanitize=address
 build:asan --copt -DADDRESS_SANITIZER

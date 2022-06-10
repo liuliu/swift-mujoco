@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.4
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 var dependencies: [Package.Dependency] = [
   .package(
     name: "C_mujoco", url: "https://github.com/liuliu/mujoco.git",
-    .revision("8cdb034f4447b15d6a80e9f169e122a4a8c808e2")),
+    .revision("d2caa777473fe0bd9f6edd77aa99442fe534d431")),
   .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
 ]
 

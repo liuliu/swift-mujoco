@@ -548,7 +548,7 @@ extension MjModel {
       }
     }
   }
-  ///  Normalize all quaterions in qpos-type vector.
+  ///  Normalize all quaternions in qpos-type vector.
   @inlinable
   public func normalizeQuat<T0: MjDoubleMutableBufferPointer>(qpos: inout T0) {
     qpos.withUnsafeMutableBufferPointer { qpos__p in
