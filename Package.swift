@@ -45,7 +45,7 @@ let package = Package(
       ],
       path: "Sources",
       exclude: ["CShim", "C_glfw", "codegen", "BUILD.bazel"]),
-    .target(
+    .executableTarget(
       name: "simulate",
       dependencies: ["MuJoCo", .product(name: "Numerics", package: "swift-numerics")],
       path: "Examples/simulate",
@@ -73,7 +73,7 @@ let package = Package(
         "parseHeaders.swift",
         "structExtension.swift",
       ]),
-    .target(
+    .executableTarget(
       name: "codegen",
       dependencies: ["MuJoCoCSyntax"],
       path: "Sources/codegen",
