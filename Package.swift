@@ -3,6 +3,17 @@
 
 import PackageDescription
 
+var dependencies: [Package.Dependency] = [
+  .package(
+    name: "C_mujoco", url: "https://github.com/liuliu/mujoco.git",
+    .revision("8cdb034f4447b15d6a80e9f169e122a4a8c808e2")),
+  .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
+]
+
+#if swift(>=5.6)
+  dependencies.append(.package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"))
+#endif
+
 let package = Package(
   name: "MuJoCo",
   platforms: [.macOS(.v10_14), .iOS(.v11), .watchOS(.v3), .tvOS(.v10)],
@@ -11,12 +22,7 @@ let package = Package(
     .executable(name: "simulate", targets: ["simulate"]),
     .executable(name: "codegen", targets: ["codegen"]),
   ],
-  dependencies: [
-    .package(
-      name: "C_mujoco", url: "https://github.com/liuliu/mujoco.git",
-      .revision("8cdb034f4447b15d6a80e9f169e122a4a8c808e2")),
-    .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
-  ],
+  dependencies: dependencies,
   targets: [
     .systemLibrary(
       name: "C_glfw",

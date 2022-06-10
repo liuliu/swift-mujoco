@@ -1,3 +1,4 @@
+#if !os(iOS)
 import Foundation
 import MuJoCo
 import Numerics
@@ -1572,3 +1573,4 @@ glContext.makeCurrent {
   }
   glContext.clearCallbacks()
 }
+#endif

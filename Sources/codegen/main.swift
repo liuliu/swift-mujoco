@@ -1,3 +1,4 @@
+#if !os(iOS)
 import ChangeCases
 import Foundation
 import MuJoCoCSyntax
@@ -431,3 +432,4 @@ let code = mjObjectExtensions()
 try! code.write(
   to: URL(fileURLWithPath: WorkDir).appendingPathComponent("MjObject+Extensions.swift"),
   atomically: false, encoding: .utf8)
+#endif
