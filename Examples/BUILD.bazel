@@ -17,3 +17,12 @@ swift_binary(
         "@SwiftNumerics//:Numerics",
     ],
 )
+
+swift_binary(
+    name = "simulate2",
+    srcs = ["simulate2/main.swift"],
+    deps = [
+        "//:swift-mujoco",
+        "@SwiftNumerics//:Numerics",
+    ],
+)
