@@ -1,5 +1,5 @@
 version: 1
 builder:
   configs:
-    - target: MuJoCo
+    - scheme: MuJoCo
     - documentation_targets: [MuJoCo]
