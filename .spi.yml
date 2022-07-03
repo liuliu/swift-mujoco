@@ -2,4 +2,5 @@ version: 1
 builder:
   configs:
     - scheme: MuJoCo
-    - documentation_targets: [MuJoCo]
+    - platform: ios
+      documentation_targets: [MuJoCo]
