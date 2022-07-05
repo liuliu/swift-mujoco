@@ -62,7 +62,7 @@ def swift_mujoco_deps():
         new_git_repository,
         name = "mujoco",
         build_file = "@swift-mujoco//:external/mujoco.BUILD",
-        commit = "5ac797965cf5ae208d74818482d339e90d8bc102",
+        commit = "d3a86bb748b272951185a24570f49ceccf07f4e7",
         remote = "https://github.com/deepmind/mujoco.git",
-        shallow_since = "1654860138 -0700",
+        shallow_since = "1657012681 -0700",
     )

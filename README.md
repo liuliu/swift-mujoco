@@ -253,6 +253,7 @@ mj_versionString
 mj_ray
 mj_rayHfield
 mj_rayMesh
+mjd_transitionFD
 mju_rayGeom
 mju_raySkin
 mjv_room2model

@@ -30,4 +30,16 @@ extension MjData {
   public mutating func warning(_ warning: Int32, info: Int32) {
     mj_warning(self._data, warning, info)
   }
+  /// Finite differenced state-transition and control-transition matrices dx(t+h) = A*dx(t) + B*du(t).   required output matrix dimensions:      A: (2*nv+na x 2*nv+na)      B: (2*nv+na x nu)
+  @inlinable
+  public mutating func transitionFD<
+    T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer
+  >(model: MjModel, eps: Double, centered: UInt8, a: inout T0, b: inout T1) {
+    a.withUnsafeMutableBufferPointer { a__p in
+      b.withUnsafeMutableBufferPointer { b__p in
+        mjd_transitionFD(
+          model._model, self._data, eps, centered, a__p.baseAddress, b__p.baseAddress)
+      }
+    }
+  }
 }

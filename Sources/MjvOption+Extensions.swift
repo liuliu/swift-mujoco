@@ -41,6 +41,12 @@ extension MjvOption {
     get { _option.actuatorgroup }
     set { _option.actuatorgroup = newValue }
   }
+  /// skin visualization by group
+  @inlinable
+  public var skingroup: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8) {
+    get { _option.skingroup }
+    set { _option.skingroup = newValue }
+  }
   /// visualization flags (indexed by mjtVisFlag)
   @inlinable
   public var flags:
@@ -60,7 +66,7 @@ extension MjvOption: CustomReflectable {
       children: [
         "label": label, "frame": frame, "geomgroup": geomgroup, "sitegroup": sitegroup,
         "jointgroup": jointgroup, "tendongroup": tendongroup, "actuatorgroup": actuatorgroup,
-        "flags": flags,
+        "skingroup": skingroup, "flags": flags,
       ])
   }
 }

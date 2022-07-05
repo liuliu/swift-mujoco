@@ -1641,6 +1641,16 @@ extension MjModel {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nskin * 1))
     }
   }
+  /// group for visibility                     (nskin x 1)
+  @inlinable
+  public var skinGroup: MjArray<Int32> {
+    get { MjArray<Int32>(array: _model.pointee.skin_group, object: _storage, len: nskin * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.skin_group
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nskin * 1))
+    }
+  }
   /// skin rgba                                (nskin x 4)
   @inlinable
   public var skinRgba: MjArray<Float> {
@@ -3068,6 +3078,16 @@ extension MjModel {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nkey * 4 * nmocap))
     }
   }
+  /// key control                              (nkey x nu)
+  @inlinable
+  public var keyCtrl: MjArray<Double> {
+    get { MjArray<Double>(array: _model.pointee.key_ctrl, object: _storage, len: nkey * nu) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _model.pointee.key_ctrl
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nkey * nu))
+    }
+  }
   /// body name pointers                       (nbody x 1)
   @inlinable
   public var nameBodyadr: MjArray<Int32> {
@@ -3351,11 +3371,11 @@ extension MjModel: CustomReflectable {
         "meshTexcoordadr": meshTexcoordadr, "meshFaceadr": meshFaceadr, "meshFacenum": meshFacenum,
         "meshGraphadr": meshGraphadr, "meshVert": meshVert, "meshNormal": meshNormal,
         "meshTexcoord": meshTexcoord, "meshFace": meshFace, "meshGraph": meshGraph,
-        "skinMatid": skinMatid, "skinRgba": skinRgba, "skinInflate": skinInflate,
-        "skinVertadr": skinVertadr, "skinVertnum": skinVertnum, "skinTexcoordadr": skinTexcoordadr,
-        "skinFaceadr": skinFaceadr, "skinFacenum": skinFacenum, "skinBoneadr": skinBoneadr,
-        "skinBonenum": skinBonenum, "skinVert": skinVert, "skinTexcoord": skinTexcoord,
-        "skinFace": skinFace, "skinBonevertadr": skinBonevertadr,
+        "skinMatid": skinMatid, "skinGroup": skinGroup, "skinRgba": skinRgba,
+        "skinInflate": skinInflate, "skinVertadr": skinVertadr, "skinVertnum": skinVertnum,
+        "skinTexcoordadr": skinTexcoordadr, "skinFaceadr": skinFaceadr, "skinFacenum": skinFacenum,
+        "skinBoneadr": skinBoneadr, "skinBonenum": skinBonenum, "skinVert": skinVert,
+        "skinTexcoord": skinTexcoord, "skinFace": skinFace, "skinBonevertadr": skinBonevertadr,
         "skinBonevertnum": skinBonevertnum, "skinBonebindpos": skinBonebindpos,
         "skinBonebindquat": skinBonebindquat, "skinBonebodyid": skinBonebodyid,
         "skinBonevertid": skinBonevertid, "skinBonevertweight": skinBonevertweight,
@@ -3399,7 +3419,7 @@ extension MjModel: CustomReflectable {
         "textSize": textSize, "textData": textData, "tupleAdr": tupleAdr, "tupleSize": tupleSize,
         "tupleObjtype": tupleObjtype, "tupleObjid": tupleObjid, "tupleObjprm": tupleObjprm,
         "keyTime": keyTime, "keyQpos": keyQpos, "keyQvel": keyQvel, "keyAct": keyAct,
-        "keyMpos": keyMpos, "keyMquat": keyMquat, "nameBodyadr": nameBodyadr,
+        "keyMpos": keyMpos, "keyMquat": keyMquat, "keyCtrl": keyCtrl, "nameBodyadr": nameBodyadr,
         "nameJntadr": nameJntadr, "nameGeomadr": nameGeomadr, "nameSiteadr": nameSiteadr,
         "nameCamadr": nameCamadr, "nameLightadr": nameLightadr, "nameMeshadr": nameMeshadr,
         "nameSkinadr": nameSkinadr, "nameHfieldadr": nameHfieldadr, "nameTexadr": nameTexadr,

@@ -961,6 +961,26 @@ extension MjData {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nbody * 3))
     }
   }
+  /// L'*D*L factorization of modified M       (nM x 1)
+  @inlinable
+  public var qH: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.qH, object: _storage, len: nM * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.qH
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nM * 1))
+    }
+  }
+  /// 1/diag(D) of modified M                  (nv x 1)
+  @inlinable
+  public var qHDiagInv: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.qHDiagInv, object: _storage, len: nv * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.qHDiagInv
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
+    }
+  }
   /// non-zeros in each row                    (nv x 1)
   @inlinable
   public var dRownnz: MjArray<Int32> {
@@ -1169,11 +1189,11 @@ extension MjData: CustomReflectable {
         "tenVelocity": tenVelocity, "actuatorVelocity": actuatorVelocity, "cvel": cvel,
         "cdofDot": cdofDot, "qfrcBias": qfrcBias, "qfrcPassive": qfrcPassive, "efcVel": efcVel,
         "efcAref": efcAref, "subtreeLinvel": subtreeLinvel, "subtreeAngmom": subtreeAngmom,
-        "dRownnz": dRownnz, "dRowadr": dRowadr, "dColind": dColind, "qDeriv": qDeriv, "qLu": qLu,
-        "actuatorForce": actuatorForce, "qfrcActuator": qfrcActuator, "qfrcSmooth": qfrcSmooth,
-        "qaccSmooth": qaccSmooth, "efcB": efcB, "efcForce": efcForce, "efcState": efcState,
-        "qfrcConstraint": qfrcConstraint, "qfrcInverse": qfrcInverse, "cacc": cacc,
-        "cfrcInt": cfrcInt, "cfrcExt": cfrcExt,
+        "qH": qH, "qHDiagInv": qHDiagInv, "dRownnz": dRownnz, "dRowadr": dRowadr,
+        "dColind": dColind, "qDeriv": qDeriv, "qLu": qLu, "actuatorForce": actuatorForce,
+        "qfrcActuator": qfrcActuator, "qfrcSmooth": qfrcSmooth, "qaccSmooth": qaccSmooth,
+        "efcB": efcB, "efcForce": efcForce, "efcState": efcState, "qfrcConstraint": qfrcConstraint,
+        "qfrcInverse": qfrcInverse, "cacc": cacc, "cfrcInt": cfrcInt, "cfrcExt": cfrcExt,
       ])
   }
 }

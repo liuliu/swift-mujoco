@@ -457,12 +457,15 @@ public enum MjtDyn: Int32, CustomStringConvertible {
 @objc
 public enum MjtGain: Int32, CustomStringConvertible {
   case fixed = 0
+  case affine
   case muscle
   case user
   public var description: String {
     switch self {
     case .fixed:
       return "fixed"
+    case .affine:
+      return "affine"
     case .muscle:
       return "muscle"
     case .user:
