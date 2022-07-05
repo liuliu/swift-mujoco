@@ -6,7 +6,7 @@ import PackageDescription
 var dependencies: [Package.Dependency] = [
   .package(
     name: "C_mujoco", url: "https://github.com/liuliu/mujoco.git",
-    .revision("d2caa777473fe0bd9f6edd77aa99442fe534d431")),
+    .revision("00b459c00453de1494552e687d1fb4adc3de1b56")),
   .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
 ]
 
@@ -20,6 +20,7 @@ let package = Package(
   products: [
     .library(name: "MuJoCo", type: .static, targets: ["MuJoCo"]),
     .executable(name: "simulate", targets: ["simulate"]),
+    .executable(name: "simulate2", targets: ["simulate2"]),
     .executable(name: "codegen", targets: ["codegen"]),
   ],
   dependencies: dependencies,
@@ -49,6 +50,13 @@ let package = Package(
       name: "simulate",
       dependencies: ["MuJoCo", .product(name: "Numerics", package: "swift-numerics")],
       path: "Examples/simulate",
+      sources: [
+        "main.swift"
+      ]),
+    .executableTarget(
+      name: "simulate2",
+      dependencies: ["MuJoCo", .product(name: "Numerics", package: "swift-numerics")],
+      path: "Examples/simulate2",
       sources: [
         "main.swift"
       ]),
