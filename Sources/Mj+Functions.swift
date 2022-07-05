@@ -144,11 +144,6 @@ public func clearHandlers() {
 public func writeLog(type: String, msg: String) {
   mju_writeLog(type, msg)
 }
-///  Clip x to the range [min, max].
-@inlinable
-public func clip(x: Double, min: Double, max: Double) -> Double {
-  return mju_clip(x, min, max)
-}
 ///  Convert type id (mjtObj) to type name.
 @inlinable
 public func type2Str(type: Int32) -> String? {
