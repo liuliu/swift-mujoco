@@ -20,7 +20,6 @@ let package = Package(
   products: [
     .library(name: "MuJoCo", type: .static, targets: ["MuJoCo"]),
     .executable(name: "simulate", targets: ["simulate"]),
-    .executable(name: "simulate2", targets: ["simulate2"]),
     .executable(name: "codegen", targets: ["codegen"]),
   ],
   dependencies: dependencies,
@@ -50,13 +49,6 @@ let package = Package(
       name: "simulate",
       dependencies: ["MuJoCo", .product(name: "Numerics", package: "swift-numerics")],
       path: "Examples/simulate",
-      sources: [
-        "main.swift"
-      ]),
-    .executableTarget(
-      name: "simulate2",
-      dependencies: ["MuJoCo", .product(name: "Numerics", package: "swift-numerics")],
-      path: "Examples/simulate2",
       sources: [
         "main.swift"
       ]),
