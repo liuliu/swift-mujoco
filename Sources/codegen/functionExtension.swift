@@ -61,6 +61,11 @@ let MjTypes: [String: MjType] = [
   "MjWarningStat": .alias,
 ]
 
+// There are certain prefixes that doesn't have corresponding objects in meaningful way. Moving these back to mj namespace.
+let prefixMapping: [String: String] = [
+  "mjd": "mj"
+]
+
 public func mjObjectExtensions() -> String {
   let mjTypes = MjTypes.map({ $0 }).sorted { $0.key < $1.key }
   var code = "import C_mujoco\n\n"
@@ -281,7 +286,8 @@ public func functionExtension(
   // 1. Only look at first or last parameter (excluding mjt* or ordinary C types) as the primary owner, if cannot find any, fatal.
   // 2. Identify parameter corresponding to the function signature, if the function starts with mjv_
   //    find the parameter has type mjv*.
-  let prefix = apiDefinition.name.prefix(while: { $0 != "_" })
+  let rawPrefix = String(apiDefinition.name.prefix(while: { $0 != "_" }))
+  let prefix = prefixMapping[rawPrefix] ?? rawPrefix
   var mainInd: Int? = nil
   var mainType: String? = nil
   for (i, last) in apiDefinition.parameters.enumerated().reversed() {
