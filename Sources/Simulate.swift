@@ -130,7 +130,7 @@ import Foundation
     private var infoContent = ""
     private var infoTitle = ""
 
-    private let glContext = GLContext(width: 1280, height: 720, title: "simulate")
+    private let glContext: GLContext
     private var m: MjModel? = nil
     private var d: MjData? = nil
     private var pert = MjvPerturb()
@@ -160,7 +160,8 @@ import Foundation
       return mag * cos(.pi * 2 * u2)
     }
 
-    public init() {
+    public init(width: Int, height: Int, title: String = "simulate") {
+      glContext = GLContext(width: width, height: height, title: title)
       voptMapper = MjuiDefObjectMapper(to: &vopt)
       Mjcb.time = { 1000 * GLContext.time }
       os_unfair_lock_lock(&lock)
@@ -1619,6 +1620,9 @@ import Foundation
           }
           self.glContext.clearCallbacks()
         }
+        os_unfair_lock_lock(&self.lock)
+        self.exitrequest = true
+        os_unfair_lock_unlock(&self.lock)
       }
     }
   }

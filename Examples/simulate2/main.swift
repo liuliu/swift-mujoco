@@ -2,7 +2,7 @@ import Foundation
 import MuJoCo
 import Numerics
 
-let simulate = Simulate()
+let simulate = Simulate(width: 1280, height: 720)
 let syncmisalign: Double = 0.1  // maximum time mis-alignment before re-sync
 let refreshfactor: Double = 0.7  // fraction of refresh available for simulation
 let vmode = GLContext.videoMode
