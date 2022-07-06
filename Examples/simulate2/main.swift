@@ -5,12 +5,13 @@ import Numerics
 let simulate = Simulate(width: 1280, height: 720)
 let syncmisalign: Double = 0.1  // maximum time mis-alignment before re-sync
 let refreshfactor: Double = 0.7  // fraction of refresh available for simulation
-let vmode = GLContext.videoMode
 var ctrlnoise: [Double]? = nil
 if CommandLine.arguments.count > 1 {
   simulate.filename = CommandLine.arguments[1]
   simulate.loadrequest = 2
 }
+simulate.makeContext()
+let vmode = GLContext.videoMode
 final class Timer {
   var simsync: Double = 0
   var cpusync: Double = 0

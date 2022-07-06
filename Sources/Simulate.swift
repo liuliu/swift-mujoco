@@ -130,7 +130,10 @@ import Foundation
     private var infoContent = ""
     private var infoTitle = ""
 
-    private let glContext: GLContext
+    private let width: Int
+    private let height: Int
+    private let title: String
+    private var glContext: GLContext? = nil
     private var m: MjModel? = nil
     private var d: MjData? = nil
     private var pert = MjvPerturb()
@@ -161,10 +164,21 @@ import Foundation
     }
 
     public init(width: Int, height: Int, title: String = "simulate") {
-      glContext = GLContext(width: width, height: height, title: title)
+      self.width = width
+      self.height = height
+      self.title = title
       voptMapper = MjuiDefObjectMapper(to: &vopt)
       Mjcb.time = { 1000 * GLContext.time }
       os_unfair_lock_lock(&lock)
+    }
+
+    /// Explicitly makes the GLContext. We normally makes the GLContext lazily when actual render
+    /// is required through `yield()` call. However, we can create the GLContext with this method
+    /// earlier. It is useful when we need to access things such as videoMode, which requires an
+    /// active window.
+    public func makeContext() {
+      guard glContext == nil else { return }
+      glContext = GLContext(width: width, height: height, title: title)
     }
 
     deinit {
@@ -492,42 +506,6 @@ import Foundation
       vcamera.type = .free
     }
 
-    // copy qpos to clipboard as key
-    private func copykey() {
-      guard let m = m, let d = d else { return }
-      var clipboard = "<key qpos='"
-
-      // prepare string
-      for i in 0..<Int(m.nq) {
-        clipboard += String(format: i == Int(m.nq) - 1 ? "%g" : "%g ", d.qpos[i])
-      }
-      clipboard += "'/>"
-
-      // copy to clipboard
-      glContext.clipboard = clipboard
-    }
-
-    private func copycamera(_ camera: (MjvGLCamera, MjvGLCamera)) {
-      // get camera spec from the GLCamera
-      let cam_right: (Double, Double, Double) = (
-        Double(camera.0.forward.1) * Double(camera.0.up.2) - Double(camera.0.forward.2)
-          * Double(camera.0.up.1),
-        Double(camera.0.forward.2) * Double(camera.0.up.0) - Double(camera.0.forward.0)
-          * Double(camera.0.up.2),
-        Double(camera.0.forward.0) * Double(camera.0.up.1) - Double(camera.0.forward.1)
-          * Double(camera.0.up.0)
-      )
-
-      glContext.clipboard = String(
-        format:
-          "<camera pos=\"%.3f %.3f %.3f\" xyaxes=\"%.3f %.3f %.3f %.3f %.3f %.3f\"/>\n",
-        (camera.0.pos.0 + camera.1.pos.0) / 2,
-        (camera.0.pos.1 + camera.1.pos.1) / 2,
-        (camera.0.pos.2 + camera.1.pos.2) / 2,
-        cam_right.0, cam_right.1, cam_right.2,
-        camera.0.up.0, camera.0.up.1, camera.0.up.2)
-    }
-
     private func cleartimers() {
       guard var d = d else { return }
       for i in 0..<MjtTimer.allCases.count {
@@ -538,9 +516,10 @@ import Foundation
 
     private func runDetachedLoop() {
       guard task == nil else { return }
+      makeContext()
       task = Task.detached { [weak self] in
-        guard let self = self else { return }
-        self.glContext.makeCurrent {
+        guard let self = self, let glContext = self.glContext else { return }
+        glContext.makeCurrent {
           self.profilerinit()
           self.sensorinit()
           var scene = MjvScene(model: nil, maxgeom: self.maxgeom)
@@ -614,7 +593,43 @@ import Foundation
             }
           }
           ui1.predicate = ui0.predicate
-          self.font = self.glContext.fontScale / 50 - 1
+          self.font = glContext.fontScale / 50 - 1
+
+          // copy qpos to clipboard as key
+          func copykey() {
+            guard let m = self.m, let d = self.d else { return }
+            var clipboard = "<key qpos='"
+
+            // prepare string
+            for i in 0..<Int(m.nq) {
+              clipboard += String(format: i == Int(m.nq) - 1 ? "%g" : "%g ", d.qpos[i])
+            }
+            clipboard += "'/>"
+
+            // copy to clipboard
+            glContext.clipboard = clipboard
+          }
+
+          func copycamera(_ camera: (MjvGLCamera, MjvGLCamera)) {
+            // get camera spec from the GLCamera
+            let cam_right: (Double, Double, Double) = (
+              Double(camera.0.forward.1) * Double(camera.0.up.2) - Double(camera.0.forward.2)
+                * Double(camera.0.up.1),
+              Double(camera.0.forward.2) * Double(camera.0.up.0) - Double(camera.0.forward.0)
+                * Double(camera.0.up.2),
+              Double(camera.0.forward.0) * Double(camera.0.up.1) - Double(camera.0.forward.1)
+                * Double(camera.0.up.0)
+            )
+
+            glContext.clipboard = String(
+              format:
+                "<camera pos=\"%.3f %.3f %.3f\" xyaxes=\"%.3f %.3f %.3f %.3f %.3f %.3f\"/>\n",
+              (camera.0.pos.0 + camera.1.pos.0) / 2,
+              (camera.0.pos.1 + camera.1.pos.1) / 2,
+              (camera.0.pos.2 + camera.1.pos.2) / 2,
+              cam_right.0, cam_right.1, cam_right.2,
+              camera.0.up.0, camera.0.up.1, camera.0.up.2)
+          }
 
           // update watch
           func watch() {
@@ -1048,7 +1063,7 @@ import Foundation
             self.cleartimers()
           }
 
-          self.glContext.setCallbacks(uiState: &uiState) { [weak self] uiState in
+          glContext.setCallbacks(uiState: &uiState) { [weak self] uiState in
             guard let self = self else { return }
             if uiState.dragrect == ui0.rectid
               || (uiState.dragrect == 0 && uiState.mouserect == ui0.rectid)
@@ -1085,17 +1100,17 @@ import Foundation
                   case 2:
                     context.changeFont(fontscale: MjtFontScale(rawValue: 50 * (self.font + 1))!)
                   case 9:  // fullscreen
-                    self.glContext.fullscreen = self.fullscreen
-                    self.glContext.swapInterval = self.vsync
+                    glContext.fullscreen = self.fullscreen
+                    glContext.swapInterval = self.vsync
                   case 10:
-                    self.glContext.swapInterval = self.vsync
+                    glContext.swapInterval = self.vsync
                   default:
                     break
                   }
                   ui0.resize(context: context)
-                  self.glContext.modify(ui: ui0, uiState: &uiState, context: &context)
+                  glContext.modify(ui: ui0, uiState: &uiState, context: &context)
                   ui1.resize(context: context)
-                  self.glContext.modify(ui: ui1, uiState: &uiState, context: &context)
+                  glContext.modify(ui: ui1, uiState: &uiState, context: &context)
                 } else if it.sectionid == UI0Section.simulation.rawValue {
                   // Simulation
                   switch it.itemid {
@@ -1113,7 +1128,7 @@ import Foundation
                     updatesettings()
                     break
                   case 4:  // Copy pose
-                    self.copykey()
+                    copykey()
                     break
                   case 5...6:  // Adjust key, Load key
                     guard let m = self.m, var d = self.d else { break }
@@ -1198,7 +1213,7 @@ import Foundation
                   }
                   // copy camera spec to clipboard (as MJCF element)
                   if it.itemid == 3 {
-                    self.copycamera(scene.camera)
+                    copycamera(scene.camera)
                   }
                 } else if it.sectionid == UI0Section.group.rawValue {
                   // Group
@@ -1209,7 +1224,7 @@ import Foundation
                     makejoint(oldstate)
                     ui1.nsect = Int32(UI1Section.allCases.count)
                     ui1.resize(context: context)
-                    self.glContext.modify(ui: ui1, uiState: &uiState, context: &context)
+                    glContext.modify(ui: ui1, uiState: &uiState, context: &context)
                   }
 
                   // remake control section if actuator group changed
@@ -1219,7 +1234,7 @@ import Foundation
                     makecontrol(oldstate)
                     ui1.nsect = Int32(UI1Section.allCases.count)
                     ui1.resize(context: context)
-                    self.glContext.modify(ui: ui1, uiState: &uiState, context: &context)
+                    glContext.modify(ui: ui1, uiState: &uiState, context: &context)
                   }
                 }
                 return
@@ -1497,8 +1512,8 @@ import Foundation
             uiState.rect.3.height = height
           }
           ui0.resize(context: context)
-          self.glContext.modify(ui: ui0, uiState: &uiState, context: &context)
-          self.glContext.dragAndDrop = {
+          glContext.modify(ui: ui0, uiState: &uiState, context: &context)
+          glContext.dragAndDrop = {
             guard $0.count > 0 else { return }
             self.filename = $0.first
             self.loadrequest = 1
@@ -1535,7 +1550,7 @@ import Foundation
               model: m, data: &d, option: self.vopt, perturb: self.pert, camera: &self.vcamera)
             // set window title to model name
             if let name = m.name {
-              self.glContext.title = "Simulate : \(name)"
+              glContext.title = "Simulate : \(name)"
             }
             // set keyframe range and divisions
             ui0.sect[Int(UI0Section.simulation.rawValue)].item[5].slider.range = (
@@ -1547,13 +1562,13 @@ import Foundation
             makesections()
             // full ui update
             ui0.resize(context: context)
-            self.glContext.modify(ui: ui0, uiState: &uiState, context: &context)
+            glContext.modify(ui: ui0, uiState: &uiState, context: &context)
             ui1.resize(context: context)
-            self.glContext.modify(ui: ui1, uiState: &uiState, context: &context)
+            glContext.modify(ui: ui1, uiState: &uiState, context: &context)
             updatesettings()
             self.loadrequest = 0
           }
-          self.glContext.runLoop(swapInterval: 1) { [weak self] _, _ in
+          glContext.runLoop(swapInterval: 1) { [weak self] _, _ in
             guard let self = self else { return true }
             os_unfair_lock_lock(&self.lock)
             if self.loadrequest == 1 {
@@ -1565,7 +1580,7 @@ import Foundation
             } else if self.loadrequest > 1 {
               self.loadrequest = 1
             }
-            self.glContext.pollEvents()
+            glContext.pollEvents()
             prepare()
             os_unfair_lock_unlock(&self.lock)
             let rect = uiState.rect.3
@@ -1618,8 +1633,9 @@ import Foundation
               overlay: "Drag-and-drop model file here", overlay2: "")
             return !self.exitrequest
           }
-          self.glContext.clearCallbacks()
+          glContext.clearCallbacks()
         }
+        self.glContext = nil
         os_unfair_lock_lock(&self.lock)
         self.exitrequest = true
         os_unfair_lock_unlock(&self.lock)
