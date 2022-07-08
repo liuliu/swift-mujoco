@@ -848,6 +848,18 @@ import Foundation
                 \.actuatorgroup, .checkbyte, name: "Actuator 4", state: 2, other: "", offsetBy: 4),
               self.voptMapper(
                 \.actuatorgroup, .checkbyte, name: "Actuator 5", state: 2, other: "", offsetBy: 5),
+              MjuiDef(.separator, name: "Skin groups", state: 1, pdata: nil, other: ""),
+              self.voptMapper(\.skingroup, .checkbyte, name: "Skin 0", state: 2, other: ""),
+              self.voptMapper(
+                \.skingroup, .checkbyte, name: "Skin 1", state: 2, other: "", offsetBy: 1),
+              self.voptMapper(
+                \.skingroup, .checkbyte, name: "Skin 2", state: 2, other: "", offsetBy: 2),
+              self.voptMapper(
+                \.skingroup, .checkbyte, name: "Skin 3", state: 2, other: "", offsetBy: 3),
+              self.voptMapper(
+                \.skingroup, .checkbyte, name: "Skin 4", state: 2, other: "", offsetBy: 4),
+              self.voptMapper(
+                \.skingroup, .checkbyte, name: "Skin 5", state: 2, other: "", offsetBy: 5),
             ]
 
             // add section
@@ -1147,6 +1159,9 @@ import Foundation
                       d.mocapPos[j] = m.keyMpos[i * Int(m.nmocap) + j]
                       d.mocapQuat[j] = m.keyMquat[i * Int(m.nmocap) + j]
                     }
+                    for j in 0..<Int(m.nu) {
+                      d.ctrl[j] = m.keyCtrl[i * Int(m.nu) + j]
+                    }
                     m.forward(data: &d)
                     self.profilerupdate()
                     self.sensorupdate()
@@ -1168,6 +1183,9 @@ import Foundation
                     for j in 0..<Int(m.nmocap) {
                       m.keyMpos[i * Int(m.nmocap) + j] = d.mocapPos[j]
                       m.keyMquat[i * Int(m.nmocap) + j] = d.mocapQuat[j]
+                    }
+                    for j in 0..<Int(m.nu) {
+                      m.keyCtrl[i * Int(m.nu) + j] = d.ctrl[j]
                     }
                     break
                   default:
