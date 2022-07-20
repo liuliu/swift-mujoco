@@ -666,6 +666,7 @@ public enum MjtSensor: Int32, CustomStringConvertible {
   case subtreecom
   case subtreelinvel
   case subtreeangmom
+  case clock
   case user
   public var description: String {
     switch self {
@@ -739,6 +740,8 @@ public enum MjtSensor: Int32, CustomStringConvertible {
       return "subtreelinvel"
     case .subtreeangmom:
       return "subtreeangmom"
+    case .clock:
+      return "clock"
     case .user:
       return "user"
     }

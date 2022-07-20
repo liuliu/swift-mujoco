@@ -1579,7 +1579,7 @@ extension MjModel {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nmesh * 1))
     }
   }
-  /// vertex positions for all meshe           (nmeshvert x 3)
+  /// vertex positions for all meshes          (nmeshvert x 3)
   @inlinable
   public var meshVert: MjArray<Float> {
     get { MjArray<Float>(array: _model.pointee.mesh_vert, object: _storage, len: nmeshvert * 3) }
