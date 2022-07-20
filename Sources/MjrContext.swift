@@ -39,10 +39,21 @@ extension MjrContext {
   ) {
     mjr_readPixels(rgb, depth, viewport, self._context)
   }
+  /// Read pixels from current OpenGL framebuffer to client buffer. Viewport is in OpenGL framebuffer; client buffer starts at (0,0).
+  @inlinable
+  public func readPixels(rgb: inout UnsafeMutablePointer<UInt8>, viewport: MjrRect) {
+    mjr_readPixels(rgb, nil, viewport, self._context)
+  }
+  /// Read pixels from current OpenGL framebuffer to client buffer. Viewport is in OpenGL framebuffer; client buffer starts at (0,0).
+  @inlinable
+  public func readPixels(depth: inout UnsafeMutablePointer<Float>, viewport: MjrRect) {
+    mjr_readPixels(nil, depth, viewport, self._context)
+  }
   /// Draw pixels from client buffer to current OpenGL framebuffer. Viewport is in OpenGL framebuffer; client buffer starts at (0,0).
   @inlinable
-  public func drawPixels(rgb: UnsafePointer<UInt8>, depth: UnsafePointer<Float>, viewport: MjrRect)
-  {
+  public func drawPixels(
+    rgb: UnsafePointer<UInt8>?, depth: UnsafePointer<Float>?, viewport: MjrRect
+  ) {
     mjr_drawPixels(rgb, depth, viewport, self._context)
   }
 }

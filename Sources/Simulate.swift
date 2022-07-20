@@ -150,6 +150,7 @@ import Foundation
     private var figtimer = MjvFigure()
     private var figsize = MjvFigure()
     private var figsensor = MjvFigure()
+    private var context: MjrContext!
     private var voptMapper: MjuiDefObjectMapper<MjvOption>
 
     private var task: Task<Void, Never>? = nil
@@ -176,9 +177,9 @@ import Foundation
     /// is required through `yield()` call. However, we can create the GLContext with this method
     /// earlier. It is useful when we need to access things such as videoMode, which requires an
     /// active window.
-    public func makeContext() {
+    public func makeContext(hidden: Bool = false) {
       guard glContext == nil else { return }
-      glContext = GLContext(width: width, height: height, title: title)
+      glContext = GLContext(width: width, height: height, title: title, hidden: hidden)
     }
 
     deinit {
@@ -201,6 +202,24 @@ import Foundation
     public var data: MjData? { d }
     /// Public accessor to the underlying perturbations
     public var perturb: MjvPerturb { pert }
+
+    /// Read pixels off the context.
+    public func readPixels(
+      rgb: inout UnsafeMutablePointer<UInt8>, depth: inout UnsafeMutablePointer<Float>,
+      viewport: MjrRect
+    ) {
+      context.readPixels(rgb: &rgb, depth: &depth, viewport: viewport)
+    }
+
+    /// Read pixels off the context.
+    public func readPixels(rgb: inout UnsafeMutablePointer<UInt8>, viewport: MjrRect) {
+      context.readPixels(rgb: &rgb, viewport: viewport)
+    }
+
+    /// Read pixels off the context.
+    public func readPixels(depth: inout UnsafeMutablePointer<Float>, viewport: MjrRect) {
+      context.readPixels(depth: &depth, viewport: viewport)
+    }
 
     /// Async method to yield. This normally calls from your simulation loop to give renderer a breath.
     public func yield() async {
@@ -525,7 +544,7 @@ import Foundation
           var scene = MjvScene(model: nil, maxgeom: self.maxgeom)
           let sceneMapper = MjuiDefObjectMapper(to: &scene)
           // The context need to be initialized after having a GL context.
-          var context = MjrContext(model: nil, fontScale: ._100)
+          self.context = MjrContext(model: nil, fontScale: ._100)
           var ui0 = MjUI()
           ui0.spacing = MjuiThemeSpacing(self.spacing)
           ui0.color = MjuiThemeColor(self.color)
@@ -674,7 +693,7 @@ import Foundation
             }
 
             // update UI
-            uiState.update(section: -1, item: -1, ui: ui0, context: context)
+            uiState.update(section: -1, item: -1, ui: ui0, context: self.context)
           }
 
           // make physics section of UI
@@ -1044,14 +1063,14 @@ import Foundation
             {
               watch()
               uiState.update(
-                section: UI0Section.watch.rawValue, item: -1, ui: ui0, context: context)
+                section: UI0Section.watch.rawValue, item: -1, ui: ui0, context: self.context)
             }
             // update joint
             if self.ui1 && ui1.nsect > UI1Section.joint.rawValue
               && ui1.sect[Int(UI1Section.joint.rawValue)].state != 0
             {
               uiState.update(
-                section: UI1Section.joint.rawValue, item: -1, ui: ui1, context: context)
+                section: UI1Section.joint.rawValue, item: -1, ui: ui1, context: self.context)
             }
             // update info text
             if self.info {
@@ -1061,7 +1080,7 @@ import Foundation
               && ui1.sect[Int(UI1Section.control.rawValue)].state != 0
             {
               uiState.update(
-                section: UI1Section.control.rawValue, item: -1, ui: ui1, context: context)
+                section: UI1Section.control.rawValue, item: -1, ui: ui1, context: self.context)
             }
             // update profiler
             if self.profiler && self.run {
@@ -1081,7 +1100,7 @@ import Foundation
               || (uiState.dragrect == 0 && uiState.mouserect == ui0.rectid)
               || uiState.type == .key
             {
-              if let it = ui0.event(state: &uiState, context: context) {
+              if let it = ui0.event(state: &uiState, context: self.context) {
                 if it.sectionid == UI0Section.file.rawValue {
                   // File, these are safe because it is triggered under pollEvents, which is protected by mtx.
                   switch it.itemid {
@@ -1110,7 +1129,8 @@ import Foundation
                     ui0.color = MjuiThemeColor(self.color)
                     ui1.color = MjuiThemeColor(self.color)
                   case 2:
-                    context.changeFont(fontscale: MjtFontScale(rawValue: 50 * (self.font + 1))!)
+                    self.context.changeFont(
+                      fontscale: MjtFontScale(rawValue: 50 * (self.font + 1))!)
                   case 9:  // fullscreen
                     glContext.fullscreen = self.fullscreen
                     glContext.swapInterval = self.vsync
@@ -1119,10 +1139,10 @@ import Foundation
                   default:
                     break
                   }
-                  ui0.resize(context: context)
-                  glContext.modify(ui: ui0, uiState: &uiState, context: &context)
-                  ui1.resize(context: context)
-                  glContext.modify(ui: ui1, uiState: &uiState, context: &context)
+                  ui0.resize(context: self.context)
+                  glContext.modify(ui: ui0, uiState: &uiState, context: &self.context)
+                  ui1.resize(context: self.context)
+                  glContext.modify(ui: ui1, uiState: &uiState, context: &self.context)
                 } else if it.sectionid == UI0Section.simulation.rawValue {
                   // Simulation
                   switch it.itemid {
@@ -1223,7 +1243,8 @@ import Foundation
                       self.vcamera.type = .free
                       self.camera = 0
                       uiState.update(
-                        section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
+                        section: UI0Section.rendering.rawValue, item: -1, ui: ui0,
+                        context: self.context)
                     }
                   } else {
                     self.vcamera.type = .fixed
@@ -1241,8 +1262,8 @@ import Foundation
                     ui1.nsect = UI1Section.joint.rawValue
                     makejoint(oldstate)
                     ui1.nsect = Int32(UI1Section.allCases.count)
-                    ui1.resize(context: context)
-                    glContext.modify(ui: ui1, uiState: &uiState, context: &context)
+                    ui1.resize(context: self.context)
+                    glContext.modify(ui: ui1, uiState: &uiState, context: &self.context)
                   }
 
                   // remake control section if actuator group changed
@@ -1251,8 +1272,8 @@ import Foundation
                     ui1.nsect = UI1Section.control.rawValue
                     makecontrol(oldstate)
                     ui1.nsect = Int32(UI1Section.allCases.count)
-                    ui1.resize(context: context)
-                    glContext.modify(ui: ui1, uiState: &uiState, context: &context)
+                    ui1.resize(context: self.context)
+                    glContext.modify(ui: ui1, uiState: &uiState, context: &self.context)
                   }
                 }
                 return
@@ -1263,14 +1284,15 @@ import Foundation
               || (uiState.dragrect == 0 && uiState.mouserect == ui1.rectid)
               || uiState.type == .key
             {
-              if let it = ui1.event(state: &uiState, context: context) {
+              if let it = ui1.event(state: &uiState, context: self.context) {
                 // control section
                 if it.sectionid == UI1Section.control.rawValue {
                   // clear controls
                   if it.itemid == 0, var d = self.d {
                     d.ctrl.zero()
                     uiState.update(
-                      section: UI1Section.control.rawValue, item: -1, ui: ui1, context: context)
+                      section: UI1Section.control.rawValue, item: -1, ui: ui1, context: self.context
+                    )
                   }
                 }
                 return
@@ -1282,7 +1304,7 @@ import Foundation
                 guard self.m != nil else { break }
                 self.run = !self.run
                 self.pert.active = []
-                uiState.update(section: -1, item: -1, ui: ui0, context: context)
+                uiState.update(section: -1, item: -1, ui: ui0, context: self.context)
               case 262:  // Right
                 guard let m = self.m, var d = self.d, !self.run else { break }
                 self.cleartimers()
@@ -1310,7 +1332,7 @@ import Foundation
                 }
                 self.vcamera.fixedcamid = self.camera - 2
                 uiState.update(
-                  section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
+                  section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: self.context)
               case Int32(Character("[").asciiValue!):
                 guard let m = self.m, m.ncam > 0 else { break }
                 self.vcamera.type = .fixed
@@ -1322,7 +1344,7 @@ import Foundation
                 }
                 self.vcamera.fixedcamid = self.camera - 2
                 uiState.update(
-                  section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
+                  section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: self.context)
               case 295:  // F6
                 guard self.m != nil else { break }
                 let next = MjtFrame.allCases.index(
@@ -1331,7 +1353,7 @@ import Foundation
                   MjtFrame.allCases[
                     next == MjtFrame.allCases.endIndex ? MjtFrame.allCases.startIndex : next]
                 uiState.update(
-                  section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
+                  section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: self.context)
                 break
               case 296:  // F7
                 guard self.m != nil else { break }
@@ -1341,13 +1363,13 @@ import Foundation
                   MjtLabel.allCases[
                     next == MjtLabel.allCases.endIndex ? MjtLabel.allCases.startIndex : next]
                 uiState.update(
-                  section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
+                  section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: self.context)
                 break
               case 256:  // Escape
                 self.vcamera.type = .free
                 self.camera = 0
                 uiState.update(
-                  section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
+                  section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: self.context)
               case Int32(Character("-").asciiValue!):
                 if self.slowdown < self.maxSlowdown && uiState.shift == 0 {
                   self.slowdown *= 2
@@ -1433,7 +1455,8 @@ import Foundation
                     // UI camera
                     self.camera = 1
                     uiState.update(
-                      section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
+                      section: UI0Section.rendering.rawValue, item: -1, ui: ui0,
+                      context: self.context)
                   }
                 } else {
                   // set body selection
@@ -1529,8 +1552,8 @@ import Foundation
             uiState.rect.3.bottom = 0
             uiState.rect.3.height = height
           }
-          ui0.resize(context: context)
-          glContext.modify(ui: ui0, uiState: &uiState, context: &context)
+          ui0.resize(context: self.context)
+          glContext.modify(ui: ui0, uiState: &uiState, context: &self.context)
           glContext.dragAndDrop = {
             guard $0.count > 0 else { return }
             self.filename = $0.first
@@ -1553,7 +1576,7 @@ import Foundation
             m.forward(data: &d)
             // re-create scene and context
             scene.makeScene(model: m, maxgeom: self.maxgeom)
-            context.makeContext(model: m, fontscale: ._100)
+            self.context.makeContext(model: m, fontscale: ._100)
             // clear perturbation state
             self.pert.active = []
             self.pert.select = 0
@@ -1579,10 +1602,10 @@ import Foundation
             // rebuild UI sections
             makesections()
             // full ui update
-            ui0.resize(context: context)
-            glContext.modify(ui: ui0, uiState: &uiState, context: &context)
-            ui1.resize(context: context)
-            glContext.modify(ui: ui1, uiState: &uiState, context: &context)
+            ui0.resize(context: self.context)
+            glContext.modify(ui: ui0, uiState: &uiState, context: &self.context)
+            ui1.resize(context: self.context)
+            glContext.modify(ui: ui1, uiState: &uiState, context: &self.context)
             updatesettings()
             self.loadrequest = 0
           }
@@ -1607,46 +1630,46 @@ import Foundation
               smallrect.width = rect.width - rect.width / 4
             }
             rectangle(viewport: rect, r: 0.2, g: 0.3, b: 0.4, a: 1)
-            context.render(viewport: rect, scene: &scene)
+            self.context.render(viewport: rect, scene: &scene)
             // show pause/loading label
             if !self.run || self.loadrequest != 0 {
-              context.overlay(
+              self.context.overlay(
                 font: .big, gridpos: .topright, viewport: smallrect,
                 overlay: self.loadrequest != 0 ? "loading" : "pause", overlay2: "")
             }
             // show realtime label
             if self.run && self.slowdown != 1 {
               let realtimeLabel = "1/\(self.slowdown) x"
-              context.overlay(
+              self.context.overlay(
                 font: .big, gridpos: .topright, viewport: smallrect, overlay: realtimeLabel,
                 overlay2: "")
             }
             if self.ui0 {
-              ui0.render(state: uiState, context: context)
+              ui0.render(state: uiState, context: self.context)
             }
             if self.ui1 {
-              ui1.render(state: uiState, context: context)
+              ui1.render(state: uiState, context: self.context)
             }
             if self.help {
-              context.overlay(
+              self.context.overlay(
                 font: .normal, gridpos: .topleft, viewport: rect, overlay: self.helpTitle,
                 overlay2: self.helpContent)
             }
             // show info
             if self.info {
-              context.overlay(
+              self.context.overlay(
                 font: .normal, gridpos: .bottomleft, viewport: rect, overlay: self.infoTitle,
                 overlay2: self.infoContent)
             }
             // show profiler
             if self.profiler {
-              self.profilershow(rect: rect, context: context)
+              self.profilershow(rect: rect, context: self.context)
             }
             // show sensor
             if self.sensor {
-              self.sensorshow(rect: smallrect, context: context)
+              self.sensorshow(rect: smallrect, context: self.context)
             }
-            context.overlay(
+            self.context.overlay(
               font: .normal, gridpos: .bottomleft, viewport: rect,
               overlay: "Drag-and-drop model file here", overlay2: "")
             return !self.exitrequest
