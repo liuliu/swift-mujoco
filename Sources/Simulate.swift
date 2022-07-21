@@ -1606,6 +1606,8 @@ import Foundation
             }
             glContext.pollEvents()
             prepare()
+            // We could mutate renderContextCallback outside, thus, we need to grab it from within the lock.
+            let renderContextCallback = self.renderContextCallback
             os_unfair_lock_unlock(&self.lock)
             let rect = uiState.rect.3
             var smallrect = rect
@@ -1655,7 +1657,7 @@ import Foundation
             context.overlay(
               font: .normal, gridpos: .bottomleft, viewport: rect,
               overlay: "Drag-and-drop model file here", overlay2: "")
-            self.renderContextCallback?(&context)
+            renderContextCallback?(&context)
             return !self.exitrequest
           }
           glContext.clearCallbacks()
