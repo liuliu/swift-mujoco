@@ -60,6 +60,72 @@ import C_mujoco
       glfwDestroyWindow(window)
     }
 
+    public enum Event {
+      public struct Mouse {
+        public enum State {
+          case press
+          case move
+          case release
+        }
+        public var state: State
+        public var x: Float
+        public var y: Float
+        public var left: Bool
+        public var right: Bool
+        public var middle: Bool
+        public var control: Bool
+        public var shift: Bool
+        public var alt: Bool
+        public init(
+          state: State, x: Float, y: Float, left: Bool = false, right: Bool = false,
+          middle: Bool = false, control: Bool = false, shift: Bool = false, alt: Bool = false
+        ) {
+          self.state = state
+          self.x = x
+          self.y = y
+          self.left = left
+          self.right = right
+          self.middle = middle
+          self.control = control
+          self.shift = shift
+          self.alt = alt
+        }
+      }
+      case mouse(Mouse)
+      public struct Keyboard {
+        public var keyCode: Int32
+        public var control: Bool
+        public var shift: Bool
+        public var alt: Bool
+        public init(keyCode: Int32, control: Bool = false, shift: Bool = false, alt: Bool = false) {
+          self.keyCode = keyCode
+          self.control = control
+          self.shift = shift
+          self.alt = alt
+        }
+      }
+      case keyboard(Keyboard)
+      public struct Scroll {
+        public var sx: Float
+        public var sy: Float
+        public init(sx: Float, sy: Float) {
+          self.sx = sx
+          self.sy = sy
+        }
+      }
+      case scroll(Scroll)
+      public struct Resize {
+        public var width: Int32
+        public var height: Int32
+        public init(width: Int32, height: Int32) {
+          self.width = width
+          self.height = height
+        }
+      }
+      case resize(Resize)
+    }
+
+    private var pendingEvents = [Event]()
     private var oldxpos: Int32 = 0
     private var oldypos: Int32 = 0
     private var oldwidth: Int32 = 0
@@ -140,6 +206,7 @@ import C_mujoco
         continuerequest = try closure(width, height)
         glfwSwapBuffers(window)
         if !pollEventsTriggered {
+          pollInternalEvents()
           glfwPollEvents()
         }
       }
@@ -148,6 +215,7 @@ import C_mujoco
     /// Manually poll events for the run loop. It will be polled at the end of the run loop if no
     /// manual polling.
     public func pollEvents() {
+      pollInternalEvents()
       glfwPollEvents()
       pollEventsTriggered = true
     }
@@ -476,6 +544,119 @@ import C_mujoco
       glfwSetMouseButtonCallback(window, nil)
       glfwSetScrollCallback(window, nil)
       glfwSetWindowSizeCallback(window, nil)
+    }
+
+    /// Append additional events for processing.
+    public func appendEvent(_ event: Event) {
+      pendingEvents.append(event)
+    }
+
+    private func pollInternalEvents() {
+      guard let opaquePointer = glfwGetWindowUserPointer(window) else {
+        pendingEvents.removeAll()
+        return
+      }
+      let userPointer = Unmanaged<GLContext.UserPointer>.fromOpaque(opaquePointer)
+        .takeUnretainedValue()
+      for event in pendingEvents {
+        switch event {
+        case .mouse(let mouse):
+          // Do nothing if not pressed.
+          guard mouse.left || mouse.right || mouse.middle else { continue }
+          userPointer.uiState.pointee.left = mouse.left ? 1 : 0
+          userPointer.uiState.pointee.right = mouse.right ? 1 : 0
+          userPointer.uiState.pointee.middle = mouse.middle ? 1 : 0
+          userPointer.uiState.pointee.control = mouse.control ? 1 : 0
+          userPointer.uiState.pointee.shift = mouse.shift ? 1 : 0
+          userPointer.uiState.pointee.alt = mouse.alt ? 1 : 0
+          userPointer.uiState.pointee.type = {
+            switch mouse.state {
+            case .press:
+              return .press
+            case .release:
+              return .release
+            case .move:
+              return .move
+            }
+          }()
+          var btn: MjtButton = mouse.left ? .left : (mouse.right ? .right : .middle)
+          if mouse.alt {
+            // Alter mouse based on alt or not.
+            let tmp = userPointer.uiState.pointee.left
+            userPointer.uiState.pointee.left = userPointer.uiState.pointee.right
+            userPointer.uiState.pointee.right = tmp
+            if btn == .left {
+              btn = .right
+            } else if btn == .right {
+              btn = .left
+            }
+          }
+          // invert y to match OpenGL convention
+          let x = Double(mouse.x) * userPointer.buffer2window
+          let y =
+            Double(userPointer.uiState.pointee.rect.0.height) - Double(mouse.y)
+            * userPointer.buffer2window
+          // save
+          userPointer.uiState.pointee.dx = x - userPointer.uiState.pointee.x
+          userPointer.uiState.pointee.dy = y - userPointer.uiState.pointee.y
+          userPointer.uiState.pointee.x = x
+          userPointer.uiState.pointee.y = y
+
+          // find mouse rectangle
+          userPointer.uiState.pointee.mouserect =
+            mjr_findRect(
+              Int32(x.rounded()), Int32(y.rounded()), userPointer.uiState.pointee.nrect - 1,
+              withUnsafePointer(to: &userPointer.uiState.pointee.rect.1) { $0 }) + 1
+          if userPointer.uiState.pointee.type == .move {
+            userPointer.uiState.pointee.button = btn
+          } else if userPointer.uiState.pointee.type == .press {
+            // detect doubleclick: 250 ms
+            if btn == userPointer.uiState.pointee.button
+              && glfwGetTime() - userPointer.uiState.pointee.buttontime < 0.25
+            {
+              userPointer.uiState.pointee.doubleclick = 1
+            } else {
+              userPointer.uiState.pointee.doubleclick = 0
+            }
+            // set info
+            userPointer.uiState.pointee.button = btn
+            userPointer.uiState.pointee.buttontime = glfwGetTime()
+            // start dragging
+            if userPointer.uiState.pointee.mouserect != 0 {
+              userPointer.uiState.pointee.dragbutton = userPointer.uiState.pointee.button
+              userPointer.uiState.pointee.dragrect = userPointer.uiState.pointee.mouserect
+            }
+          }
+          // application-specific processing
+          userPointer.uiEvent(&userPointer.uiState.pointee)
+          // stop dragging after application processing
+          if userPointer.uiState.pointee.type == .release {
+            userPointer.uiState.pointee.dragrect = 0
+            userPointer.uiState.pointee.dragbutton = .none
+          }
+        case .scroll(let scroll):
+          userPointer.uiState.pointee.type = .scroll
+          userPointer.uiState.pointee.sx = Double(scroll.sx) * userPointer.buffer2window
+          userPointer.uiState.pointee.sy = Double(scroll.sy) * userPointer.buffer2window
+          userPointer.uiEvent(&userPointer.uiState.pointee)
+          break
+        case .resize(let resize):
+          glfwGetWindowPos(window, &oldxpos, &oldypos)
+          glfwSetWindowMonitor(window, nil, oldxpos, oldypos, resize.width, resize.height, 0)
+        case .keyboard(let keyboard):
+          // set key info
+          userPointer.uiState.pointee.type = .key
+          userPointer.uiState.pointee.key = keyboard.keyCode
+          userPointer.uiState.pointee.keytime = glfwGetTime()
+          userPointer.uiState.pointee.control = keyboard.control ? 1 : 0
+          userPointer.uiState.pointee.shift = keyboard.shift ? 1 : 0
+          userPointer.uiState.pointee.alt = keyboard.alt ? 1 : 0
+
+          // application-specific processing
+          userPointer.uiEvent(&userPointer.uiState.pointee)
+        }
+      }
+      pendingEvents.removeAll()
     }
 
     /// Propagate that the uiState has new updates.

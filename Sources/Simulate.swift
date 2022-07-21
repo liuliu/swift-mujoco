@@ -181,6 +181,12 @@ import Foundation
       glContext = GLContext(width: width, height: height, title: title, hidden: hidden)
     }
 
+    public func sendEvent(_ event: GLContext.Event) {
+      guard let glContext = glContext else { return }
+      // This is safe because it is protected by the lock.
+      glContext.appendEvent(event)
+    }
+
     deinit {
       os_unfair_lock_unlock(&lock)
       task?.cancel()
@@ -202,7 +208,8 @@ import Foundation
     /// Public accessor to the underlying perturbations
     public var perturb: MjvPerturb { pert }
     /// Public accessor to a callback, that will be called on render thread with MjrContext. Useful for rendering.
-    public var renderContextCallback: ((_: inout MjrContext) -> Void)? = nil
+    public var renderContextCallback:
+      ((_: inout MjrContext, _ width: Int32, _ height: Int32) -> Void)? = nil
 
     /// Async method to yield. This normally calls from your simulation loop to give renderer a breath.
     public func yield() async {
@@ -1592,7 +1599,7 @@ import Foundation
             updatesettings()
             self.loadrequest = 0
           }
-          glContext.runLoop(swapInterval: 1) { [weak self] _, _ in
+          glContext.runLoop(swapInterval: 1) { [weak self] width, height in
             guard let self = self else { return true }
             os_unfair_lock_lock(&self.lock)
             if self.loadrequest == 1 {
@@ -1657,7 +1664,7 @@ import Foundation
             context.overlay(
               font: .normal, gridpos: .bottomleft, viewport: rect,
               overlay: "Drag-and-drop model file here", overlay2: "")
-            renderContextCallback?(&context)
+            renderContextCallback?(&context, width, height)
             return !self.exitrequest
           }
           glContext.clearCallbacks()
