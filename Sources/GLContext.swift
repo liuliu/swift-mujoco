@@ -46,14 +46,22 @@ import C_mujoco
         glfwSetDropCallback(window, uiDrop)
       }
     }
+    public private(set) var width: Int32
+    public private(set) var height: Int32
+    private let hidden: Bool
 
     public init(width: Int, height: Int, title: String, hidden: Bool = false) {
       Factory.factory.sink()  // Make sure we init glfw.
-      window = glfwCreateWindow(Int32(width), Int32(height), title, nil, nil)
       if hidden {
-        glfwHideWindow(window)
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE)
+      } else {
+        glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE)
       }
+      window = glfwCreateWindow(Int32(width), Int32(height), title, nil, nil)
       self.title = title
+      self.width = Int32(width)
+      self.height = Int32(height)
+      self.hidden = hidden
     }
 
     deinit {
@@ -199,10 +207,15 @@ import C_mujoco
       self.swapInterval = swapInterval
       var continuerequest = true
       while glfwWindowShouldClose(window) == 0 && continuerequest {
+        pollEventsTriggered = false
         var width: Int32 = 0
         var height: Int32 = 0
-        pollEventsTriggered = false
-        glfwGetFramebufferSize(window, &width, &height)
+        if hidden {
+          width = self.width
+          height = self.height
+        } else {
+          glfwGetFramebufferSize(window, &width, &height)
+        }
         continuerequest = try closure(width, height)
         glfwSwapBuffers(window)
         if !pollEventsTriggered {
@@ -463,9 +476,17 @@ import C_mujoco
       var widthWin: Int32 = 1
       var widthBuf: Int32 = 0
       var height: Int32 = 0
-      glfwGetWindowSize(window, &widthWin, &height)
-      glfwGetFramebufferSize(window, &widthBuf, &height)
-      let b2w = Double(widthBuf) / Double(widthWin)
+      let b2w: Double
+      if hidden {  // If it is hidden, we use offscreen buffer, there is no such thing as b2w.
+        widthWin = self.width
+        widthBuf = widthWin
+        height = self.height
+        b2w = 1
+      } else {
+        glfwGetWindowSize(window, &widthWin, &height)
+        glfwGetFramebufferSize(window, &widthBuf, &height)
+        b2w = Double(widthBuf) / Double(widthWin)
+      }
 
       // compute PPI
       var widthMM: Int32 = 0
@@ -514,13 +535,17 @@ import C_mujoco
       )
       glfwSetWindowUserPointer(window, Unmanaged.passRetained(userPointer).toOpaque())
 
-      // compute framebuffer-to-window pixel ratio
-      var widthWin: Int32 = 1
-      var widthBuf: Int32 = 0
-      var height: Int32 = 0
-      glfwGetWindowSize(window, &widthWin, &height)
-      glfwGetFramebufferSize(window, &widthBuf, &height)
-      userPointer.buffer2window = Double(widthBuf) / Double(widthWin)
+      if hidden {
+        userPointer.buffer2window = 1
+      } else {
+        // compute framebuffer-to-window pixel ratio
+        var widthWin: Int32 = 1
+        var widthBuf: Int32 = 0
+        var height: Int32 = 0
+        glfwGetWindowSize(window, &widthWin, &height)
+        glfwGetFramebufferSize(window, &widthBuf, &height)
+        userPointer.buffer2window = Double(widthBuf) / Double(widthWin)
+      }
 
       // set internal callbacks
       glfwSetKeyCallback(window, uiKeyboard)
@@ -641,8 +666,18 @@ import C_mujoco
           userPointer.uiEvent(&userPointer.uiState.pointee)
           break
         case .resize(let resize):
-          glfwGetWindowPos(window, &oldxpos, &oldypos)
-          glfwSetWindowMonitor(window, nil, oldxpos, oldypos, resize.width, resize.height, 0)
+          if hidden {  // If we render offscreen, no need to change window.
+            self.width = resize.width
+            self.height = resize.height
+            uiResizeLayout(
+              window, width: self.width, height: self.height, uiState: &userPointer.uiState.pointee,
+              buffer2window: userPointer.buffer2window)
+            // application-specific processing
+            userPointer.uiEvent(&userPointer.uiState.pointee)
+          } else {
+            glfwGetWindowPos(window, &oldxpos, &oldypos)
+            glfwSetWindowMonitor(window, nil, oldxpos, oldypos, resize.width, resize.height, 0)
+          }
         case .keyboard(let keyboard):
           // set key info
           userPointer.uiState.pointee.type = .key
@@ -664,9 +699,17 @@ import C_mujoco
       var widthWin: Int32 = 1
       var widthBuf: Int32 = 0
       var height: Int32 = 0
-      glfwGetWindowSize(window, &widthWin, &height)
-      glfwGetFramebufferSize(window, &widthBuf, &height)
-      let buffer2window = Double(widthBuf) / Double(widthWin)
+      let buffer2window: Double
+      if hidden {
+        widthWin = self.width
+        widthBuf = widthWin
+        height = self.height
+        buffer2window = 1
+      } else {
+        glfwGetWindowSize(window, &widthWin, &height)
+        glfwGetFramebufferSize(window, &widthBuf, &height)
+        buffer2window = Double(widthBuf) / Double(widthWin)
+      }
       context.addAux(
         index: ui.auxid, width: ui.width, height: ui.maxheight, samples: ui.spacing.samples)
       uiResizeLayout(

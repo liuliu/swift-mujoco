@@ -130,8 +130,8 @@ import Foundation
     private var infoContent = ""
     private var infoTitle = ""
 
-    private let width: Int
-    private let height: Int
+    public private(set) var width: Int
+    public private(set) var height: Int
     private let title: String
     private var glContext: GLContext? = nil
     private var m: MjModel? = nil
@@ -172,6 +172,8 @@ import Foundation
       os_unfair_lock_lock(&lock)
     }
 
+    private var hidden = false
+
     /// Explicitly makes the GLContext. We normally makes the GLContext lazily when actual render
     /// is required through `yield()` call. However, we can create the GLContext with this method
     /// earlier. It is useful when we need to access things such as videoMode, which requires an
@@ -179,6 +181,7 @@ import Foundation
     public func makeContext(hidden: Bool = false) {
       guard glContext == nil else { return }
       glContext = GLContext(width: width, height: height, title: title, hidden: hidden)
+      self.hidden = hidden
     }
 
     public func sendEvent(_ event: GLContext.Event) {
@@ -535,6 +538,11 @@ import Foundation
           let sceneMapper = MjuiDefObjectMapper(to: &scene)
           // The context need to be initialized after having a GL context.
           var context = MjrContext(model: nil, fontScale: ._100)
+          if self.hidden {
+            context.addAux(
+              index: 0, width: Int32(self.width), height: Int32(self.height), samples: 0)
+            context.setAux(index: 0)
+          }
           var ui0 = MjUI()
           ui0.spacing = MjuiThemeSpacing(self.spacing)
           ui0.color = MjuiThemeColor(self.color)
@@ -1567,6 +1575,12 @@ import Foundation
             // re-create scene and context
             scene.makeScene(model: m, maxgeom: self.maxgeom)
             context.makeContext(model: m, fontscale: ._100)
+            if self.hidden {
+              context.addAux(
+                index: 0, width: Int32(self.width), height: Int32(self.height),
+                samples: m.vis.quality.offsamples)
+              context.setAux(index: 0)
+            }
             // clear perturbation state
             self.pert.active = []
             self.pert.select = 0
@@ -1601,6 +1615,11 @@ import Foundation
           }
           glContext.runLoop(swapInterval: 1) { [weak self] width, height in
             guard let self = self else { return true }
+            if width != self.width || height != self.height {
+              self.width = Int(width)
+              self.height = Int(height)
+              // No need to resize the buffer, we cannot make it bigger than the window anyway.
+            }
             os_unfair_lock_lock(&self.lock)
             if self.loadrequest == 1 {
               if let filename = self.filename {
