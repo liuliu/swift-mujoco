@@ -176,9 +176,39 @@ import C_mujoco
       glfwGetTime()
     }
 
+    /// Video mode type.
+    public struct VideoMode {
+      /// The width, in screen coordinates, of the video mode.
+      public var width: Int32
+      /// The height, in screen coordinates, of the video mode.
+      public var height: Int32
+      /// The bit depth of the red channel of the video mode.
+      public var redBits: Int32
+      /// The bit depth of the green channel of the video mode.
+      public var greenBits: Int32
+      /// The bit depth of the blue channel of the video mode.
+      public var blueBits: Int32
+      /// The refresh rate, in Hz, of the video mode.
+      public var refreshRate: Int32
+      init(
+        width: Int32, height: Int32, redBits: Int32, greenBits: Int32, blueBits: Int32,
+        refreshRate: Int32
+      ) {
+        self.width = width
+        self.height = height
+        self.redBits = redBits
+        self.greenBits = greenBits
+        self.blueBits = blueBits
+        self.refreshRate = refreshRate
+      }
+    }
+
     /// glfwGetVideoMode
-    public static var videoMode: GLFWvidmode {
-      glfwGetVideoMode(glfwGetPrimaryMonitor()).pointee
+    public static var videoMode: VideoMode {
+      let vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor()).pointee
+      return VideoMode(
+        width: vidmode.width, height: vidmode.height, redBits: vidmode.redBits,
+        greenBits: vidmode.greenBits, blueBits: vidmode.blueBits, refreshRate: vidmode.refreshRate)
     }
 
     /// Make the window the current one to display and receive events.

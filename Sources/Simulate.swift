@@ -39,7 +39,7 @@ import Foundation
     public var busywait = false
     // simulation section of UI
     @MjuiDefState(.radio, name: "", state: 2, other: "Pause\nRun")
-    public var run = true
+    public var running = true
     @MjuiDefState(.sliderint, name: "Key", state: 3, other: "0 0")
     public var key: Int32 = 0
     @MjuiDefState(.slidernum, name: "Noise scale", state: 2, other: "0 2")
@@ -134,9 +134,12 @@ import Foundation
     public private(set) var height: Int
     private let title: String
     private var glContext: GLContext? = nil
-    private var m: MjModel? = nil
-    private var d: MjData? = nil
-    private var pert = MjvPerturb()
+    /// Public accessor to the underlying model
+    public private(set) var model: MjModel? = nil
+    /// Public accessor to the underlying data
+    public private(set) var data: MjData? = nil
+    /// Public accessor to the underlying perturbations
+    public private(set) var perturb = MjvPerturb()
     private let maxgeom: Int32 = 5_000
     private let maxSlowdown: Int32 = 128  // maximum slow-down quotient
     private let zoomIncrement: Double = 0.02  // ratio of single click-wheel zoom increment to vertical extent
@@ -197,19 +200,13 @@ import Foundation
 
     /// Set the model & data use for rendering.
     public func use(model: MjModel, data: inout MjData) {
-      m = model
-      d = data
+      self.model = model
+      self.data = data
       filename = nil
       alignscale()
       loadrequest = 1
     }
 
-    /// Public accessor to the underlying model
-    public var model: MjModel? { m }
-    /// Public accessor to the underlying data
-    public var data: MjData? { d }
-    /// Public accessor to the underlying perturbations
-    public var perturb: MjvPerturb { pert }
     /// Public accessor to a callback, that will be called on render thread with MjrContext. Useful for rendering.
     public var renderContextCallback:
       ((_: inout MjrContext, _ width: Int32, _ height: Int32) -> Void)? = nil
@@ -218,7 +215,7 @@ import Foundation
     public func yield() async {
       runDetachedLoop()
       os_unfair_lock_unlock(&lock)
-      if run && busywait {
+      if running && busywait {
         await Task.yield()
       } else {
         try? await Task.sleep(nanoseconds: 1_000_000)
@@ -311,7 +308,7 @@ import Foundation
 
     // update profiler figures
     private func profilerupdate() {
-      guard let d = d, let m = m else { return }
+      guard let d = data, let m = model else { return }
       // update constraint figure
       figconstraint.linepnt[0] = min(d.solverIter, 1000)
       for i in 1..<5 {
@@ -447,7 +444,7 @@ import Foundation
 
     // update sensor figure
     func sensorupdate() {
-      guard let m = m, let d = d else { return }
+      guard let m = model, let d = data else { return }
       let maxline = 10
 
       // clear linepnt
@@ -507,7 +504,7 @@ import Foundation
 
     // align and scale view
     private func alignscale() {
-      guard let m = m else { return }
+      guard let m = model else { return }
       // autoscale
       vcamera.lookat.0 = m.stat.center.0
       vcamera.lookat.1 = m.stat.center.1
@@ -519,7 +516,7 @@ import Foundation
     }
 
     private func cleartimers() {
-      guard var d = d else { return }
+      guard var d = data else { return }
       for i in 0..<MjtTimer.allCases.count {
         d.timer[i].duration = 0
         d.timer[i].number = 0
@@ -579,7 +576,7 @@ import Foundation
           ])
           ui0.add(defs: [
             MjuiDef(.section, name: "Simulation", state: 1, pdata: nil, other: "AS"),
-            self.$run,
+            self.$running,
             MjuiDef(.button, name: "Reset", state: 2, pdata: nil, other: " #259"),
             MjuiDef(.button, name: "Reload", state: 2, pdata: nil, other: "CL"),
             MjuiDef(.button, name: "Align", state: 2, pdata: nil, other: "CA"),
@@ -600,11 +597,11 @@ import Foundation
             guard let self = self else { return false }
             switch category {
             case 2:  // require model
-              return self.m != nil
+              return self.model != nil
             case 3:  // require model and nkey
-              return (self.m?.nkey ?? 0) != 0
+              return (self.model?.nkey ?? 0) != 0
             case 4:  // require model and paused
-              return self.m != nil && !self.run
+              return self.model != nil && !self.running
             default:
               return true
             }
@@ -614,7 +611,7 @@ import Foundation
 
           // copy qpos to clipboard as key
           func copykey() {
-            guard let m = self.m, let d = self.d else { return }
+            guard let m = self.model, let d = self.data else { return }
             var clipboard = "<key qpos='"
 
             // prepare string
@@ -650,7 +647,7 @@ import Foundation
 
           // update watch
           func watch() {
-            guard let d = self.d else { return }
+            guard let d = self.data else { return }
             // clear
             ui0.sect[Int(UI0Section.watch.rawValue)].item[2].multi.nelem = 1
             ui0.sect[Int(UI0Section.watch.rawValue)].item[2].multi.name[0] = "invalid field"
@@ -671,7 +668,7 @@ import Foundation
 
           // update UI 0 when MuJoCo structures change (except for joint sliders)
           func updatesettings() {
-            guard let m = self.m else { return }
+            guard let m = self.model else { return }
             // physics flags
             for (i, flag) in MjtDisableBit.allCases.enumerated() {
               self.disable[i] = m.opt.disableflags.contains(flag)
@@ -696,7 +693,7 @@ import Foundation
 
           // make physics section of UI
           func makephysics(_ oldstate: Int32) {
-            guard var m = self.m else { return }
+            guard var m = self.model else { return }
             let mMapper = MjuiDefObjectMapper(to: &m)
             let defPhysics: [MjuiDef] = [
               MjuiDef(.section, name: "Physics", state: oldstate, pdata: nil, other: "AP"),
@@ -753,7 +750,7 @@ import Foundation
 
           // make rendering section of UI
           func makerendering(_ oldstate: Int32) {
-            guard let m = self.m else { return }
+            guard let m = self.model else { return }
             var defRendering: [MjuiDef] = [
               MjuiDef(.section, name: "Rendering", state: oldstate, pdata: nil, other: "AR"),
               self.$camera,
@@ -884,7 +881,7 @@ import Foundation
           }
 
           func makejoint(_ oldstate: Int32) {
-            guard let m = self.m, let d = self.d else { return }
+            guard let m = self.model, let d = self.data else { return }
 
             // add section
             ui1.add(defs: [
@@ -926,7 +923,7 @@ import Foundation
           }
 
           func makecontrol(_ oldstate: Int32) {
-            guard let m = self.m, let d = self.d else { return }
+            guard let m = self.model, let d = self.data else { return }
             let defControl: [MjuiDef] = [
               MjuiDef(.section, name: "Control", state: oldstate, pdata: nil, other: "AC"),
               MjuiDef(.button, name: "Clear all", state: 2, pdata: nil, other: ""),
@@ -995,7 +992,7 @@ import Foundation
           }
 
           func infotext(interval: Double) -> (String, String) {
-            guard let m = self.m, let d = self.d else { return ("", "") }
+            guard let m = self.model, let d = self.data else { return ("", "") }
             // compute solver error
             var solerr: Double = 0
             if d.solverIter > 0 {
@@ -1014,7 +1011,7 @@ import Foundation
               format: "%-9.3f %s%d x\n%d  (%d con)\n%.3f\n%.1f  (%d it)\n%.0f\n%.3f\n%.3f\n%.3f",
               d.time, realtimeNominator, self.slowdown,
               d.nefc, d.ncon,
-              self.run
+              self.running
                 ? d.timer[Int(MjtTimer.step.rawValue)].duration
                   / Double(max(1, d.timer[Int(MjtTimer.step.rawValue)].number))
                 : d.timer[Int(MjtTimer.forward.rawValue)].duration
@@ -1052,9 +1049,9 @@ import Foundation
             interval = min(1, max(0.0001, interval))
             lastupdatetm = tmnow
 
-            guard let m = self.m, var d = self.d else { return }
+            guard let m = self.model, var d = self.data else { return }
             scene.updateScene(
-              model: m, data: &d, option: self.vopt, perturb: self.pert, camera: &self.vcamera)
+              model: m, data: &d, option: self.vopt, perturb: self.perturb, camera: &self.vcamera)
             // update watch
             if self.ui0 && ui0.nsect > UI0Section.watch.rawValue
               && ui0.sect[Int(UI0Section.watch.rawValue)].state != 0
@@ -1081,11 +1078,11 @@ import Foundation
                 section: UI1Section.control.rawValue, item: -1, ui: ui1, context: context)
             }
             // update profiler
-            if self.profiler && self.run {
+            if self.profiler && self.running {
               self.profilerupdate()
             }
             // update sensor
-            if self.sensor && self.run {
+            if self.sensor && self.running {
               self.sensorupdate()
             }
             // clear timers once profiler info has been copied
@@ -1103,13 +1100,13 @@ import Foundation
                   // File, these are safe because it is triggered under pollEvents, which is protected by mtx.
                   switch it.itemid {
                   case 0:
-                    try? self.m?.saveLastXML(filename: "mjmodel.xml")
+                    try? self.model?.saveLastXML(filename: "mjmodel.xml")
                   case 1:
-                    self.m?.write(to: "mjmodel.mjb")
+                    self.model?.write(to: "mjmodel.mjb")
                   case 2:
-                    self.m?.printModel(filename: "MJMODEL.TXT")
+                    self.model?.printModel(filename: "MJMODEL.TXT")
                   case 3:
-                    if let m = self.m, var d = self.d {
+                    if let m = self.model, var d = self.data {
                       m.print(data: &d, filename: "MJDATA.TXT")
                     }
                   case 4:
@@ -1145,7 +1142,7 @@ import Foundation
                   // Simulation
                   switch it.itemid {
                   case 1:  // Reset
-                    guard let m = self.m, var d = self.d else { break }
+                    guard let m = self.model, var d = self.data else { break }
                     m.reset(data: &d)
                     m.forward(data: &d)
                     self.profilerupdate()
@@ -1161,7 +1158,7 @@ import Foundation
                     copykey()
                     break
                   case 5...6:  // Adjust key, Load key
-                    guard let m = self.m, var d = self.d else { break }
+                    guard let m = self.model, var d = self.data else { break }
                     let i = Int(self.key)
                     d.time = m.keyTime[i]
                     for j in 0..<Int(m.nq) {
@@ -1186,7 +1183,7 @@ import Foundation
                     updatesettings()
                     break
                   case 7:  // Save key
-                    guard var m = self.m, let d = self.d else { break }
+                    guard var m = self.model, let d = self.data else { break }
                     let i = Int(self.key)
                     m.keyTime[i] = d.time
                     for j in 0..<Int(m.nq) {
@@ -1211,7 +1208,7 @@ import Foundation
                   }
                 } else if it.sectionid == UI0Section.physics.rawValue {
                   // Physics
-                  guard var m = self.m else { return }
+                  guard var m = self.model else { return }
                   // update disable flags in mjOption
                   m.opt.disableflags = []
                   for (i, flag) in MjtDisableBit.allCases.enumerated() {
@@ -1233,9 +1230,9 @@ import Foundation
                   if self.camera == 0 {
                     self.vcamera.type = .free
                   } else if self.camera == 1 {
-                    if self.pert.select > 0 {
+                    if self.perturb.select > 0 {
                       self.vcamera.type = .tracking
-                      self.vcamera.trackbodyid = self.pert.select
+                      self.vcamera.trackbodyid = self.perturb.select
                       self.vcamera.fixedcamid = -1
                     } else {
                       self.vcamera.type = .free
@@ -1286,7 +1283,7 @@ import Foundation
                 // control section
                 if it.sectionid == UI1Section.control.rawValue {
                   // clear controls
-                  if it.itemid == 0, var d = self.d {
+                  if it.itemid == 0, var d = self.data {
                     d.ctrl.zero()
                     uiState.update(
                       section: UI1Section.control.rawValue, item: -1, ui: ui1, context: context
@@ -1299,28 +1296,28 @@ import Foundation
             if uiState.type == .key && uiState.key != 0 {
               switch uiState.key {
               case Int32(Character(" ").asciiValue!):
-                guard self.m != nil else { break }
-                self.run = !self.run
-                self.pert.active = []
+                guard self.model != nil else { break }
+                self.running = !self.running
+                self.perturb.active = []
                 uiState.update(section: -1, item: -1, ui: ui0, context: context)
               case 262:  // Right
-                guard let m = self.m, var d = self.d, !self.run else { break }
+                guard let m = self.model, var d = self.data, !self.running else { break }
                 self.cleartimers()
                 m.step(data: &d)
                 self.profilerupdate()
                 self.sensorupdate()
                 updatesettings()
               case 266:  // Page up
-                guard let m = self.m, self.pert.select > 0 else { break }
-                self.pert.select = m.bodyParentid[Int(self.pert.select)]
-                self.pert.skinselect = -1
+                guard let m = self.model, self.perturb.select > 0 else { break }
+                self.perturb.select = m.bodyParentid[Int(self.perturb.select)]
+                self.perturb.skinselect = -1
 
                 // stop perturbation if world reached
-                if self.pert.select <= 0 {
-                  self.pert.active = []
+                if self.perturb.select <= 0 {
+                  self.perturb.active = []
                 }
               case Int32(Character("]").asciiValue!):
-                guard let m = self.m, m.ncam > 0 else { break }
+                guard let m = self.model, m.ncam > 0 else { break }
                 self.vcamera.type = .fixed
                 // self.camera = {0 or 1} are reserved for the free and tracking cameras
                 if self.camera < 2 || self.camera == 2 + m.ncam - 1 {
@@ -1332,7 +1329,7 @@ import Foundation
                 uiState.update(
                   section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
               case Int32(Character("[").asciiValue!):
-                guard let m = self.m, m.ncam > 0 else { break }
+                guard let m = self.model, m.ncam > 0 else { break }
                 self.vcamera.type = .fixed
                 // self.camera = {0 or 1} are reserved for the free and tracking cameras
                 if self.camera <= 2 {
@@ -1344,7 +1341,7 @@ import Foundation
                 uiState.update(
                   section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
               case 295:  // F6
-                guard self.m != nil else { break }
+                guard self.model != nil else { break }
                 let next = MjtFrame.allCases.index(
                   after: MjtFrame.allCases.firstIndex(of: self.vopt.frame)!)
                 self.vopt.frame =
@@ -1354,7 +1351,7 @@ import Foundation
                   section: UI0Section.rendering.rawValue, item: -1, ui: ui0, context: context)
                 break
               case 296:  // F7
-                guard self.m != nil else { break }
+                guard self.model != nil else { break }
                 let next = MjtLabel.allCases.index(
                   after: MjtLabel.allCases.firstIndex(of: self.vopt.label)!)
                 self.vopt.label =
@@ -1384,7 +1381,7 @@ import Foundation
               return
             }
             // 3D scroll
-            if uiState.type == .scroll && uiState.mouserect == 3, let m = self.m {
+            if uiState.type == .scroll && uiState.mouserect == 3, let m = self.model {
               // emulate vertical mouse motion = 2% of window height
               self.vcamera.moveCamera(
                 model: m, action: .zoom, reldx: 0, reldy: -self.zoomIncrement * uiState.sy,
@@ -1392,10 +1389,12 @@ import Foundation
               return
             }
             // 3D press
-            if uiState.type == .press && uiState.mouserect == 3, let m = self.m, let d = self.d {
+            if uiState.type == .press && uiState.mouserect == 3, let m = self.model,
+              let d = self.data
+            {
               // set perturbation
               var newperturb: MjtPertBit = []
-              if uiState.control != 0 && self.pert.select > 0 {
+              if uiState.control != 0 && self.perturb.select > 0 {
                 // right: translate;  left: rotate
                 if uiState.right != 0 {
                   newperturb = [.translate]
@@ -1404,11 +1403,11 @@ import Foundation
                 }
 
                 // perturbation onset: reset reference
-                if !newperturb.isEmpty && self.pert.active.isEmpty {
-                  self.pert.initPerturb(model: m, data: d, scene: scene)
+                if !newperturb.isEmpty && self.perturb.active.isEmpty {
+                  self.perturb.initPerturb(model: m, data: d, scene: scene)
                 }
               }
-              self.pert.active = newperturb
+              self.perturb.active = newperturb
 
               // handle double-click
               if uiState.doubleclick != 0 {
@@ -1460,47 +1459,48 @@ import Foundation
                   // set body selection
                   if selbody >= 0 {
                     // record selection
-                    self.pert.select = selbody
-                    self.pert.skinselect = selskin[0]
+                    self.perturb.select = selbody
+                    self.perturb.skinselect = selskin[0]
 
                     // compute localpos
                     var tmp: (Double, Double, Double) = (0, 0, 0)
-                    tmp.0 = selpnt[0] - d.xpos[3 * Int(self.pert.select)]
-                    tmp.1 = selpnt[1] - d.xpos[3 * Int(self.pert.select) + 1]
-                    tmp.2 = selpnt[2] - d.xpos[3 * Int(self.pert.select) + 2]
-                    self.pert.localpos.0 =
-                      d.xmat[9 * Int(self.pert.select)] * tmp.0
-                      + d.xmat[9 * Int(self.pert.select) + 3] * tmp.1
-                      + d.xmat[9 * Int(self.pert.select) + 6] * tmp.2
-                    self.pert.localpos.1 =
-                      d.xmat[9 * Int(self.pert.select) + 1] * tmp.0
-                      + d.xmat[9 * Int(self.pert.select) + 4] * tmp.1
-                      + d.xmat[9 * Int(self.pert.select) + 7] * tmp.2
-                    self.pert.localpos.2 =
-                      d.xmat[9 * Int(self.pert.select) + 2] * tmp.0
-                      + d.xmat[9 * Int(self.pert.select) + 5] * tmp.1
-                      + d.xmat[9 * Int(self.pert.select) + 8] * tmp.2
+                    tmp.0 = selpnt[0] - d.xpos[3 * Int(self.perturb.select)]
+                    tmp.1 = selpnt[1] - d.xpos[3 * Int(self.perturb.select) + 1]
+                    tmp.2 = selpnt[2] - d.xpos[3 * Int(self.perturb.select) + 2]
+                    self.perturb.localpos.0 =
+                      d.xmat[9 * Int(self.perturb.select)] * tmp.0
+                      + d.xmat[9 * Int(self.perturb.select) + 3] * tmp.1
+                      + d.xmat[9 * Int(self.perturb.select) + 6] * tmp.2
+                    self.perturb.localpos.1 =
+                      d.xmat[9 * Int(self.perturb.select) + 1] * tmp.0
+                      + d.xmat[9 * Int(self.perturb.select) + 4] * tmp.1
+                      + d.xmat[9 * Int(self.perturb.select) + 7] * tmp.2
+                    self.perturb.localpos.2 =
+                      d.xmat[9 * Int(self.perturb.select) + 2] * tmp.0
+                      + d.xmat[9 * Int(self.perturb.select) + 5] * tmp.1
+                      + d.xmat[9 * Int(self.perturb.select) + 8] * tmp.2
                   } else {
-                    self.pert.select = 0
-                    self.pert.skinselect = -1
+                    self.perturb.select = 0
+                    self.perturb.skinselect = -1
                   }
                 }
 
                 // stop perturbation on select
-                self.pert.active = []
+                self.perturb.active = []
               }
               return
             }
 
             // 3D release
-            if uiState.type == .release && uiState.dragrect == 3 && self.m != nil {
+            if uiState.type == .release && uiState.dragrect == 3 && self.model != nil {
               // stop perturbation
-              self.pert.active = []
+              self.perturb.active = []
               return
             }
 
             // 3D move
-            if uiState.type == .move && uiState.dragrect == 3, let m = self.m, let d = self.d {
+            if uiState.type == .move && uiState.dragrect == 3, let m = self.model, let d = self.data
+            {
               // determine action based on mouse button
               var action: MjtMouse
               if uiState.right != 0 {
@@ -1513,8 +1513,8 @@ import Foundation
 
               // move perturb or camera
               let r = uiState.rect.3
-              if !self.pert.active.isEmpty {
-                self.pert.movePerturb(
+              if !self.perturb.active.isEmpty {
+                self.perturb.movePerturb(
                   model: m, data: d, action: action, reldx: uiState.dx / Double(r.height),
                   reldy: -uiState.dy / Double(r.height), scene: scene)
               } else {
@@ -1565,12 +1565,12 @@ import Foundation
               model = try? MjModel(fromXMLPath: filename)
             }
             guard let model = model else { return }
-            self.m = model
-            self.d = model.makeData()
+            self.model = model
+            self.data = model.makeData()
             loadmodelui()
           }
           func loadmodelui() {
-            guard let m = self.m, var d = self.d else { return }
+            guard let m = self.model, var d = self.data else { return }
             m.forward(data: &d)
             // re-create scene and context
             scene.makeScene(model: m, maxgeom: self.maxgeom)
@@ -1582,9 +1582,9 @@ import Foundation
               context.setAux(index: 0)
             }
             // clear perturbation state
-            self.pert.active = []
-            self.pert.select = 0
-            self.pert.skinselect = -1
+            self.perturb.active = []
+            self.perturb.select = 0
+            self.perturb.skinselect = -1
             // align and scale view unless reloading the same file
             if self.previousFilename != self.filename {
               self.alignscale()
@@ -1592,7 +1592,7 @@ import Foundation
             }
             // update scene
             scene.updateScene(
-              model: m, data: &d, option: self.vopt, perturb: self.pert, camera: &self.vcamera)
+              model: m, data: &d, option: self.vopt, perturb: self.perturb, camera: &self.vcamera)
             // set window title to model name
             if let name = m.name {
               glContext.title = "Simulate : \(name)"
@@ -1643,13 +1643,13 @@ import Foundation
             rectangle(viewport: rect, r: 0.2, g: 0.3, b: 0.4, a: 1)
             context.render(viewport: rect, scene: &scene)
             // show pause/loading label
-            if !self.run || self.loadrequest != 0 {
+            if !self.running || self.loadrequest != 0 {
               context.overlay(
                 font: .big, gridpos: .topright, viewport: smallrect,
                 overlay: self.loadrequest != 0 ? "loading" : "pause", overlay2: "")
             }
             // show realtime label
-            if self.run && self.slowdown != 1 {
+            if self.running && self.slowdown != 1 {
               let realtimeLabel = "1/\(self.slowdown) x"
               context.overlay(
                 font: .big, gridpos: .topright, viewport: smallrect, overlay: realtimeLabel,
@@ -1692,6 +1692,138 @@ import Foundation
         os_unfair_lock_lock(&self.lock)
         self.exitrequest = true
         os_unfair_lock_unlock(&self.lock)
+      }
+    }
+
+    /// Run the simulation. This function never returns until user tap exit.
+    public func run() async {
+      let syncmisalign: Double = 0.1  // maximum time mis-alignment before re-sync
+      let refreshfactor: Double = 0.7  // fraction of refresh available for simulation
+      var ctrlnoise: [Double]? = nil
+      let vmode = GLContext.videoMode
+      var simsync: Double = 0
+      var cpusync: Double = 0
+      while !exitrequest {
+        await yield()
+        guard let m = model, var d = data else { continue }
+        if running {
+          let tmstart = GLContext.time
+          if ctrlnoisestd > 0 {
+            let rate = exp(-m.opt.timestep / ctrlnoiserate)
+            let scale = ctrlnoisestd * (1 - rate * rate).squareRoot()
+            let prevctrlnoise = ctrlnoise
+            if ctrlnoise == nil {
+              // allocate ctrlnoise
+              ctrlnoise = Array(repeating: 0, count: Int(m.nu))
+            }
+            for i in 0..<Int(m.nu) {
+              ctrlnoise?[i] = rate * (prevctrlnoise?[i] ?? 0) + scale * Simulate.normal(1)
+              d.ctrl[i] = ctrlnoise?[i] ?? 0
+            }
+          }
+          let offset = abs(
+            (d.time * Double(slowdown) - simsync) - (tmstart - cpusync))
+          // Out of sync.
+          if d.time * Double(slowdown) < simsync || tmstart < cpusync
+            || cpusync == 0 || offset > syncmisalign * Double(slowdown)
+            || speedchanged
+          {
+            cpusync = tmstart
+            simsync = d.time * Double(slowdown)
+            speedchanged = false
+            d.xfrcApplied.zero()
+            perturb.applyPerturbPose(model: m, data: &d, flgPaused: 0)
+            perturb.applyPerturbForce(model: m, data: &d)
+            m.step(data: &d)
+          } else {
+            // In sync.
+            // step while simtime lags behind cputime, and within safefactor
+            while d.time * Double(slowdown) - simsync < GLContext.time - cpusync
+              && GLContext.time - tmstart < refreshfactor / Double(vmode.refreshRate)
+            {
+              // clear old perturbations, apply new
+              d.xfrcApplied.zero()
+              perturb.applyPerturbPose(model: m, data: &d, flgPaused: 0)
+              perturb.applyPerturbForce(model: m, data: &d)
+              let prevtm = d.time * Double(slowdown)
+              m.step(data: &d)
+
+              // break on reset
+              if d.time * Double(slowdown) < prevtm {
+                break
+              }
+            }
+          }
+        } else {
+          perturb.applyPerturbPose(model: m, data: &d, flgPaused: 1)
+          m.forward(data: &d)
+        }
+      }
+    }
+
+    /// Run the simulation. This function never returns until user tap exit.
+    public func run() {
+      let syncmisalign: Double = 0.1  // maximum time mis-alignment before re-sync
+      let refreshfactor: Double = 0.7  // fraction of refresh available for simulation
+      var ctrlnoise: [Double]? = nil
+      let vmode = GLContext.videoMode
+      var simsync: Double = 0
+      var cpusync: Double = 0
+      while !exitrequest {
+        yield()
+        guard let m = model, var d = data else { continue }
+        if running {
+          let tmstart = GLContext.time
+          if ctrlnoisestd > 0 {
+            let rate = exp(-m.opt.timestep / ctrlnoiserate)
+            let scale = ctrlnoisestd * (1 - rate * rate).squareRoot()
+            let prevctrlnoise = ctrlnoise
+            if ctrlnoise == nil {
+              // allocate ctrlnoise
+              ctrlnoise = Array(repeating: 0, count: Int(m.nu))
+            }
+            for i in 0..<Int(m.nu) {
+              ctrlnoise?[i] = rate * (prevctrlnoise?[i] ?? 0) + scale * Simulate.normal(1)
+              d.ctrl[i] = ctrlnoise?[i] ?? 0
+            }
+          }
+          let offset = abs(
+            (d.time * Double(slowdown) - simsync) - (tmstart - cpusync))
+          // Out of sync.
+          if d.time * Double(slowdown) < simsync || tmstart < cpusync
+            || cpusync == 0 || offset > syncmisalign * Double(slowdown)
+            || speedchanged
+          {
+            cpusync = tmstart
+            simsync = d.time * Double(slowdown)
+            speedchanged = false
+            d.xfrcApplied.zero()
+            perturb.applyPerturbPose(model: m, data: &d, flgPaused: 0)
+            perturb.applyPerturbForce(model: m, data: &d)
+            m.step(data: &d)
+          } else {
+            // In sync.
+            // step while simtime lags behind cputime, and within safefactor
+            while d.time * Double(slowdown) - simsync < GLContext.time - cpusync
+              && GLContext.time - tmstart < refreshfactor / Double(vmode.refreshRate)
+            {
+              // clear old perturbations, apply new
+              d.xfrcApplied.zero()
+              perturb.applyPerturbPose(model: m, data: &d, flgPaused: 0)
+              perturb.applyPerturbForce(model: m, data: &d)
+              let prevtm = d.time * Double(slowdown)
+              m.step(data: &d)
+
+              // break on reset
+              if d.time * Double(slowdown) < prevtm {
+                break
+              }
+            }
+          }
+        } else {
+          perturb.applyPerturbPose(model: m, data: &d, flgPaused: 1)
+          m.forward(data: &d)
+        }
       }
     }
   }
