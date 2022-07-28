@@ -41,6 +41,8 @@ git_repository(
 )
 
 load("@swift-mujoco//:deps.bzl", "swift_mujoco_deps")
+
+swift_mujoco_deps()
 ```
 
 MuJoCo for Swift should work on macOS, Linux and iOS. The `GLContext` is only available on macOS and Linux.
