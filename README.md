@@ -10,7 +10,7 @@ This is a Swift binding for [MuJoCo](https://mujoco.org) physics simulation libr
 
 [MuJoCo](https://mujoco.org) is a very accurate CPU-based physics simulation library. Since its acquisition by [DeepMind](https://github.com/deepmind/mujoco), MuJoCo has been more readily available broadly.
 
-MuJoCo is at the heart of physics simulation in the realm of [deep reinforcement learning](https://spinningup.openai.com/en/latest/algorithms/ppo.html). In [OpenAI Gym](https://gym.openai.com/envs/#mujoco), there are many diverse environments simulated with MuJoCo.
+MuJoCo is at the heart of physics simulation in the realm of [deep reinforcement learning](https://spinningup.openai.com/en/latest/algorithms/ppo.html). In [OpenAI Gym](https://www.gymlibrary.ml/environments/mujoco/), there are many diverse environments simulated with MuJoCo.
 
 Up until now, I only dipped a bit into DRL with https://github.com/liuliu/s4nnc/tree/main/examples. OpenAI Gym is OK for these simple mechanisms and I don't mind to wait a few minutes more. But most recently, I grown interests in more serious use of DRL / PPO under Sim2Real banner. For these, it is popular to either use [Isaac Gym](https://developer.nvidia.com/isaac-gym) or exploiting multi-core for environment runs. For later, doing it with `multiprocess` package of Python is awkward but the preferred way.
 
