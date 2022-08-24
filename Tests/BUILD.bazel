@@ -5,6 +5,7 @@ swift_library(
     name = "tests_lib",
     srcs = [
         "main.swift",
+        "tuple.swift",
         "xml.swift",
     ],
     deps = [

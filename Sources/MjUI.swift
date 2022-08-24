@@ -68,13 +68,15 @@ extension MjUI {
   public var sect: MjuiSectionArray {
     get {
       MjuiSectionArray(
-        array: withUnsafeMutablePointer(to: &_ui.pointee.sect.0) { $0 }, object: _storage,
+        array: withUnsafeMutablePointer(to: &_ui.pointee.sect) {
+          UnsafeMutableRawPointer($0).assumingMemoryBound(to: mjuiSection_.self)
+        }, object: _storage,
         len: _ui.pointee.nsect)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<mjuiSection_> = withUnsafeMutablePointer(
-        to: &_ui.pointee.sect.0
-      ) { $0 }
+        to: &_ui.pointee.sect
+      ) { UnsafeMutableRawPointer($0).assumingMemoryBound(to: mjuiSection_.self) }
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(_ui.pointee.nsect))
     }

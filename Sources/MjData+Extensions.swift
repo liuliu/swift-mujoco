@@ -40,14 +40,15 @@ extension MjData {
   public var warning: MjArray<MjWarningStat> {
     get {
       MjArray<MjWarningStat>(
-        array: UnsafeMutableRawPointer(
-          withUnsafeMutablePointer(to: &_data.pointee.warning.0, { $0 })
-        ).assumingMemoryBound(to: MjWarningStat.self), object: _storage, len: 8)
+        array: withUnsafeMutablePointer(
+          to: &_data.pointee.warning,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: MjWarningStat.self) }),
+        object: _storage, len: 8)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjWarningStat> = UnsafeMutableRawPointer(
-        withUnsafeMutablePointer(to: &_data.pointee.warning.0, { $0 })
-      ).assumingMemoryBound(to: MjWarningStat.self)
+      let unsafeMutablePointer: UnsafeMutablePointer<MjWarningStat> = withUnsafeMutablePointer(
+        to: &_data.pointee.warning,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: MjWarningStat.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(8))
     }
@@ -57,13 +58,15 @@ extension MjData {
   public var timer: MjArray<MjTimerStat> {
     get {
       MjArray<MjTimerStat>(
-        array: UnsafeMutableRawPointer(withUnsafeMutablePointer(to: &_data.pointee.timer.0, { $0 }))
-          .assumingMemoryBound(to: MjTimerStat.self), object: _storage, len: 13)
+        array: withUnsafeMutablePointer(
+          to: &_data.pointee.timer,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: MjTimerStat.self) }),
+        object: _storage, len: 13)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjTimerStat> = UnsafeMutableRawPointer(
-        withUnsafeMutablePointer(to: &_data.pointee.timer.0, { $0 })
-      ).assumingMemoryBound(to: MjTimerStat.self)
+      let unsafeMutablePointer: UnsafeMutablePointer<MjTimerStat> = withUnsafeMutablePointer(
+        to: &_data.pointee.timer,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: MjTimerStat.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(13))
     }
@@ -73,14 +76,15 @@ extension MjData {
   public var solver: MjArray<MjSolverStat> {
     get {
       MjArray<MjSolverStat>(
-        array: UnsafeMutableRawPointer(
-          withUnsafeMutablePointer(to: &_data.pointee.solver.0, { $0 })
-        ).assumingMemoryBound(to: MjSolverStat.self), object: _storage, len: 1000)
+        array: withUnsafeMutablePointer(
+          to: &_data.pointee.solver,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: MjSolverStat.self) }),
+        object: _storage, len: 1000)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjSolverStat> = UnsafeMutableRawPointer(
-        withUnsafeMutablePointer(to: &_data.pointee.solver.0, { $0 })
-      ).assumingMemoryBound(to: MjSolverStat.self)
+      let unsafeMutablePointer: UnsafeMutablePointer<MjSolverStat> = withUnsafeMutablePointer(
+        to: &_data.pointee.solver,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: MjSolverStat.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(1000))
     }

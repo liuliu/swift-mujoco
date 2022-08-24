@@ -69,24 +69,30 @@ extension MjVFS {
   /// file size in bytes
   @inlinable
   public var filesize: MjArray<Int32> {
-    withUnsafeMutablePointer(to: &_vfs.pointee.filesize.0) {
-      MjArray<Int32>(array: $0, object: _storage, len: mjMAXVFS)
+    withUnsafeMutablePointer(to: &_vfs.pointee.filesize) {
+      MjArray<Int32>(
+        array: UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self), object: _storage,
+        len: mjMAXVFS)
     }
   }
 
   /// buffer with file data
   @inlinable
   public var filedata: MjArray<UnsafeMutableRawPointer?> {
-    withUnsafeMutablePointer(to: &_vfs.pointee.filedata.0) {
-      MjArray<UnsafeMutableRawPointer?>(array: $0, object: _storage, len: mjMAXVFS)
+    withUnsafeMutablePointer(to: &_vfs.pointee.filedata) {
+      MjArray<UnsafeMutableRawPointer?>(
+        array: UnsafeMutableRawPointer($0).assumingMemoryBound(to: UnsafeMutableRawPointer?.self),
+        object: _storage, len: mjMAXVFS)
     }
   }
 
   /// file name without path
   @inlinable
   public var filename: MjStaticStringArray {
-    withUnsafeMutablePointer(to: &_vfs.pointee.filename.0.0) {
-      MjStaticStringArray(array: $0, object: _storage, len: mjMAXVFS, strlen: mjMAXVFSNAME)
+    withUnsafeMutablePointer(to: &_vfs.pointee.filename) {
+      MjStaticStringArray(
+        array: UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self), object: _storage,
+        len: mjMAXVFS, strlen: mjMAXVFSNAME)
     }
   }
 

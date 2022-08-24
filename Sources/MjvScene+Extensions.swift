@@ -104,14 +104,15 @@ extension MjvScene {
   public var lights: MjArray<MjvLight> {
     get {
       MjArray<MjvLight>(
-        array: UnsafeMutableRawPointer(
-          withUnsafeMutablePointer(to: &_scene.pointee.lights.0, { $0 })
-        ).assumingMemoryBound(to: MjvLight.self), object: _storage, len: nlight)
+        array: withUnsafeMutablePointer(
+          to: &_scene.pointee.lights,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: MjvLight.self) }), object: _storage,
+        len: nlight)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjvLight> = UnsafeMutableRawPointer(
-        withUnsafeMutablePointer(to: &_scene.pointee.lights.0, { $0 })
-      ).assumingMemoryBound(to: MjvLight.self)
+      let unsafeMutablePointer: UnsafeMutablePointer<MjvLight> = withUnsafeMutablePointer(
+        to: &_scene.pointee.lights,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: MjvLight.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nlight))
     }

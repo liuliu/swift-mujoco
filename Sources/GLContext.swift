@@ -326,7 +326,9 @@ import C_mujoco
     uiState.mouserect =
       mjr_findRect(
         Int32(x.rounded()), Int32(y.rounded()), uiState.nrect - 1,
-        withUnsafePointer(to: &uiState.rect.1) { $0 }) + 1
+        withUnsafePointer(to: &uiState.rect) {
+          UnsafeRawPointer($0).assumingMemoryBound(to: MjrRect.self) + 1
+        }) + 1
   }
 
   func uiKeyboard(
@@ -661,7 +663,9 @@ import C_mujoco
           userPointer.uiState.pointee.mouserect =
             mjr_findRect(
               Int32(x.rounded()), Int32(y.rounded()), userPointer.uiState.pointee.nrect - 1,
-              withUnsafePointer(to: &userPointer.uiState.pointee.rect.1) { $0 }) + 1
+              withUnsafePointer(to: &userPointer.uiState.pointee.rect) {
+                UnsafeRawPointer($0).assumingMemoryBound(to: MjrRect.self) + 1
+              }) + 1
           if userPointer.uiState.pointee.type == .move {
             userPointer.uiState.pointee.button = btn
           } else if userPointer.uiState.pointee.type == .press {

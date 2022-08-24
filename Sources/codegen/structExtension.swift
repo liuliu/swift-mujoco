@@ -265,7 +265,7 @@ public func structExtension(
       if case .staticString(let strlen) = elType {
         precondition(staticArray)
         let ump =
-          "withUnsafeMutablePointer(to: &\(prefix)_\(varName)\(suffix).\(fieldName).0.0, { $0 })"
+          "withUnsafeMutablePointer(to: &\(prefix)_\(varName)\(suffix).\(fieldName), { UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self) })"
         code +=
           "    get { \(fieldType)(array: \(ump), object: \(boundingObject), len: \(count), strlen: \(strlen)) }\n"
         code += "    set {\n"
@@ -278,13 +278,8 @@ public func structExtension(
         let cast = elType.primitive.hasPrefix("Mj")  // For these, we need to force cast the type.
         let ump: String
         if staticArray {
-          if cast {
-            ump =
-              "UnsafeMutableRawPointer(withUnsafeMutablePointer(to: &\(prefix)_\(varName)\(suffix).\(fieldName).0, { $0 })).assumingMemoryBound(to: \(elType).self)"
-          } else {
-            ump =
-              "withUnsafeMutablePointer(to: &\(prefix)_\(varName)\(suffix).\(fieldName).0, { $0 })"
-          }
+          ump =
+            "withUnsafeMutablePointer(to: &\(prefix)_\(varName)\(suffix).\(fieldName), { UnsafeMutableRawPointer($0).assumingMemoryBound(to: \(elType).self) })"
         } else {
           if cast {
             ump =
@@ -341,14 +336,16 @@ public func structExtension(
       code += "    get {\n"
       code += "      var value = _\(varName)\(suffix).\(fieldName)\n"
       code +=
-        "      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }\n"
+        "      return withUnsafePointer(to: &value) { String(cString: UnsafeRawPointer($0).assumingMemoryBound(to: CChar.self), encoding: .utf8)! }\n"
       code += "    }\n"
       code += "    set {\n"
       code += "      var value = newValue\n"
       code += "      value.withUTF8 { utf8 in\n"
       code += "        let count = min(utf8.count, \(count - 1))\n"
       code +=
-        "        withUnsafeMutablePointer(to: &_\(varName)\(suffix).\(fieldName).0) { pos in\n"
+        "        withUnsafeMutablePointer(to: &_\(varName)\(suffix).\(fieldName)) {\n"
+      code +=
+        "          let pos = UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self)\n"
       code +=
         "          utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {\n"
       code += "            pos.assign(from: $0, count: count)\n"

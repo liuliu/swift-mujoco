@@ -10,13 +10,16 @@ extension MjuiItem {
   public var name: String {
     get {
       var value = _item.pointee.name
-      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }
+      return withUnsafePointer(to: &value) {
+        String(cString: UnsafeRawPointer($0).assumingMemoryBound(to: CChar.self), encoding: .utf8)!
+      }
     }
     set {
       var value = newValue
       value.withUTF8 { utf8 in
         let count = min(utf8.count, 39)
-        withUnsafeMutablePointer(to: &_item.pointee.name.0) { pos in
+        withUnsafeMutablePointer(to: &_item.pointee.name) {
+          let pos = UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self)
           utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
             pos.assign(from: $0, count: count)
           }

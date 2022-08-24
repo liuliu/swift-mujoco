@@ -893,8 +893,9 @@ import Foundation
               guard itemcnt < MjuiSection.maxUIItem else { break }
               guard m.jntType[i] == .hinge || m.jntType[i] == .slide else { continue }
               guard
-                (withUnsafePointer(to: &self.vopt.jointgroup.0) {
-                  $0[max(0, min(6 - 1, Int(m.jntGroup[i])))]
+                (withUnsafePointer(to: &self.vopt.jointgroup) {
+                  UnsafeRawPointer($0).assumingMemoryBound(to: UInt8.self)[
+                    max(0, min(6 - 1, Int(m.jntGroup[i])))]
                 })
                   != 0
               else { continue }
@@ -937,8 +938,9 @@ import Foundation
             for i in 0..<Int(m.nu) {
               guard itemcnt < MjuiSection.maxUIItem else { break }
               guard
-                (withUnsafePointer(to: &self.vopt.actuatorgroup.0) {
-                  $0[max(0, min(6 - 1, Int(m.actuatorGroup[i])))]
+                (withUnsafePointer(to: &self.vopt.actuatorgroup) {
+                  UnsafeRawPointer($0).assumingMemoryBound(to: UInt8.self)[
+                    max(0, min(6 - 1, Int(m.actuatorGroup[i])))]
                 }) != 0
               else { continue }
               let actuatorname: String

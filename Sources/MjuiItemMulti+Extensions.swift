@@ -10,12 +10,15 @@ extension MjuiItemMulti {
   public var name: MjStaticStringArray {
     get {
       MjStaticStringArray(
-        array: withUnsafeMutablePointer(to: &_itemmulti.pointee.name.0.0, { $0 }), object: object,
+        array: withUnsafeMutablePointer(
+          to: &_itemmulti.pointee.name,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self) }), object: object,
         len: 35, strlen: 40)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<CChar> = withUnsafeMutablePointer(
-        to: &_itemmulti.pointee.name.0.0, { $0 })
+        to: &_itemmulti.pointee.name,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(35) * 40)
     }

@@ -70,12 +70,15 @@ extension MjrContext {
   public var auxWidth: MjArray<Int32> {
     get {
       MjArray<Int32>(
-        array: withUnsafeMutablePointer(to: &_context.pointee.auxWidth.0, { $0 }), object: _storage,
+        array: withUnsafeMutablePointer(
+          to: &_context.pointee.auxWidth,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) }), object: _storage,
         len: 10)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<Int32> = withUnsafeMutablePointer(
-        to: &_context.pointee.auxWidth.0, { $0 })
+        to: &_context.pointee.auxWidth,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(10))
     }
@@ -85,12 +88,15 @@ extension MjrContext {
   public var auxHeight: MjArray<Int32> {
     get {
       MjArray<Int32>(
-        array: withUnsafeMutablePointer(to: &_context.pointee.auxHeight.0, { $0 }),
-        object: _storage, len: 10)
+        array: withUnsafeMutablePointer(
+          to: &_context.pointee.auxHeight,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) }), object: _storage,
+        len: 10)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<Int32> = withUnsafeMutablePointer(
-        to: &_context.pointee.auxHeight.0, { $0 })
+        to: &_context.pointee.auxHeight,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(10))
     }
@@ -100,12 +106,15 @@ extension MjrContext {
   public var auxSamples: MjArray<Int32> {
     get {
       MjArray<Int32>(
-        array: withUnsafeMutablePointer(to: &_context.pointee.auxSamples.0, { $0 }),
-        object: _storage, len: 10)
+        array: withUnsafeMutablePointer(
+          to: &_context.pointee.auxSamples,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) }), object: _storage,
+        len: 10)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<Int32> = withUnsafeMutablePointer(
-        to: &_context.pointee.auxSamples.0, { $0 })
+        to: &_context.pointee.auxSamples,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(10))
     }
@@ -163,12 +172,15 @@ extension MjrContext {
   public var auxFbo: MjArray<UInt32> {
     get {
       MjArray<UInt32>(
-        array: withUnsafeMutablePointer(to: &_context.pointee.auxFBO.0, { $0 }), object: _storage,
+        array: withUnsafeMutablePointer(
+          to: &_context.pointee.auxFBO,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: UInt32.self) }), object: _storage,
         len: 10)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<UInt32> = withUnsafeMutablePointer(
-        to: &_context.pointee.auxFBO.0, { $0 })
+        to: &_context.pointee.auxFBO,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: UInt32.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(10))
     }
@@ -178,12 +190,15 @@ extension MjrContext {
   public var auxFBO_r: MjArray<UInt32> {
     get {
       MjArray<UInt32>(
-        array: withUnsafeMutablePointer(to: &_context.pointee.auxFBO_r.0, { $0 }), object: _storage,
+        array: withUnsafeMutablePointer(
+          to: &_context.pointee.auxFBO_r,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: UInt32.self) }), object: _storage,
         len: 10)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<UInt32> = withUnsafeMutablePointer(
-        to: &_context.pointee.auxFBO_r.0, { $0 })
+        to: &_context.pointee.auxFBO_r,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: UInt32.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(10))
     }
@@ -193,12 +208,15 @@ extension MjrContext {
   public var auxColor: MjArray<UInt32> {
     get {
       MjArray<UInt32>(
-        array: withUnsafeMutablePointer(to: &_context.pointee.auxColor.0, { $0 }), object: _storage,
+        array: withUnsafeMutablePointer(
+          to: &_context.pointee.auxColor,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: UInt32.self) }), object: _storage,
         len: 10)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<UInt32> = withUnsafeMutablePointer(
-        to: &_context.pointee.auxColor.0, { $0 })
+        to: &_context.pointee.auxColor,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: UInt32.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(10))
     }
@@ -208,12 +226,15 @@ extension MjrContext {
   public var auxColor_r: MjArray<UInt32> {
     get {
       MjArray<UInt32>(
-        array: withUnsafeMutablePointer(to: &_context.pointee.auxColor_r.0, { $0 }),
-        object: _storage, len: 10)
+        array: withUnsafeMutablePointer(
+          to: &_context.pointee.auxColor_r,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: UInt32.self) }), object: _storage,
+        len: 10)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<UInt32> = withUnsafeMutablePointer(
-        to: &_context.pointee.auxColor_r.0, { $0 })
+        to: &_context.pointee.auxColor_r,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: UInt32.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(10))
     }
@@ -229,14 +250,15 @@ extension MjrContext {
   public var textureType: MjArray<MjtTexture> {
     get {
       MjArray<MjtTexture>(
-        array: UnsafeMutableRawPointer(
-          withUnsafeMutablePointer(to: &_context.pointee.textureType.0, { $0 })
-        ).assumingMemoryBound(to: MjtTexture.self), object: _storage, len: ntexture)
+        array: withUnsafeMutablePointer(
+          to: &_context.pointee.textureType,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: MjtTexture.self) }),
+        object: _storage, len: ntexture)
     }
     set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjtTexture> = UnsafeMutableRawPointer(
-        withUnsafeMutablePointer(to: &_context.pointee.textureType.0, { $0 })
-      ).assumingMemoryBound(to: MjtTexture.self)
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtTexture> = withUnsafeMutablePointer(
+        to: &_context.pointee.textureType,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: MjtTexture.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(ntexture))
     }
@@ -246,12 +268,15 @@ extension MjrContext {
   public var texture: MjArray<UInt32> {
     get {
       MjArray<UInt32>(
-        array: withUnsafeMutablePointer(to: &_context.pointee.texture.0, { $0 }), object: _storage,
+        array: withUnsafeMutablePointer(
+          to: &_context.pointee.texture,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: UInt32.self) }), object: _storage,
         len: 100)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<UInt32> = withUnsafeMutablePointer(
-        to: &_context.pointee.texture.0, { $0 })
+        to: &_context.pointee.texture,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: UInt32.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(100))
     }
@@ -379,12 +404,15 @@ extension MjrContext {
   public var charWidth: MjArray<Int32> {
     get {
       MjArray<Int32>(
-        array: withUnsafeMutablePointer(to: &_context.pointee.charWidth.0, { $0 }),
-        object: _storage, len: 127)
+        array: withUnsafeMutablePointer(
+          to: &_context.pointee.charWidth,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) }), object: _storage,
+        len: 127)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<Int32> = withUnsafeMutablePointer(
-        to: &_context.pointee.charWidth.0, { $0 })
+        to: &_context.pointee.charWidth,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(127))
     }
@@ -394,12 +422,15 @@ extension MjrContext {
   public var charWidthBig: MjArray<Int32> {
     get {
       MjArray<Int32>(
-        array: withUnsafeMutablePointer(to: &_context.pointee.charWidthBig.0, { $0 }),
-        object: _storage, len: 127)
+        array: withUnsafeMutablePointer(
+          to: &_context.pointee.charWidthBig,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) }), object: _storage,
+        len: 127)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<Int32> = withUnsafeMutablePointer(
-        to: &_context.pointee.charWidthBig.0, { $0 })
+        to: &_context.pointee.charWidthBig,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(127))
     }

@@ -88,12 +88,16 @@ extension MjvFigure {
   public var linergb: MjArray<(Float, Float, Float)> {
     get {
       MjArray<(Float, Float, Float)>(
-        array: withUnsafeMutablePointer(to: &_figure.pointee.linergb.0, { $0 }), object: _storage,
-        len: 100)
+        array: withUnsafeMutablePointer(
+          to: &_figure.pointee.linergb,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: (Float, Float, Float).self) }),
+        object: _storage, len: 100)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<(Float, Float, Float)> =
-        withUnsafeMutablePointer(to: &_figure.pointee.linergb.0, { $0 })
+        withUnsafeMutablePointer(
+          to: &_figure.pointee.linergb,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: (Float, Float, Float).self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(100))
     }
@@ -103,12 +107,15 @@ extension MjvFigure {
   public var range: MjArray<(Float, Float)> {
     get {
       MjArray<(Float, Float)>(
-        array: withUnsafeMutablePointer(to: &_figure.pointee.range.0, { $0 }), object: _storage,
-        len: 2)
+        array: withUnsafeMutablePointer(
+          to: &_figure.pointee.range,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: (Float, Float).self) }),
+        object: _storage, len: 2)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<(Float, Float)> = withUnsafeMutablePointer(
-        to: &_figure.pointee.range.0, { $0 })
+        to: &_figure.pointee.range,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: (Float, Float).self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(2))
     }
@@ -118,13 +125,16 @@ extension MjvFigure {
   public var xformat: String {
     get {
       var value = _figure.pointee.xformat
-      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }
+      return withUnsafePointer(to: &value) {
+        String(cString: UnsafeRawPointer($0).assumingMemoryBound(to: CChar.self), encoding: .utf8)!
+      }
     }
     set {
       var value = newValue
       value.withUTF8 { utf8 in
         let count = min(utf8.count, 19)
-        withUnsafeMutablePointer(to: &_figure.pointee.xformat.0) { pos in
+        withUnsafeMutablePointer(to: &_figure.pointee.xformat) {
+          let pos = UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self)
           utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
             pos.assign(from: $0, count: count)
           }
@@ -138,13 +148,16 @@ extension MjvFigure {
   public var yformat: String {
     get {
       var value = _figure.pointee.yformat
-      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }
+      return withUnsafePointer(to: &value) {
+        String(cString: UnsafeRawPointer($0).assumingMemoryBound(to: CChar.self), encoding: .utf8)!
+      }
     }
     set {
       var value = newValue
       value.withUTF8 { utf8 in
         let count = min(utf8.count, 19)
-        withUnsafeMutablePointer(to: &_figure.pointee.yformat.0) { pos in
+        withUnsafeMutablePointer(to: &_figure.pointee.yformat) {
+          let pos = UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self)
           utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
             pos.assign(from: $0, count: count)
           }
@@ -158,13 +171,16 @@ extension MjvFigure {
   public var minwidth: String {
     get {
       var value = _figure.pointee.minwidth
-      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }
+      return withUnsafePointer(to: &value) {
+        String(cString: UnsafeRawPointer($0).assumingMemoryBound(to: CChar.self), encoding: .utf8)!
+      }
     }
     set {
       var value = newValue
       value.withUTF8 { utf8 in
         let count = min(utf8.count, 19)
-        withUnsafeMutablePointer(to: &_figure.pointee.minwidth.0) { pos in
+        withUnsafeMutablePointer(to: &_figure.pointee.minwidth) {
+          let pos = UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self)
           utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
             pos.assign(from: $0, count: count)
           }
@@ -178,13 +194,16 @@ extension MjvFigure {
   public var title: String {
     get {
       var value = _figure.pointee.title
-      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }
+      return withUnsafePointer(to: &value) {
+        String(cString: UnsafeRawPointer($0).assumingMemoryBound(to: CChar.self), encoding: .utf8)!
+      }
     }
     set {
       var value = newValue
       value.withUTF8 { utf8 in
         let count = min(utf8.count, 999)
-        withUnsafeMutablePointer(to: &_figure.pointee.title.0) { pos in
+        withUnsafeMutablePointer(to: &_figure.pointee.title) {
+          let pos = UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self)
           utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
             pos.assign(from: $0, count: count)
           }
@@ -198,13 +217,16 @@ extension MjvFigure {
   public var xlabel: String {
     get {
       var value = _figure.pointee.xlabel
-      return withUnsafePointer(to: &value.0) { String(cString: $0, encoding: .utf8)! }
+      return withUnsafePointer(to: &value) {
+        String(cString: UnsafeRawPointer($0).assumingMemoryBound(to: CChar.self), encoding: .utf8)!
+      }
     }
     set {
       var value = newValue
       value.withUTF8 { utf8 in
         let count = min(utf8.count, 99)
-        withUnsafeMutablePointer(to: &_figure.pointee.xlabel.0) { pos in
+        withUnsafeMutablePointer(to: &_figure.pointee.xlabel) {
+          let pos = UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self)
           utf8.baseAddress?.withMemoryRebound(to: CChar.self, capacity: count) {
             pos.assign(from: $0, count: count)
           }
@@ -218,12 +240,15 @@ extension MjvFigure {
   public var linename: MjStaticStringArray {
     get {
       MjStaticStringArray(
-        array: withUnsafeMutablePointer(to: &_figure.pointee.linename.0.0, { $0 }),
-        object: _storage, len: 100, strlen: 100)
+        array: withUnsafeMutablePointer(
+          to: &_figure.pointee.linename,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self) }), object: _storage,
+        len: 100, strlen: 100)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<CChar> = withUnsafeMutablePointer(
-        to: &_figure.pointee.linename.0.0, { $0 })
+        to: &_figure.pointee.linename,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: CChar.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(100) * 100)
     }
@@ -263,12 +288,15 @@ extension MjvFigure {
   public var linepnt: MjArray<Int32> {
     get {
       MjArray<Int32>(
-        array: withUnsafeMutablePointer(to: &_figure.pointee.linepnt.0, { $0 }), object: _storage,
+        array: withUnsafeMutablePointer(
+          to: &_figure.pointee.linepnt,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) }), object: _storage,
         len: 100)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<Int32> = withUnsafeMutablePointer(
-        to: &_figure.pointee.linepnt.0, { $0 })
+        to: &_figure.pointee.linepnt,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: Int32.self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(100))
     }

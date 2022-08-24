@@ -54,13 +54,15 @@ extension MjuiSection {
   public var item: MjuiItemArray {
     get {
       MjuiItemArray(
-        array: withUnsafeMutablePointer(to: &_section.pointee.item.0) { $0 }, object: object,
+        array: withUnsafeMutablePointer(to: &_section.pointee.item) {
+          UnsafeMutableRawPointer($0).assumingMemoryBound(to: mjuiItem_.self)
+        }, object: object,
         len: _section.pointee.nitem)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<mjuiItem_> = withUnsafeMutablePointer(
-        to: &_section.pointee.item.0
-      ) { $0 }
+        to: &_section.pointee.item
+      ) { UnsafeMutableRawPointer($0).assumingMemoryBound(to: mjuiItem_.self) }
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(_section.pointee.nitem))
     }

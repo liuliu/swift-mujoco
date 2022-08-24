@@ -10,12 +10,15 @@ extension MjuiItemEdit {
   public var range: MjArray<(Double, Double)> {
     get {
       MjArray<(Double, Double)>(
-        array: withUnsafeMutablePointer(to: &_itemedit.pointee.range.0, { $0 }), object: object,
-        len: 7)
+        array: withUnsafeMutablePointer(
+          to: &_itemedit.pointee.range,
+          { UnsafeMutableRawPointer($0).assumingMemoryBound(to: (Double, Double).self) }),
+        object: object, len: 7)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<(Double, Double)> = withUnsafeMutablePointer(
-        to: &_itemedit.pointee.range.0, { $0 })
+        to: &_itemedit.pointee.range,
+        { UnsafeMutableRawPointer($0).assumingMemoryBound(to: (Double, Double).self) })
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(7))
     }
