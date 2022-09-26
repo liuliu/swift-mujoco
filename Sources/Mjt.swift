@@ -94,9 +94,10 @@ public struct MjtDisableBit: OptionSet, CustomStringConvertible, CaseIterable {
   public static let filterparent = MjtDisableBit(rawValue: 1 << 9)
   public static let actuation = MjtDisableBit(rawValue: 1 << 10)
   public static let refsafe = MjtDisableBit(rawValue: 1 << 11)
+  public static let sensor = MjtDisableBit(rawValue: 1 << 12)
   public static let allCases: [MjtDisableBit] = [
     .constraint, .equality, .frictionloss, .limit, .contact, .passive, .gravity, .clampctrl,
-    .warmstart, .filterparent, .actuation, .refsafe,
+    .warmstart, .filterparent, .actuation, .refsafe, .sensor,
   ]
   public var description: String {
     switch self {
@@ -124,6 +125,8 @@ public struct MjtDisableBit: OptionSet, CustomStringConvertible, CaseIterable {
       return "actuation"
     case .refsafe:
       return "refsafe"
+    case .sensor:
+      return "sensor"
     default:
       return "MjtDisableBit(rawValue: \(rawValue))"
     }
@@ -412,6 +415,7 @@ public enum MjtTrn: Int32, CustomStringConvertible {
   case slidercrank
   case tendon
   case site
+  case body
   case undefined = 1000
   public var description: String {
     switch self {
@@ -425,6 +429,8 @@ public enum MjtTrn: Int32, CustomStringConvertible {
       return "tendon"
     case .site:
       return "site"
+    case .body:
+      return "body"
     case .undefined:
       return "undefined"
     }
@@ -1250,6 +1256,7 @@ public enum MjtRndFlag: Int32, CustomStringConvertible, CaseIterable {
   case haze
   case segment
   case idcolor
+  case cullFace
   public var description: String {
     switch self {
     case .shadow:
@@ -1270,6 +1277,8 @@ public enum MjtRndFlag: Int32, CustomStringConvertible, CaseIterable {
       return "segment"
     case .idcolor:
       return "idcolor"
+    case .cullFace:
+      return "cullFace"
     }
   }
 }

@@ -158,7 +158,7 @@ extension MjvScene {
   }
   /// rendering flags (indexed by mjtRndFlag)
   @inlinable
-  public var flags: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8) {
+  public var flags: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8) {
     get { _scene.pointee.flags }
     set { _scene.pointee.flags = newValue }
   }

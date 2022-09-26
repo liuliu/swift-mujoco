@@ -36,6 +36,7 @@ public struct Struct {
 
 let SwiftType: [String: String] = [
   "int": "Int32",
+  "uintptr_t": "UInt",
   "unsigned int": "UInt32",
   "bool": "Bool",
   "mjtByte": "UInt8",

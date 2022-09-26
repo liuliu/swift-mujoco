@@ -1,6 +1,11 @@
 import C_mujoco
 
 extension MjvCamera {
+  ///  Set default free camera.
+  @inlinable
+  public mutating func defaultFreeCamera(model: MjModel) {
+    mjv_defaultFreeCamera(model._model, &self._camera)
+  }
   ///  Move camera with mouse; action is mjtMouse.
   @inlinable
   public mutating func moveCamera(

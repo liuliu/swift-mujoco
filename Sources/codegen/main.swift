@@ -374,6 +374,8 @@
     "mju_cholUpdate",
     "mju_clip",
     "mju_eig3",
+    "mju_boxQP",
+    "mju_boxQPmalloc",
     "mju_muscleGain",
     "mju_muscleBias",
     "mju_muscleDynamics",
@@ -397,6 +399,11 @@
     "mju_Halton",
     "mju_strncpy",
     "mju_sigmoid",
+    "mjp_defaultPlugin",
+    "mjp_registerPlugin",
+    "mjp_pluginCount",
+    "mjp_getPlugin",
+    "mjp_getPluginAtSlot",
   ])
 
   var sourceCodeMapping: [String?: String] = [:]

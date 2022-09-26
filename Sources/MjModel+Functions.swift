@@ -371,6 +371,15 @@ extension MjModel {
       }
     }
   }
+  ///  Compute subtree center-of-mass end-effector Jacobian.
+  @inlinable
+  public func jacSubtreeCom<T0: MjDoubleMutableBufferPointer>(
+    data: inout MjData, jacp: inout T0, body: Int32
+  ) {
+    jacp.withUnsafeMutableBufferPointer { jacp__p in
+      mj_jacSubtreeCom(self._model, data._data, jacp__p.baseAddress, body)
+    }
+  }
   ///  Compute geom end-effector Jacobian.
   @inlinable
   public func jacGeom<T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer>(
@@ -612,14 +621,24 @@ extension MjModel {
       }
     }
   }
-  /// Finite differenced state-transition and control-transition matrices dx(t+h) = A*dx(t) + B*du(t).   required output matrix dimensions:      A: (2*nv+na x 2*nv+na)      B: (2*nv+na x nu)
+  /// Finite differenced transition matrices (control theory notation)   d(x_next) = A*dx + B*du   d(sensor) = C*dx + D*du   required output matrix dimensions:      A: (2*nv+na x 2*nv+na)      B: (2*nv+na x nu)      D: (nsensordata x 2*nv+na)      C: (nsensordata x nu)
   @inlinable
-  public func transitionFD<T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer>(
-    data: inout MjData, eps: Double, centered: UInt8, a: inout T0, b: inout T1
+  public func transitionFD<
+    T0: MjDoubleMutableBufferPointer, T1: MjDoubleMutableBufferPointer,
+    T2: MjDoubleMutableBufferPointer, T3: MjDoubleMutableBufferPointer
+  >(
+    data: inout MjData, eps: Double, centered: UInt8, a: inout T0, b: inout T1, c: inout T2,
+    d: inout T3
   ) {
     a.withUnsafeMutableBufferPointer { a__p in
       b.withUnsafeMutableBufferPointer { b__p in
-        mjd_transitionFD(self._model, data._data, eps, centered, a__p.baseAddress, b__p.baseAddress)
+        c.withUnsafeMutableBufferPointer { c__p in
+          d.withUnsafeMutableBufferPointer { d__p in
+            mjd_transitionFD(
+              self._model, data._data, eps, centered, a__p.baseAddress, b__p.baseAddress,
+              c__p.baseAddress, d__p.baseAddress)
+          }
+        }
       }
     }
   }
