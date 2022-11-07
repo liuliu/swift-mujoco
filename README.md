@@ -35,9 +35,9 @@ You can simply add MuJoCo for Swift as a dependency in `WORKSPACE`:
 ```python
 git_repository(
     name = "swift-mujoco",
-    commit = "8ce263172c186d451a30ef6e27c2b38b19165fe9",
+    commit = "3dfc5a10f3d09f96432efc7804b0aedfa866d0e3",
     remote = "https://github.com/liuliu/swift-mujoco.git",
-    shallow_since = "1667837533 -0500"
+    shallow_since = "1667838646 -0500"
 )
 
 load("@swift-mujoco//:deps.bzl", "swift_mujoco_deps")
