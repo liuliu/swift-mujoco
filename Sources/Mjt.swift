@@ -526,6 +526,7 @@ public enum MjtObj: Int32, CustomStringConvertible {
   case text
   case tuple
   case key
+  case plugin
   public var description: String {
     switch self {
     case .unknown:
@@ -576,6 +577,8 @@ public enum MjtObj: Int32, CustomStringConvertible {
       return "tuple"
     case .key:
       return "key"
+    case .plugin:
+      return "plugin"
     }
   }
 }
@@ -673,6 +676,7 @@ public enum MjtSensor: Int32, CustomStringConvertible {
   case subtreelinvel
   case subtreeangmom
   case clock
+  case plugin
   case user
   public var description: String {
     switch self {
@@ -748,6 +752,8 @@ public enum MjtSensor: Int32, CustomStringConvertible {
       return "subtreeangmom"
     case .clock:
       return "clock"
+    case .plugin:
+      return "plugin"
     case .user:
       return "user"
     }
@@ -810,6 +816,22 @@ public enum MjtLRMode: Int32, CustomStringConvertible {
       return "muscleuser"
     case .all:
       return "all"
+    }
+  }
+}
+@objc
+public enum MjtPluginTypeBit: Int32, CustomStringConvertible {
+  case actuator = 1
+  case sensor = 2
+  case passive = 4
+  public var description: String {
+    switch self {
+    case .actuator:
+      return "actuator"
+    case .sensor:
+      return "sensor"
+    case .passive:
+      return "passive"
     }
   }
 }

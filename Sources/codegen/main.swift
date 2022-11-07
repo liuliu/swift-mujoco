@@ -106,7 +106,7 @@
       let code = structExtension(
         thisStruct, definedConstants: definedConstants, wrappedMjEnums: wrappedMjEnums,
         optionSets: optionSets,
-        suffix: ".pointee", deny: ["buffer", "stack"],
+        suffix: ".pointee", deny: ["buffer", "arena"],
         staticArrayAsDynamic: ["warning", "timer", "solver"],
         boundingObject: "_storage")
       try! code.write(

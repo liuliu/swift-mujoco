@@ -144,6 +144,19 @@ public func clearHandlers() {
 public func writeLog(type: String, msg: String) {
   mju_writeLog(type, msg)
 }
+///  Multiply square matrix with vectors on both sides: returns vec1'*mat*vec2.
+@inlinable
+public func mulVecMatVec(
+  vec1: MjDoubleBufferPointer, mat: MjDoubleBufferPointer, vec2: MjDoubleBufferPointer, n: Int32
+) -> Double {
+  return vec1.withUnsafeBufferPointer { vec1__p in
+    return mat.withUnsafeBufferPointer { mat__p in
+      return vec2.withUnsafeBufferPointer { vec2__p in
+        return mju_mulVecMatVec(vec1__p.baseAddress, mat__p.baseAddress, vec2__p.baseAddress, n)
+      }
+    }
+  }
+}
 ///  Convert type id (mjtObj) to type name.
 @inlinable
 public func type2Str(type: Int32) -> String? {
@@ -151,6 +164,6 @@ public func type2Str(type: Int32) -> String? {
 }
 ///  Construct a warning message given the warning type and info.
 @inlinable
-public func warningText(warning: Int32, info: Int32) -> String? {
+public func warningText(warning: Int32, info: Int) -> String? {
   return String(cString: mju_warningText(warning, info), encoding: .utf8)
 }

@@ -113,7 +113,7 @@ extension MjModel {
       njnt: _model.pointee.njnt, ngeom: _model.pointee.ngeom, nsite: _model.pointee.nsite,
       ncam: _model.pointee.ncam, nlight: _model.pointee.nlight, ntendon: _model.pointee.ntendon,
       nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
-      njmax: _model.pointee.njmax, nD: _model.pointee.nD)
+      njmax: _model.pointee.njmax, nD: _model.pointee.nD, npluginstate: _model.pointee.npluginstate)
   }
   /// Set actuator_lengthrange for specified actuator; return 1 if ok, 0 if error.
   @inlinable
@@ -256,4 +256,7 @@ extension MjModel {
   /// keyframe name                   (nkey x 1)
   @inlinable
   public var keyNames: MjNameArray { MjNameArray(names: names, adr: nameKeyadr) }
+  /// plugin name                   (nkey x 1)
+  @inlinable
+  public var pluginNames: MjNameArray { MjNameArray(names: names, adr: namePluginadr) }
 }

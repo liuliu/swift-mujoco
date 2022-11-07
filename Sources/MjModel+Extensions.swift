@@ -241,6 +241,18 @@ extension MjModel {
     get { _model.pointee.nmocap }
     set { _model.pointee.nmocap = newValue }
   }
+  /// number of plugin instances
+  @inlinable
+  public var nplugin: Int32 {
+    get { _model.pointee.nplugin }
+    set { _model.pointee.nplugin = newValue }
+  }
+  /// number of chars in all plugin config attributes
+  @inlinable
+  public var npluginattr: Int32 {
+    get { _model.pointee.npluginattr }
+    set { _model.pointee.npluginattr = newValue }
+  }
   /// number of mjtNums in body_user
   @inlinable
   public var nuserBody: Int32 {
@@ -342,6 +354,12 @@ extension MjModel {
   public var nsensordata: Int32 {
     get { _model.pointee.nsensordata }
     set { _model.pointee.nsensordata = newValue }
+  }
+  /// number of fields in the plugin state vector
+  @inlinable
+  public var npluginstate: Int32 {
+    get { _model.pointee.npluginstate }
+    set { _model.pointee.npluginstate = newValue }
   }
   /// number of bytes in buffer
   @inlinable
@@ -599,6 +617,16 @@ extension MjModel {
       let unsafeMutablePointer: UnsafeMutablePointer<Double> = _model.pointee.body_user
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nbody * nuserBody))
+    }
+  }
+  /// plugin instance id (-1 if not in use)    (nbody x 1)
+  @inlinable
+  public var bodyPlugin: MjArray<Int32> {
+    get { MjArray<Int32>(array: _model.pointee.body_plugin, object: _storage, len: nbody * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.body_plugin
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nbody * 1))
     }
   }
   /// type of joint (mjtJoint)                 (njnt x 1)
@@ -2745,6 +2773,16 @@ extension MjModel {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * nuserActuator))
     }
   }
+  /// plugin instance id; -1: not a plugin     (nu x 1)
+  @inlinable
+  public var actuatorPlugin: MjArray<Int32> {
+    get { MjArray<Int32>(array: _model.pointee.actuator_plugin, object: _storage, len: nu * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.actuator_plugin
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * 1))
+    }
+  }
   /// sensor type (mjtSensor)                  (nsensor x 1)
   @inlinable
   public var sensorType: MjArray<MjtSensor> {
@@ -2896,6 +2934,72 @@ extension MjModel {
       let unsafeMutablePointer: UnsafeMutablePointer<Double> = _model.pointee.sensor_user
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nsensor * nuserSensor))
+    }
+  }
+  /// plugin instance id; -1: not a plugin     (nsensor x 1)
+  @inlinable
+  public var sensorPlugin: MjArray<Int32> {
+    get { MjArray<Int32>(array: _model.pointee.sensor_plugin, object: _storage, len: nsensor * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.sensor_plugin
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nsensor * 1))
+    }
+  }
+  /// globally registered plugin slot number   (nplugin x 1)
+  @inlinable
+  public var plugin: MjArray<Int32> {
+    get { MjArray<Int32>(array: _model.pointee.plugin, object: _storage, len: nplugin * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.plugin
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nplugin * 1))
+    }
+  }
+  /// address in the plugin state array        (nplugin x 1)
+  @inlinable
+  public var pluginStateadr: MjArray<Int32> {
+    get {
+      MjArray<Int32>(array: _model.pointee.plugin_stateadr, object: _storage, len: nplugin * 1)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.plugin_stateadr
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nplugin * 1))
+    }
+  }
+  /// number of states in the plugin instance  (nplugin x 1)
+  @inlinable
+  public var pluginStatenum: MjArray<Int32> {
+    get {
+      MjArray<Int32>(array: _model.pointee.plugin_statenum, object: _storage, len: nplugin * 1)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.plugin_statenum
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nplugin * 1))
+    }
+  }
+  /// config attributes of plugin instances    (npluginattr x 1)
+  @inlinable
+  public var pluginAttr: MjArray<CChar> {
+    get {
+      MjArray<CChar>(array: _model.pointee.plugin_attr, object: _storage, len: npluginattr * 1)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<CChar> = _model.pointee.plugin_attr
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(npluginattr * 1))
+    }
+  }
+  /// address to each instance's config attrib (nplugin x 1)
+  @inlinable
+  public var pluginAttradr: MjArray<Int32> {
+    get { MjArray<Int32>(array: _model.pointee.plugin_attradr, object: _storage, len: nplugin * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.plugin_attradr
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nplugin * 1))
     }
   }
   /// address of field in numeric_data         (nnumeric x 1)
@@ -3302,6 +3406,16 @@ extension MjModel {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nkey * 1))
     }
   }
+  /// plugin instance name pointers            (nplugin x 1)
+  @inlinable
+  public var namePluginadr: MjArray<Int32> {
+    get { MjArray<Int32>(array: _model.pointee.name_pluginadr, object: _storage, len: nplugin * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.name_pluginadr
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nplugin * 1))
+    }
+  }
   /// names of all objects, 0-terminated       (nnames x 1)
   @inlinable
   public var names: MjArray<CChar> {
@@ -3327,32 +3441,35 @@ extension MjModel: CustomReflectable {
         "nmat": nmat, "npair": npair, "nexclude": nexclude, "neq": neq, "ntendon": ntendon,
         "nwrap": nwrap, "nsensor": nsensor, "nnumeric": nnumeric, "nnumericdata": nnumericdata,
         "ntext": ntext, "ntextdata": ntextdata, "ntuple": ntuple, "ntupledata": ntupledata,
-        "nkey": nkey, "nmocap": nmocap, "nuserBody": nuserBody, "nuserJnt": nuserJnt,
-        "nuserGeom": nuserGeom, "nuserSite": nuserSite, "nuserCam": nuserCam,
-        "nuserTendon": nuserTendon, "nuserActuator": nuserActuator, "nuserSensor": nuserSensor,
-        "nnames": nnames, "nM": nM, "nD": nD, "nemax": nemax, "njmax": njmax, "nconmax": nconmax,
-        "nstack": nstack, "nuserdata": nuserdata, "nsensordata": nsensordata, "nbuffer": nbuffer,
-        "opt": opt, "vis": vis, "stat": stat, "qpos0": qpos0, "qposSpring": qposSpring,
-        "bodyParentid": bodyParentid, "bodyRootid": bodyRootid, "bodyWeldid": bodyWeldid,
-        "bodyMocapid": bodyMocapid, "bodyJntnum": bodyJntnum, "bodyJntadr": bodyJntadr,
-        "bodyDofnum": bodyDofnum, "bodyDofadr": bodyDofadr, "bodyGeomnum": bodyGeomnum,
-        "bodyGeomadr": bodyGeomadr, "bodySimple": bodySimple, "bodySameframe": bodySameframe,
-        "bodyPos": bodyPos, "bodyQuat": bodyQuat, "bodyIpos": bodyIpos, "bodyIquat": bodyIquat,
-        "bodyMass": bodyMass, "bodySubtreemass": bodySubtreemass, "bodyInertia": bodyInertia,
-        "bodyInvweight0": bodyInvweight0, "bodyUser": bodyUser, "jntType": jntType,
-        "jntQposadr": jntQposadr, "jntDofadr": jntDofadr, "jntBodyid": jntBodyid,
-        "jntGroup": jntGroup, "jntLimited": jntLimited, "jntSolref": jntSolref,
-        "jntSolimp": jntSolimp, "jntPos": jntPos, "jntAxis": jntAxis, "jntStiffness": jntStiffness,
-        "jntRange": jntRange, "jntMargin": jntMargin, "jntUser": jntUser, "dofBodyid": dofBodyid,
-        "dofJntid": dofJntid, "dofParentid": dofParentid, "dofMadr": dofMadr,
-        "dofSimplenum": dofSimplenum, "dofSolref": dofSolref, "dofSolimp": dofSolimp,
-        "dofFrictionloss": dofFrictionloss, "dofArmature": dofArmature, "dofDamping": dofDamping,
-        "dofInvweight0": dofInvweight0, "dofM0": dofM0, "geomType": geomType,
-        "geomContype": geomContype, "geomConaffinity": geomConaffinity, "geomCondim": geomCondim,
-        "geomBodyid": geomBodyid, "geomDataid": geomDataid, "geomMatid": geomMatid,
-        "geomGroup": geomGroup, "geomPriority": geomPriority, "geomSameframe": geomSameframe,
-        "geomSolmix": geomSolmix, "geomSolref": geomSolref, "geomSolimp": geomSolimp,
-        "geomSize": geomSize, "geomRbound": geomRbound, "geomPos": geomPos, "geomQuat": geomQuat,
+        "nkey": nkey, "nmocap": nmocap, "nplugin": nplugin, "npluginattr": npluginattr,
+        "nuserBody": nuserBody, "nuserJnt": nuserJnt, "nuserGeom": nuserGeom,
+        "nuserSite": nuserSite, "nuserCam": nuserCam, "nuserTendon": nuserTendon,
+        "nuserActuator": nuserActuator, "nuserSensor": nuserSensor, "nnames": nnames, "nM": nM,
+        "nD": nD, "nemax": nemax, "njmax": njmax, "nconmax": nconmax, "nstack": nstack,
+        "nuserdata": nuserdata, "nsensordata": nsensordata, "npluginstate": npluginstate,
+        "nbuffer": nbuffer, "opt": opt, "vis": vis, "stat": stat, "qpos0": qpos0,
+        "qposSpring": qposSpring, "bodyParentid": bodyParentid, "bodyRootid": bodyRootid,
+        "bodyWeldid": bodyWeldid, "bodyMocapid": bodyMocapid, "bodyJntnum": bodyJntnum,
+        "bodyJntadr": bodyJntadr, "bodyDofnum": bodyDofnum, "bodyDofadr": bodyDofadr,
+        "bodyGeomnum": bodyGeomnum, "bodyGeomadr": bodyGeomadr, "bodySimple": bodySimple,
+        "bodySameframe": bodySameframe, "bodyPos": bodyPos, "bodyQuat": bodyQuat,
+        "bodyIpos": bodyIpos, "bodyIquat": bodyIquat, "bodyMass": bodyMass,
+        "bodySubtreemass": bodySubtreemass, "bodyInertia": bodyInertia,
+        "bodyInvweight0": bodyInvweight0, "bodyUser": bodyUser, "bodyPlugin": bodyPlugin,
+        "jntType": jntType, "jntQposadr": jntQposadr, "jntDofadr": jntDofadr,
+        "jntBodyid": jntBodyid, "jntGroup": jntGroup, "jntLimited": jntLimited,
+        "jntSolref": jntSolref, "jntSolimp": jntSolimp, "jntPos": jntPos, "jntAxis": jntAxis,
+        "jntStiffness": jntStiffness, "jntRange": jntRange, "jntMargin": jntMargin,
+        "jntUser": jntUser, "dofBodyid": dofBodyid, "dofJntid": dofJntid,
+        "dofParentid": dofParentid, "dofMadr": dofMadr, "dofSimplenum": dofSimplenum,
+        "dofSolref": dofSolref, "dofSolimp": dofSolimp, "dofFrictionloss": dofFrictionloss,
+        "dofArmature": dofArmature, "dofDamping": dofDamping, "dofInvweight0": dofInvweight0,
+        "dofM0": dofM0, "geomType": geomType, "geomContype": geomContype,
+        "geomConaffinity": geomConaffinity, "geomCondim": geomCondim, "geomBodyid": geomBodyid,
+        "geomDataid": geomDataid, "geomMatid": geomMatid, "geomGroup": geomGroup,
+        "geomPriority": geomPriority, "geomSameframe": geomSameframe, "geomSolmix": geomSolmix,
+        "geomSolref": geomSolref, "geomSolimp": geomSolimp, "geomSize": geomSize,
+        "geomRbound": geomRbound, "geomPos": geomPos, "geomQuat": geomQuat,
         "geomFriction": geomFriction, "geomMargin": geomMargin, "geomGap": geomGap,
         "geomFluid": geomFluid, "geomUser": geomUser, "geomRgba": geomRgba, "siteType": siteType,
         "siteBodyid": siteBodyid, "siteMatid": siteMatid, "siteGroup": siteGroup,
@@ -3410,24 +3527,26 @@ extension MjModel: CustomReflectable {
         "actuatorGear": actuatorGear, "actuatorCranklength": actuatorCranklength,
         "actuatorAcc0": actuatorAcc0, "actuatorLength0": actuatorLength0,
         "actuatorLengthrange": actuatorLengthrange, "actuatorUser": actuatorUser,
-        "sensorType": sensorType, "sensorDatatype": sensorDatatype,
-        "sensorNeedstage": sensorNeedstage, "sensorObjtype": sensorObjtype,
-        "sensorObjid": sensorObjid, "sensorReftype": sensorReftype, "sensorRefid": sensorRefid,
-        "sensorDim": sensorDim, "sensorAdr": sensorAdr, "sensorCutoff": sensorCutoff,
-        "sensorNoise": sensorNoise, "sensorUser": sensorUser, "numericAdr": numericAdr,
-        "numericSize": numericSize, "numericData": numericData, "textAdr": textAdr,
-        "textSize": textSize, "textData": textData, "tupleAdr": tupleAdr, "tupleSize": tupleSize,
-        "tupleObjtype": tupleObjtype, "tupleObjid": tupleObjid, "tupleObjprm": tupleObjprm,
-        "keyTime": keyTime, "keyQpos": keyQpos, "keyQvel": keyQvel, "keyAct": keyAct,
-        "keyMpos": keyMpos, "keyMquat": keyMquat, "keyCtrl": keyCtrl, "nameBodyadr": nameBodyadr,
-        "nameJntadr": nameJntadr, "nameGeomadr": nameGeomadr, "nameSiteadr": nameSiteadr,
-        "nameCamadr": nameCamadr, "nameLightadr": nameLightadr, "nameMeshadr": nameMeshadr,
-        "nameSkinadr": nameSkinadr, "nameHfieldadr": nameHfieldadr, "nameTexadr": nameTexadr,
-        "nameMatadr": nameMatadr, "namePairadr": namePairadr, "nameExcludeadr": nameExcludeadr,
-        "nameEqadr": nameEqadr, "nameTendonadr": nameTendonadr, "nameActuatoradr": nameActuatoradr,
-        "nameSensoradr": nameSensoradr, "nameNumericadr": nameNumericadr,
-        "nameTextadr": nameTextadr, "nameTupleadr": nameTupleadr, "nameKeyadr": nameKeyadr,
-        "names": names,
+        "actuatorPlugin": actuatorPlugin, "sensorType": sensorType,
+        "sensorDatatype": sensorDatatype, "sensorNeedstage": sensorNeedstage,
+        "sensorObjtype": sensorObjtype, "sensorObjid": sensorObjid, "sensorReftype": sensorReftype,
+        "sensorRefid": sensorRefid, "sensorDim": sensorDim, "sensorAdr": sensorAdr,
+        "sensorCutoff": sensorCutoff, "sensorNoise": sensorNoise, "sensorUser": sensorUser,
+        "sensorPlugin": sensorPlugin, "plugin": plugin, "pluginStateadr": pluginStateadr,
+        "pluginStatenum": pluginStatenum, "pluginAttr": pluginAttr, "pluginAttradr": pluginAttradr,
+        "numericAdr": numericAdr, "numericSize": numericSize, "numericData": numericData,
+        "textAdr": textAdr, "textSize": textSize, "textData": textData, "tupleAdr": tupleAdr,
+        "tupleSize": tupleSize, "tupleObjtype": tupleObjtype, "tupleObjid": tupleObjid,
+        "tupleObjprm": tupleObjprm, "keyTime": keyTime, "keyQpos": keyQpos, "keyQvel": keyQvel,
+        "keyAct": keyAct, "keyMpos": keyMpos, "keyMquat": keyMquat, "keyCtrl": keyCtrl,
+        "nameBodyadr": nameBodyadr, "nameJntadr": nameJntadr, "nameGeomadr": nameGeomadr,
+        "nameSiteadr": nameSiteadr, "nameCamadr": nameCamadr, "nameLightadr": nameLightadr,
+        "nameMeshadr": nameMeshadr, "nameSkinadr": nameSkinadr, "nameHfieldadr": nameHfieldadr,
+        "nameTexadr": nameTexadr, "nameMatadr": nameMatadr, "namePairadr": namePairadr,
+        "nameExcludeadr": nameExcludeadr, "nameEqadr": nameEqadr, "nameTendonadr": nameTendonadr,
+        "nameActuatoradr": nameActuatoradr, "nameSensoradr": nameSensoradr,
+        "nameNumericadr": nameNumericadr, "nameTextadr": nameTextadr, "nameTupleadr": nameTupleadr,
+        "nameKeyadr": nameKeyadr, "namePluginadr": namePluginadr, "names": names,
       ])
   }
 }

@@ -574,6 +574,11 @@ extension MjModel {
   public mutating func setTotalmass(newmass: Double) {
     mj_setTotalmass(self._model, newmass)
   }
+  /// Return a config attribute value of a plugin instance; NULL: invalid plugin instance ID or attribute name
+  @inlinable
+  public func getPluginConfig(pluginId: Int32, attrib: String) -> String? {
+    return String(cString: mj_getPluginConfig(self._model, pluginId, attrib), encoding: .utf8)
+  }
   /// Intersect ray (pnt+x*vec, x>=0) with visible geoms, except geoms in bodyexclude. Return distance (x) to nearest surface, or -1 if no intersection and output geomid. geomgroup, flg_static are as in mjvOption; geomgroup==NULL skips group exclusion.
   @inlinable
   public func ray<T0: MjInt32MutableBufferPointer>(

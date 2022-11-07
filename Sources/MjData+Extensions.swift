@@ -1,5 +1,5 @@
 extension MjData {
-  /// number of mjtNums that can fit in stack
+  /// number of mjtNums that can fit in the arena+stack space
   @inlinable
   public var nstack: Int32 {
     get { _data.pointee.nstack }
@@ -11,17 +11,35 @@ extension MjData {
     get { _data.pointee.nbuffer }
     set { _data.pointee.nbuffer = newValue }
   }
+  /// number of plugin instances
+  @inlinable
+  public var nplugin: Int32 {
+    get { _data.pointee.nplugin }
+    set { _data.pointee.nplugin = newValue }
+  }
   /// first available mjtNum address in stack
   @inlinable
-  public var pstack: Int32 {
+  public var pstack: Int {
     get { _data.pointee.pstack }
     set { _data.pointee.pstack = newValue }
+  }
+  /// first available byte in arena
+  @inlinable
+  public var parena: Int {
+    get { _data.pointee.parena }
+    set { _data.pointee.parena = newValue }
   }
   /// maximum stack allocation
   @inlinable
   public var maxuseStack: Int32 {
     get { _data.pointee.maxuse_stack }
     set { _data.pointee.maxuse_stack = newValue }
+  }
+  /// maximum arena allocation
+  @inlinable
+  public var maxuseArena: Int {
+    get { _data.pointee.maxuse_arena }
+    set { _data.pointee.maxuse_arena = newValue }
   }
   /// maximum number of contacts
   @inlinable
@@ -183,6 +201,18 @@ extension MjData {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
     }
   }
+  /// plugin state                             (npluginstate x 1)
+  @inlinable
+  public var pluginState: MjArray<Double> {
+    get {
+      MjArray<Double>(array: _data.pointee.plugin_state, object: _storage, len: npluginstate * 1)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.plugin_state
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(npluginstate * 1))
+    }
+  }
   /// control                                  (nu x 1)
   @inlinable
   public var ctrl: MjArray<Double> {
@@ -271,6 +301,26 @@ extension MjData {
       let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.sensordata
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nsensordata * 1))
+    }
+  }
+  /// copy of m->plugin, required for deletion (nplugin x 1)
+  @inlinable
+  public var plugin: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.plugin, object: _storage, len: nplugin * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.plugin
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nplugin * 1))
+    }
+  }
+  /// pointer to plugin-managed data structure (nplugin x 1)
+  @inlinable
+  public var pluginData: MjArray<UInt> {
+    get { MjArray<UInt>(array: _data.pointee.plugin_data, object: _storage, len: nplugin * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<UInt> = _data.pointee.plugin_data
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nplugin * 1))
     }
   }
   /// Cartesian position of body frame         (nbody x 3)
@@ -613,258 +663,6 @@ extension MjData {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
     }
   }
-  /// list of all detected contacts            (nconmax x 1)
-  @inlinable
-  public var contact: MjArray<MjContact> {
-    get {
-      MjArray<MjContact>(
-        array: UnsafeMutableRawPointer(_data.pointee.contact).assumingMemoryBound(
-          to: MjContact.self), object: _storage, len: nconmax * 1)
-    }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjContact> = UnsafeMutableRawPointer(
-        _data.pointee.contact
-      ).assumingMemoryBound(to: MjContact.self)
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(nconmax * 1))
-    }
-  }
-  /// constraint type (mjtConstraint)          (njmax x 1)
-  @inlinable
-  public var efcType: MjArray<MjtConstraint> {
-    get {
-      MjArray<MjtConstraint>(
-        array: UnsafeMutableRawPointer(_data.pointee.efc_type).assumingMemoryBound(
-          to: MjtConstraint.self), object: _storage, len: njmax * 1)
-    }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjtConstraint> = UnsafeMutableRawPointer(
-        _data.pointee.efc_type
-      ).assumingMemoryBound(to: MjtConstraint.self)
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// id of object of specified type           (njmax x 1)
-  @inlinable
-  public var efcId: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_id, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_id
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// number of non-zeros in Jacobian row      (njmax x 1)
-  @inlinable
-  public var efcJRownnz: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_J_rownnz, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_J_rownnz
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// row start address in colind array        (njmax x 1)
-  @inlinable
-  public var efcJRowadr: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_J_rowadr, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_J_rowadr
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// number of subsequent rows in supernode   (njmax x 1)
-  @inlinable
-  public var efcJRowsuper: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_J_rowsuper, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_J_rowsuper
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// column indices in Jacobian               (njmax x nv)
-  @inlinable
-  public var efcJColind: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_J_colind, object: _storage, len: njmax * nv) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_J_colind
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * nv))
-    }
-  }
-  /// number of non-zeros in Jacobian row    T (nv x 1)
-  @inlinable
-  public var efcJtRownnz: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_JT_rownnz, object: _storage, len: nv * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_JT_rownnz
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
-    }
-  }
-  /// row start address in colind array      T (nv x 1)
-  @inlinable
-  public var efcJtRowadr: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_JT_rowadr, object: _storage, len: nv * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_JT_rowadr
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
-    }
-  }
-  /// number of subsequent rows in supernode T (nv x 1)
-  @inlinable
-  public var efcJtRowsuper: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_JT_rowsuper, object: _storage, len: nv * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_JT_rowsuper
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
-    }
-  }
-  /// column indices in Jacobian             T (nv x njmax)
-  @inlinable
-  public var efcJtColind: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_JT_colind, object: _storage, len: nv * njmax) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_JT_colind
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * njmax))
-    }
-  }
-  /// constraint Jacobian                      (njmax x nv)
-  @inlinable
-  public var efcJ: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_J, object: _storage, len: njmax * nv) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_J
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * nv))
-    }
-  }
-  /// constraint Jacobian transposed           (nv x njmax)
-  @inlinable
-  public var efcJt: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_JT, object: _storage, len: nv * njmax) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_JT
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * njmax))
-    }
-  }
-  /// constraint position (equality, contact)  (njmax x 1)
-  @inlinable
-  public var efcPos: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_pos, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_pos
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// inclusion margin (contact)               (njmax x 1)
-  @inlinable
-  public var efcMargin: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_margin, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_margin
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// frictionloss (friction)                  (njmax x 1)
-  @inlinable
-  public var efcFrictionloss: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_frictionloss, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_frictionloss
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// approximation to diagonal of A           (njmax x 1)
-  @inlinable
-  public var efcDiagApprox: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_diagApprox, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_diagApprox
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// stiffness, damping, impedance, imp'      (njmax x 4)
-  @inlinable
-  public var efcKbip: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_KBIP, object: _storage, len: njmax * 4) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_KBIP
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 4))
-    }
-  }
-  /// constraint mass                          (njmax x 1)
-  @inlinable
-  public var efcD: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_D, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_D
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// inverse constraint mass                  (njmax x 1)
-  @inlinable
-  public var efcR: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_R, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_R
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// number of non-zeros in AR                (njmax x 1)
-  @inlinable
-  public var efcArRownnz: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_AR_rownnz, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_AR_rownnz
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// row start address in colind array        (njmax x 1)
-  @inlinable
-  public var efcArRowadr: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_AR_rowadr, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_AR_rowadr
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// column indices in sparse AR              (njmax x njmax)
-  @inlinable
-  public var efcArColind: MjArray<Int32> {
-    get { MjArray<Int32>(array: _data.pointee.efc_AR_colind, object: _storage, len: njmax * njmax) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_AR_colind
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * njmax))
-    }
-  }
-  /// J*inv(M)*J' + R                          (njmax x njmax)
-  @inlinable
-  public var efcAr: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_AR, object: _storage, len: njmax * njmax) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_AR
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * njmax))
-    }
-  }
   /// tendon velocities                        (ntendon x 1)
   @inlinable
   public var tenVelocity: MjArray<Double> {
@@ -925,24 +723,24 @@ extension MjData {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
     }
   }
-  /// velocity in constraint space: J*qvel     (njmax x 1)
+  /// velocity in constraint space: J*qvel     (nefc x 1)
   @inlinable
   public var efcVel: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_vel, object: _storage, len: njmax * 1) }
+    get { MjArray<Double>(array: _data.pointee.efc_vel, object: _storage, len: nefc * 1) }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_vel
       guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
     }
   }
-  /// reference pseudo-acceleration            (njmax x 1)
+  /// reference pseudo-acceleration            (nefc x 1)
   @inlinable
   public var efcAref: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_aref, object: _storage, len: njmax * 1) }
+    get { MjArray<Double>(array: _data.pointee.efc_aref, object: _storage, len: nefc * 1) }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_aref
       guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
     }
   }
   /// linear velocity of subtree com           (nbody x 3)
@@ -1075,42 +873,6 @@ extension MjData {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
     }
   }
-  /// linear cost term: J*qacc_smooth - aref   (njmax x 1)
-  @inlinable
-  public var efcB: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_b, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_b
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// constraint force in constraint space     (njmax x 1)
-  @inlinable
-  public var efcForce: MjArray<Double> {
-    get { MjArray<Double>(array: _data.pointee.efc_force, object: _storage, len: njmax * 1) }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_force
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
-  /// constraint state (mjtConstraintState)    (njmax x 1)
-  @inlinable
-  public var efcState: MjArray<MjtConstraintState> {
-    get {
-      MjArray<MjtConstraintState>(
-        array: UnsafeMutableRawPointer(_data.pointee.efc_state).assumingMemoryBound(
-          to: MjtConstraintState.self), object: _storage, len: njmax * 1)
-    }
-    set {
-      let unsafeMutablePointer: UnsafeMutablePointer<MjtConstraintState> = UnsafeMutableRawPointer(
-        _data.pointee.efc_state
-      ).assumingMemoryBound(to: MjtConstraintState.self)
-      guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(njmax * 1))
-    }
-  }
   /// constraint force                         (nv x 1)
   @inlinable
   public var qfrcConstraint: MjArray<Double> {
@@ -1161,20 +923,310 @@ extension MjData {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nbody * 6))
     }
   }
+  /// list of all detected contacts            (ncon x 1)
+  @inlinable
+  public var contact: MjArray<MjContact> {
+    get {
+      MjArray<MjContact>(
+        array: UnsafeMutableRawPointer(_data.pointee.contact).assumingMemoryBound(
+          to: MjContact.self), object: _storage, len: ncon * 1)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<MjContact> = UnsafeMutableRawPointer(
+        _data.pointee.contact
+      ).assumingMemoryBound(to: MjContact.self)
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(ncon * 1))
+    }
+  }
+  /// constraint type (mjtConstraint)          (nefc x 1)
+  @inlinable
+  public var efcType: MjArray<MjtConstraint> {
+    get {
+      MjArray<MjtConstraint>(
+        array: UnsafeMutableRawPointer(_data.pointee.efc_type).assumingMemoryBound(
+          to: MjtConstraint.self), object: _storage, len: nefc * 1)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtConstraint> = UnsafeMutableRawPointer(
+        _data.pointee.efc_type
+      ).assumingMemoryBound(to: MjtConstraint.self)
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// id of object of specified type           (nefc x 1)
+  @inlinable
+  public var efcId: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_id, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_id
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// number of non-zeros in Jacobian row      (nefc x 1)
+  @inlinable
+  public var efcJRownnz: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_J_rownnz, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_J_rownnz
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// row start address in colind array        (nefc x 1)
+  @inlinable
+  public var efcJRowadr: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_J_rowadr, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_J_rowadr
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// number of subsequent rows in supernode   (nefc x 1)
+  @inlinable
+  public var efcJRowsuper: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_J_rowsuper, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_J_rowsuper
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// column indices in Jacobian               (nefc x nv)
+  @inlinable
+  public var efcJColind: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_J_colind, object: _storage, len: nefc * nv) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_J_colind
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * nv))
+    }
+  }
+  /// number of non-zeros in Jacobian row    T (nv x 1)
+  @inlinable
+  public var efcJtRownnz: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_JT_rownnz, object: _storage, len: nv * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_JT_rownnz
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
+    }
+  }
+  /// row start address in colind array      T (nv x 1)
+  @inlinable
+  public var efcJtRowadr: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_JT_rowadr, object: _storage, len: nv * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_JT_rowadr
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
+    }
+  }
+  /// number of subsequent rows in supernode T (nv x 1)
+  @inlinable
+  public var efcJtRowsuper: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_JT_rowsuper, object: _storage, len: nv * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_JT_rowsuper
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * 1))
+    }
+  }
+  /// column indices in Jacobian             T (nv x nefc)
+  @inlinable
+  public var efcJtColind: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_JT_colind, object: _storage, len: nv * nefc) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_JT_colind
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * nefc))
+    }
+  }
+  /// constraint Jacobian                      (nefc x nv)
+  @inlinable
+  public var efcJ: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_J, object: _storage, len: nefc * nv) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_J
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * nv))
+    }
+  }
+  /// constraint Jacobian transposed           (nv x nefc)
+  @inlinable
+  public var efcJt: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_JT, object: _storage, len: nv * nefc) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_JT
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nv * nefc))
+    }
+  }
+  /// constraint position (equality, contact)  (nefc x 1)
+  @inlinable
+  public var efcPos: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_pos, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_pos
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// inclusion margin (contact)               (nefc x 1)
+  @inlinable
+  public var efcMargin: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_margin, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_margin
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// frictionloss (friction)                  (nefc x 1)
+  @inlinable
+  public var efcFrictionloss: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_frictionloss, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_frictionloss
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// approximation to diagonal of A           (nefc x 1)
+  @inlinable
+  public var efcDiagApprox: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_diagApprox, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_diagApprox
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// stiffness, damping, impedance, imp'      (nefc x 4)
+  @inlinable
+  public var efcKbip: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_KBIP, object: _storage, len: nefc * 4) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_KBIP
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 4))
+    }
+  }
+  /// constraint mass                          (nefc x 1)
+  @inlinable
+  public var efcD: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_D, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_D
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// inverse constraint mass                  (nefc x 1)
+  @inlinable
+  public var efcR: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_R, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_R
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// linear cost term: J*qacc_smooth - aref   (nefc x 1)
+  @inlinable
+  public var efcB: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_b, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_b
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// constraint force in constraint space     (nefc x 1)
+  @inlinable
+  public var efcForce: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_force, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_force
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// constraint state (mjtConstraintState)    (nefc x 1)
+  @inlinable
+  public var efcState: MjArray<MjtConstraintState> {
+    get {
+      MjArray<MjtConstraintState>(
+        array: UnsafeMutableRawPointer(_data.pointee.efc_state).assumingMemoryBound(
+          to: MjtConstraintState.self), object: _storage, len: nefc * 1)
+    }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<MjtConstraintState> = UnsafeMutableRawPointer(
+        _data.pointee.efc_state
+      ).assumingMemoryBound(to: MjtConstraintState.self)
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// number of non-zeros in AR                (nefc x 1)
+  @inlinable
+  public var efcArRownnz: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_AR_rownnz, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_AR_rownnz
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// row start address in colind array        (nefc x 1)
+  @inlinable
+  public var efcArRowadr: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_AR_rowadr, object: _storage, len: nefc * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_AR_rowadr
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * 1))
+    }
+  }
+  /// column indices in sparse AR              (nefc x nefc)
+  @inlinable
+  public var efcArColind: MjArray<Int32> {
+    get { MjArray<Int32>(array: _data.pointee.efc_AR_colind, object: _storage, len: nefc * nefc) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _data.pointee.efc_AR_colind
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * nefc))
+    }
+  }
+  /// J*inv(M)*J' + R                          (nefc x nefc)
+  @inlinable
+  public var efcAr: MjArray<Double> {
+    get { MjArray<Double>(array: _data.pointee.efc_AR, object: _storage, len: nefc * nefc) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _data.pointee.efc_AR
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nefc * nefc))
+    }
+  }
 }
 extension MjData: CustomReflectable {
   public var customMirror: Mirror {
     Mirror(
       self,
       children: [
-        "nstack": nstack, "nbuffer": nbuffer, "pstack": pstack, "maxuseStack": maxuseStack,
+        "nstack": nstack, "nbuffer": nbuffer, "nplugin": nplugin, "pstack": pstack,
+        "parena": parena, "maxuseStack": maxuseStack, "maxuseArena": maxuseArena,
         "maxuseCon": maxuseCon, "maxuseEfc": maxuseEfc, "warning": warning, "timer": timer,
         "solver": solver, "solverIter": solverIter, "solverNnz": solverNnz,
         "solverFwdinv": solverFwdinv, "ne": ne, "nf": nf, "nefc": nefc, "ncon": ncon, "time": time,
         "energy": energy, "qpos": qpos, "qvel": qvel, "act": act, "qaccWarmstart": qaccWarmstart,
-        "ctrl": ctrl, "qfrcApplied": qfrcApplied, "xfrcApplied": xfrcApplied, "mocapPos": mocapPos,
-        "mocapQuat": mocapQuat, "qacc": qacc, "actDot": actDot, "userdata": userdata,
-        "sensordata": sensordata, "xpos": xpos, "xquat": xquat, "xmat": xmat, "xipos": xipos,
+        "pluginState": pluginState, "ctrl": ctrl, "qfrcApplied": qfrcApplied,
+        "xfrcApplied": xfrcApplied, "mocapPos": mocapPos, "mocapQuat": mocapQuat, "qacc": qacc,
+        "actDot": actDot, "userdata": userdata, "sensordata": sensordata, "plugin": plugin,
+        "pluginData": pluginData, "xpos": xpos, "xquat": xquat, "xmat": xmat, "xipos": xipos,
         "ximat": ximat, "xanchor": xanchor, "xaxis": xaxis, "geomXpos": geomXpos,
         "geomXmat": geomXmat, "siteXpos": siteXpos, "siteXmat": siteXmat, "camXpos": camXpos,
         "camXmat": camXmat, "lightXpos": lightXpos, "lightXdir": lightXdir,
@@ -1183,21 +1235,22 @@ extension MjData: CustomReflectable {
         "tenJColind": tenJColind, "tenLength": tenLength, "tenJ": tenJ, "wrapObj": wrapObj,
         "wrapXpos": wrapXpos, "actuatorLength": actuatorLength, "actuatorMoment": actuatorMoment,
         "crb": crb, "qM": qM, "qLd": qLd, "qLDiagInv": qLDiagInv, "qLDiagSqrtInv": qLDiagSqrtInv,
-        "contact": contact, "efcType": efcType, "efcId": efcId, "efcJRownnz": efcJRownnz,
-        "efcJRowadr": efcJRowadr, "efcJRowsuper": efcJRowsuper, "efcJColind": efcJColind,
-        "efcJtRownnz": efcJtRownnz, "efcJtRowadr": efcJtRowadr, "efcJtRowsuper": efcJtRowsuper,
-        "efcJtColind": efcJtColind, "efcJ": efcJ, "efcJt": efcJt, "efcPos": efcPos,
-        "efcMargin": efcMargin, "efcFrictionloss": efcFrictionloss, "efcDiagApprox": efcDiagApprox,
-        "efcKbip": efcKbip, "efcD": efcD, "efcR": efcR, "efcArRownnz": efcArRownnz,
-        "efcArRowadr": efcArRowadr, "efcArColind": efcArColind, "efcAr": efcAr,
         "tenVelocity": tenVelocity, "actuatorVelocity": actuatorVelocity, "cvel": cvel,
         "cdofDot": cdofDot, "qfrcBias": qfrcBias, "qfrcPassive": qfrcPassive, "efcVel": efcVel,
         "efcAref": efcAref, "subtreeLinvel": subtreeLinvel, "subtreeAngmom": subtreeAngmom,
         "qH": qH, "qHDiagInv": qHDiagInv, "dRownnz": dRownnz, "dRowadr": dRowadr,
         "dColind": dColind, "qDeriv": qDeriv, "qLu": qLu, "actuatorForce": actuatorForce,
         "qfrcActuator": qfrcActuator, "qfrcSmooth": qfrcSmooth, "qaccSmooth": qaccSmooth,
-        "efcB": efcB, "efcForce": efcForce, "efcState": efcState, "qfrcConstraint": qfrcConstraint,
-        "qfrcInverse": qfrcInverse, "cacc": cacc, "cfrcInt": cfrcInt, "cfrcExt": cfrcExt,
+        "qfrcConstraint": qfrcConstraint, "qfrcInverse": qfrcInverse, "cacc": cacc,
+        "cfrcInt": cfrcInt, "cfrcExt": cfrcExt, "contact": contact, "efcType": efcType,
+        "efcId": efcId, "efcJRownnz": efcJRownnz, "efcJRowadr": efcJRowadr,
+        "efcJRowsuper": efcJRowsuper, "efcJColind": efcJColind, "efcJtRownnz": efcJtRownnz,
+        "efcJtRowadr": efcJtRowadr, "efcJtRowsuper": efcJtRowsuper, "efcJtColind": efcJtColind,
+        "efcJ": efcJ, "efcJt": efcJt, "efcPos": efcPos, "efcMargin": efcMargin,
+        "efcFrictionloss": efcFrictionloss, "efcDiagApprox": efcDiagApprox, "efcKbip": efcKbip,
+        "efcD": efcD, "efcR": efcR, "efcB": efcB, "efcForce": efcForce, "efcState": efcState,
+        "efcArRownnz": efcArRownnz, "efcArRowadr": efcArRowadr, "efcArColind": efcArColind,
+        "efcAr": efcAr,
       ])
   }
 }

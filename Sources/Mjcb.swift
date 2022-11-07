@@ -19,7 +19,8 @@ public struct Mjcb {
           njnt: _model.pointee.njnt, ngeom: _model.pointee.ngeom, nsite: _model.pointee.nsite,
           ncam: _model.pointee.ncam, nlight: _model.pointee.nlight, ntendon: _model.pointee.ntendon,
           nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
-          njmax: _model.pointee.njmax, nD: _model.pointee.nD)
+          njmax: _model.pointee.njmax, nD: _model.pointee.nD,
+          npluginstate: _model.pointee.npluginstate)
         Mjcb.passive?(model, data)
       }
     }
@@ -41,7 +42,8 @@ public struct Mjcb {
           njnt: _model.pointee.njnt, ngeom: _model.pointee.ngeom, nsite: _model.pointee.nsite,
           ncam: _model.pointee.ncam, nlight: _model.pointee.nlight, ntendon: _model.pointee.ntendon,
           nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
-          njmax: _model.pointee.njmax, nD: _model.pointee.nD)
+          njmax: _model.pointee.njmax, nD: _model.pointee.nD,
+          npluginstate: _model.pointee.npluginstate)
         Mjcb.control?(model, data)
       }
     }
@@ -65,7 +67,8 @@ public struct Mjcb {
           njnt: _model.pointee.njnt, ngeom: _model.pointee.ngeom, nsite: _model.pointee.nsite,
           ncam: _model.pointee.ncam, nlight: _model.pointee.nlight, ntendon: _model.pointee.ntendon,
           nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
-          njmax: _model.pointee.njmax, nD: _model.pointee.nD)
+          njmax: _model.pointee.njmax, nD: _model.pointee.nD,
+          npluginstate: _model.pointee.npluginstate)
         return Mjcb.contactfilter?(model, data, $2, $3) ?? 0
       }
     }
@@ -89,7 +92,8 @@ public struct Mjcb {
           njnt: _model.pointee.njnt, ngeom: _model.pointee.ngeom, nsite: _model.pointee.nsite,
           ncam: _model.pointee.ncam, nlight: _model.pointee.nlight, ntendon: _model.pointee.ntendon,
           nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
-          njmax: _model.pointee.njmax, nD: _model.pointee.nD)
+          njmax: _model.pointee.njmax, nD: _model.pointee.nD,
+          npluginstate: _model.pointee.npluginstate)
         Mjcb.sensor?(model, data, $2)
       }
     }
@@ -126,7 +130,8 @@ public struct Mjcb {
           njnt: _model.pointee.njnt, ngeom: _model.pointee.ngeom, nsite: _model.pointee.nsite,
           ncam: _model.pointee.ncam, nlight: _model.pointee.nlight, ntendon: _model.pointee.ntendon,
           nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
-          njmax: _model.pointee.njmax, nD: _model.pointee.nD)
+          njmax: _model.pointee.njmax, nD: _model.pointee.nD,
+          npluginstate: _model.pointee.npluginstate)
         return Mjcb.actDyn?(model, data, $2) ?? 0
       }
     }
@@ -151,7 +156,8 @@ public struct Mjcb {
           njnt: _model.pointee.njnt, ngeom: _model.pointee.ngeom, nsite: _model.pointee.nsite,
           ncam: _model.pointee.ncam, nlight: _model.pointee.nlight, ntendon: _model.pointee.ntendon,
           nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
-          njmax: _model.pointee.njmax, nD: _model.pointee.nD)
+          njmax: _model.pointee.njmax, nD: _model.pointee.nD,
+          npluginstate: _model.pointee.npluginstate)
         return Mjcb.actGain?(model, data, $2) ?? 1  // src/engine/engine_forward.c for why default to 1
       }
     }
@@ -176,7 +182,8 @@ public struct Mjcb {
           njnt: _model.pointee.njnt, ngeom: _model.pointee.ngeom, nsite: _model.pointee.nsite,
           ncam: _model.pointee.ncam, nlight: _model.pointee.nlight, ntendon: _model.pointee.ntendon,
           nwrap: _model.pointee.nwrap, nM: _model.pointee.nM, nconmax: _model.pointee.nconmax,
-          njmax: _model.pointee.njmax, nD: _model.pointee.nD)
+          njmax: _model.pointee.njmax, nD: _model.pointee.nD,
+          npluginstate: _model.pointee.npluginstate)
         return Mjcb.actBias?(model, data, $2) ?? 0
       }
     }

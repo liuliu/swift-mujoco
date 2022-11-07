@@ -22,6 +22,7 @@ public protocol MjDataStorage: AnyObject {
   var nconmax: Int32 { get }
   var njmax: Int32 { get }
   var nD: Int32 { get }
+  var npluginstate: Int32 { get }
 }
 
 /// This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.
@@ -70,19 +71,21 @@ public struct MjData {
   var njmax: Int32 { _storage.njmax }
   @inlinable
   var nD: Int32 { _storage.nD }
+  @inlinable
+  var npluginstate: Int32 { _storage.npluginstate }
 
   @usableFromInline
   init(
     data: UnsafeMutablePointer<mjData>, nq: Int32, nv: Int32, na: Int32, nu: Int32, nbody: Int32,
     nmocap: Int32, nuserdata: Int32, nsensordata: Int32, njnt: Int32, ngeom: Int32, nsite: Int32,
     ncam: Int32, nlight: Int32, ntendon: Int32, nwrap: Int32, nM: Int32, nconmax: Int32,
-    njmax: Int32, nD: Int32
+    njmax: Int32, nD: Int32, npluginstate: Int32
   ) {
     _storage = Storage(
       data: data, nq: nq, nv: nv, na: na, nu: nu, nbody: nbody, nmocap: nmocap,
       nuserdata: nuserdata, nsensordata: nsensordata, njnt: njnt, ngeom: ngeom, nsite: nsite,
       ncam: ncam, nlight: nlight, ntendon: ntendon, nwrap: nwrap, nM: nM, nconmax: nconmax,
-      njmax: njmax, nD: nD)
+      njmax: njmax, nD: nD, npluginstate: npluginstate)
   }
 
   @usableFromInline
@@ -91,13 +94,13 @@ public struct MjData {
     nbody: Int32,
     nmocap: Int32, nuserdata: Int32, nsensordata: Int32, njnt: Int32, ngeom: Int32, nsite: Int32,
     ncam: Int32, nlight: Int32, ntendon: Int32, nwrap: Int32, nM: Int32, nconmax: Int32,
-    njmax: Int32, nD: Int32
+    njmax: Int32, nD: Int32, npluginstate: Int32
   ) {
     _storage = StaticStorage(
       data: staticData, nq: nq, nv: nv, na: na, nu: nu, nbody: nbody, nmocap: nmocap,
       nuserdata: nuserdata, nsensordata: nsensordata, njnt: njnt, ngeom: ngeom, nsite: nsite,
       ncam: ncam, nlight: nlight, ntendon: ntendon, nwrap: nwrap, nM: nM, nconmax: nconmax,
-      njmax: njmax, nD: nD)
+      njmax: njmax, nD: nD, npluginstate: npluginstate)
   }
 
   @usableFromInline
@@ -142,12 +145,14 @@ public struct MjData {
     let njmax: Int32
     @usableFromInline
     let nD: Int32
+    @usableFromInline
+    let npluginstate: Int32
 
     init(
       data: UnsafeMutablePointer<mjData>, nq: Int32, nv: Int32, na: Int32, nu: Int32, nbody: Int32,
       nmocap: Int32, nuserdata: Int32, nsensordata: Int32, njnt: Int32, ngeom: Int32, nsite: Int32,
       ncam: Int32, nlight: Int32, ntendon: Int32, nwrap: Int32, nM: Int32, nconmax: Int32,
-      njmax: Int32, nD: Int32
+      njmax: Int32, nD: Int32, npluginstate: Int32
     ) {
       _data = data
       self.nq = nq
@@ -169,6 +174,7 @@ public struct MjData {
       self.nconmax = nconmax
       self.njmax = njmax
       self.nD = nD
+      self.npluginstate = npluginstate
     }
   }
 
@@ -214,12 +220,14 @@ public struct MjData {
     let njmax: Int32
     @usableFromInline
     let nD: Int32
+    @usableFromInline
+    let npluginstate: Int32
 
     init(
       data: UnsafeMutablePointer<mjData>, nq: Int32, nv: Int32, na: Int32, nu: Int32, nbody: Int32,
       nmocap: Int32, nuserdata: Int32, nsensordata: Int32, njnt: Int32, ngeom: Int32, nsite: Int32,
       ncam: Int32, nlight: Int32, ntendon: Int32, nwrap: Int32, nM: Int32, nconmax: Int32,
-      njmax: Int32, nD: Int32
+      njmax: Int32, nD: Int32, npluginstate: Int32
     ) {
       _data = data
       self.nq = nq
@@ -241,6 +249,7 @@ public struct MjData {
       self.nconmax = nconmax
       self.njmax = njmax
       self.nD = nD
+      self.npluginstate = npluginstate
     }
 
     deinit {
@@ -267,7 +276,7 @@ extension MjData {
       data: mj_copyData(nil, model._model, _data), nq: nq, nv: nv, na: na, nu: nu, nbody: nbody,
       nmocap: nmocap, nuserdata: nuserdata, nsensordata: nsensordata, njnt: njnt, ngeom: ngeom,
       nsite: nsite, ncam: ncam, nlight: nlight, ntendon: ntendon, nwrap: nwrap, nM: nM,
-      nconmax: nconmax, njmax: njmax, nD: nD)
+      nconmax: nconmax, njmax: njmax, nD: nD, npluginstate: npluginstate)
   }
   /// Copy mjData. m is only required to contain the size fields from MJMODEL_INTS.
   @inlinable
