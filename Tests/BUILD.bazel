@@ -22,7 +22,7 @@ swift_test(
 
 ios_unit_test(
     name = "iostests",
-    minimum_os_version = "10.0",
+    minimum_os_version = "13.0",
     deps = [
         ":tests_lib",
     ],
