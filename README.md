@@ -25,7 +25,7 @@ MuJoCo for Swift can be installed through either [Swift Package Manager](https:/
 You can add MuJoCo for Swift in your project from here:
 
 ```swift
-.package(name: "MuJoCo", url: "https://github.com/liuliu/swift-mujoco.git", from: "0.1.0")
+.package(name: "MuJoCo", url: "https://github.com/liuliu/swift-mujoco.git", from: "2.3.0")
 ```
 
 ### Install with Bazel
@@ -35,9 +35,9 @@ You can simply add MuJoCo for Swift as a dependency in `WORKSPACE`:
 ```python
 git_repository(
     name = "swift-mujoco",
-    commit = "a40cf47e238959b1a12d9ec6cf1e1e7f2ab9674a",
+    commit = "8ce263172c186d451a30ef6e27c2b38b19165fe9",
     remote = "https://github.com/liuliu/swift-mujoco.git",
-    shallow_since = "1654817288 -0400"
+    shallow_since = "1667837533 -0500"
 )
 
 load("@swift-mujoco//:deps.bzl", "swift_mujoco_deps")
