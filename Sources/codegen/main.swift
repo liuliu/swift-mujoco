@@ -261,6 +261,9 @@
   // ----- Generate code for functions -----
 
   let FunctionDeny: Set<String> = Set([
+    // TODO: To be implemented once plugin is more documented.
+    "mj_loadPluginLibrary",
+    "mj_loadAllPluginLibraries",
     // Implemented manually.
     "mj_defaultVFS",
     "mj_addFileVFS",
