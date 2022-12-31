@@ -607,6 +607,16 @@ extension MjModel {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nbody * 2))
     }
   }
+  /// antigravity force, units of body weight  (nbody x 1)
+  @inlinable
+  public var bodyGravcomp: MjArray<Double> {
+    get { MjArray<Double>(array: _model.pointee.body_gravcomp, object: _storage, len: nbody * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Double> = _model.pointee.body_gravcomp
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nbody * 1))
+    }
+  }
   /// user data                                (nbody x nuser_body)
   @inlinable
   public var bodyUser: MjArray<Double> {
@@ -2425,16 +2435,16 @@ extension MjModel {
       unsafeMutablePointer.assign(from: newValue._array, count: Int(ntendon * 1))
     }
   }
-  /// tendon length in qpos_spring             (ntendon x 1)
+  /// spring resting length range              (ntendon x 2)
   @inlinable
   public var tendonLengthspring: MjArray<Double> {
     get {
-      MjArray<Double>(array: _model.pointee.tendon_lengthspring, object: _storage, len: ntendon * 1)
+      MjArray<Double>(array: _model.pointee.tendon_lengthspring, object: _storage, len: ntendon * 2)
     }
     set {
       let unsafeMutablePointer: UnsafeMutablePointer<Double> = _model.pointee.tendon_lengthspring
       guard unsafeMutablePointer != newValue._array else { return }
-      unsafeMutablePointer.assign(from: newValue._array, count: Int(ntendon * 1))
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(ntendon * 2))
     }
   }
   /// tendon length in qpos0                   (ntendon x 1)
@@ -2592,6 +2602,26 @@ extension MjModel {
       let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.actuator_trnid
       guard unsafeMutablePointer != newValue._array else { return }
       unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * 2))
+    }
+  }
+  /// first activation address; -1: stateless  (nu x 1)
+  @inlinable
+  public var actuatorActadr: MjArray<Int32> {
+    get { MjArray<Int32>(array: _model.pointee.actuator_actadr, object: _storage, len: nu * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.actuator_actadr
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * 1))
+    }
+  }
+  /// number of activation variables           (nu x 1)
+  @inlinable
+  public var actuatorActnum: MjArray<Int32> {
+    get { MjArray<Int32>(array: _model.pointee.actuator_actnum, object: _storage, len: nu * 1) }
+    set {
+      let unsafeMutablePointer: UnsafeMutablePointer<Int32> = _model.pointee.actuator_actnum
+      guard unsafeMutablePointer != newValue._array else { return }
+      unsafeMutablePointer.assign(from: newValue._array, count: Int(nu * 1))
     }
   }
   /// group for visibility                     (nu x 1)
@@ -3455,12 +3485,12 @@ extension MjModel: CustomReflectable {
         "bodySameframe": bodySameframe, "bodyPos": bodyPos, "bodyQuat": bodyQuat,
         "bodyIpos": bodyIpos, "bodyIquat": bodyIquat, "bodyMass": bodyMass,
         "bodySubtreemass": bodySubtreemass, "bodyInertia": bodyInertia,
-        "bodyInvweight0": bodyInvweight0, "bodyUser": bodyUser, "bodyPlugin": bodyPlugin,
-        "jntType": jntType, "jntQposadr": jntQposadr, "jntDofadr": jntDofadr,
-        "jntBodyid": jntBodyid, "jntGroup": jntGroup, "jntLimited": jntLimited,
-        "jntSolref": jntSolref, "jntSolimp": jntSolimp, "jntPos": jntPos, "jntAxis": jntAxis,
-        "jntStiffness": jntStiffness, "jntRange": jntRange, "jntMargin": jntMargin,
-        "jntUser": jntUser, "dofBodyid": dofBodyid, "dofJntid": dofJntid,
+        "bodyInvweight0": bodyInvweight0, "bodyGravcomp": bodyGravcomp, "bodyUser": bodyUser,
+        "bodyPlugin": bodyPlugin, "jntType": jntType, "jntQposadr": jntQposadr,
+        "jntDofadr": jntDofadr, "jntBodyid": jntBodyid, "jntGroup": jntGroup,
+        "jntLimited": jntLimited, "jntSolref": jntSolref, "jntSolimp": jntSolimp, "jntPos": jntPos,
+        "jntAxis": jntAxis, "jntStiffness": jntStiffness, "jntRange": jntRange,
+        "jntMargin": jntMargin, "jntUser": jntUser, "dofBodyid": dofBodyid, "dofJntid": dofJntid,
         "dofParentid": dofParentid, "dofMadr": dofMadr, "dofSimplenum": dofSimplenum,
         "dofSolref": dofSolref, "dofSolimp": dofSolimp, "dofFrictionloss": dofFrictionloss,
         "dofArmature": dofArmature, "dofDamping": dofDamping, "dofInvweight0": dofInvweight0,
@@ -3519,6 +3549,7 @@ extension MjModel: CustomReflectable {
         "wrapObjid": wrapObjid, "wrapPrm": wrapPrm, "actuatorTrntype": actuatorTrntype,
         "actuatorDyntype": actuatorDyntype, "actuatorGaintype": actuatorGaintype,
         "actuatorBiastype": actuatorBiastype, "actuatorTrnid": actuatorTrnid,
+        "actuatorActadr": actuatorActadr, "actuatorActnum": actuatorActnum,
         "actuatorGroup": actuatorGroup, "actuatorCtrllimited": actuatorCtrllimited,
         "actuatorForcelimited": actuatorForcelimited, "actuatorActlimited": actuatorActlimited,
         "actuatorDynprm": actuatorDynprm, "actuatorGainprm": actuatorGainprm,

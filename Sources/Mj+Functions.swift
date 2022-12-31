@@ -144,7 +144,14 @@ public func clearHandlers() {
 public func writeLog(type: String, msg: String) {
   mju_writeLog(type, msg)
 }
-///  Multiply square matrix with vectors on both sides: returns vec1'*mat*vec2.
+///  Set res = val.
+@inlinable
+public func fill<T0: MjDoubleMutableBufferPointer>(res: inout T0, val: Double, n: Int32) {
+  res.withUnsafeMutableBufferPointer { res__p in
+    mju_fill(res__p.baseAddress, val, n)
+  }
+}
+///  Multiply square matrix with vectors on both sides: returns vec1' * mat * vec2.
 @inlinable
 public func mulVecMatVec(
   vec1: MjDoubleBufferPointer, mat: MjDoubleBufferPointer, vec2: MjDoubleBufferPointer, n: Int32
@@ -157,10 +164,33 @@ public func mulVecMatVec(
     }
   }
 }
+///  Symmetrize square matrix res = (mat + mat')/2.
+@inlinable
+public func symmetrize<T0: MjDoubleMutableBufferPointer>(
+  res: inout T0, mat: MjDoubleBufferPointer, n: Int32
+) {
+  res.withUnsafeMutableBufferPointer { res__p in
+    mat.withUnsafeBufferPointer { mat__p in
+      mju_symmetrize(res__p.baseAddress, mat__p.baseAddress, n)
+    }
+  }
+}
+///  Set mat to the identity matrix.
+@inlinable
+public func eye<T0: MjDoubleMutableBufferPointer>(mat: inout T0, n: Int32) {
+  mat.withUnsafeMutableBufferPointer { mat__p in
+    mju_eye(mat__p.baseAddress, n)
+  }
+}
 ///  Convert type id (mjtObj) to type name.
 @inlinable
 public func type2Str(type: Int32) -> String? {
   return String(cString: mju_type2Str(type), encoding: .utf8)
+}
+///  Return human readable number of bytes using standard letter suffix.
+@inlinable
+public func writeNumBytes(nbytes: Int) -> String? {
+  return String(cString: mju_writeNumBytes(nbytes), encoding: .utf8)
 }
 ///  Construct a warning message given the warning type and info.
 @inlinable

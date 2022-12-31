@@ -6,7 +6,7 @@ import PackageDescription
 var dependencies: [Package.Dependency] = [
   .package(
     name: "C_mujoco", url: "https://github.com/liuliu/mujoco.git",
-    .revision("7723882b073b2fa009a20a899883d785318d465e")),
+    .revision("efd310e00b1766b45e234952b60f6a2291cc90b0")),
   .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
 ]
 
