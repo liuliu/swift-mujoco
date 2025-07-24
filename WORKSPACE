@@ -5,16 +5,16 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 git_repository(
     name = "build_bazel_rules_swift",
-    commit = "3bc7bc164020a842ae08e0cf071ed35f0939dd39",
+    commit = "bffd22a56b8949616dfbd710cdca385cb2800274",
     remote = "https://github.com/bazelbuild/rules_swift.git",
-    shallow_since = "1654173801 -0500",
+    shallow_since = "1752542865 -0400",
 )
 
 git_repository(
     name = "build_bazel_rules_apple",
-    commit = "39bf97fb9b2db76bca8fe015b8c72fc92d5c6b81",
+    commit = "724e402ee9f270b6704737251d785ad405661ab0",
     remote = "https://github.com/bazelbuild/rules_apple.git",
-    shallow_since = "1653707025 -0700",
+    shallow_since = "1753131380 +0000",
 )
 
 load("@build_bazel_rules_apple//apple:repositories.bzl", "apple_rules_dependencies")

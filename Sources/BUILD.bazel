@@ -1,4 +1,4 @@
-load("@build_bazel_rules_swift//swift:swift.bzl", "swift_binary", "swift_library")
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_binary", "swift_library", "swift_interop_hint")
 
 swift_library(
     name = "ChangeCases",
@@ -35,6 +35,12 @@ cc_library(
     tags = ["swift_module=C_glfw"],
     visibility = ["//:__pkg__"],
     deps = [],
+    aspect_hints = [":C_glfw_swift_interop"],
+)
+
+swift_interop_hint(
+    name = "C_glfw_swift_interop",
+    module_name = "C_glfw",
 )
 
 cc_library(
@@ -46,6 +52,12 @@ cc_library(
     deps = [
         "@mujoco//:C_mujoco",
     ],
+    aspect_hints = [":CShim_mujoco_swift_interop"],
+)
+
+swift_interop_hint(
+    name = "CShim_mujoco_swift_interop",
+    module_name = "CShim_mujoco",
 )
 
 filegroup(
